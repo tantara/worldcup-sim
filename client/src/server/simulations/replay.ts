@@ -18,7 +18,8 @@ const MAX_GAP_MS = 3000;
 // recorded gap is used whenever it is larger, which keeps live replays in sync
 // with their original timing.
 const FLOOR_MS: Record<string, number> = {
-  agent_delta: 8, // per-token typewriter
+  agent_delta: 8, // per-token typewriter (legacy stored sims)
+  agent_content: 140, // a full agent turn revealed at once
   minute: 200,
   referee: 200,
   result: 0,

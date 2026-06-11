@@ -51,8 +51,13 @@ export async function runSimulationToCompletion(
       gameSpeed: simulation.gameSpeed,
       matchId: simulation.id,
     })) {
-      await appendSimulationEvent(simulation.id, seq++, event);
+      // Forward everything to a live viewer (deltas drive the typewriter), but
+      // don't persist the per-token deltas — the consolidated `agent_content`
+      // frame for the turn is stored instead.
       onEvent?.(event);
+      if (event.type !== "agent_delta") {
+        await appendSimulationEvent(simulation.id, seq++, event);
+      }
       if (event.type === "result") {
         result = event.result;
       }

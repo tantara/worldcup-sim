@@ -1,5 +1,7 @@
 <div align="center">
 
+![WorldCup Simulator — AI-powered match simulation](docs/thumbnail.jpg)
+
 # WorldCupSim
 
 **Explore and simulate the 2026 FIFA World Cup.**
@@ -13,7 +15,7 @@ Browse every group, venue, fixture, squad, and bracket path, then run unofficial
 
 [Features](#features) | [Repository Layout](#repository-layout) | [Setup](#setup) | [Development](#local-development) | [Packages](#packages) | [Verification](#verification)
 
-![WorldCupSim preview placeholder](https://placehold.co/1200x675/0f172a/f8fafc?text=WorldCupSim+Preview)
+![WorldCupSim match command center](docs/screenshot_simulator.jpg)
 
 </div>
 
@@ -31,11 +33,11 @@ WorldCupSim is a pnpm workspace centered on a Next.js app for the 2026 FIFA Worl
 
 The main app opens on a fixture and tournament dashboard with links into match, team, and playground views.
 
-![Dashboard placeholder](https://placehold.co/1200x675/e2e8f0/0f172a?text=Dashboard+Screenshot+Placeholder)
+![Tournament dashboard and schedule](docs/screenshot_landing.jpg)
 
 Open a match to kick off a simulation and inspect the generated result stream.
 
-![Simulation placeholder](https://placehold.co/1200x675/dbeafe/172554?text=Simulation+Screenshot+Placeholder)
+![Live match simulation with full-time result](docs/screenshot_simulator.jpg)
 
 ## Repository Layout
 
