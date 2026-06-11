@@ -1,13 +1,17 @@
 import Image from "next/image";
 
+import { useI18n } from "~/components/i18n/locale-provider";
+
 // Slim, single-row footer for the full-height app views (simulator / match) so
 // the simulation columns can fill the viewport without the page scrolling.
 export function CompactFooter() {
+  const { t } = useI18n();
+
   return (
     <footer className="border-t bg-background/75 backdrop-blur">
       <div className="text-muted-foreground mx-auto flex h-10 max-w-7xl items-center justify-between gap-3 px-4 text-xs">
         <span className="truncate">
-          Matches are simulated for fun — no results are official.
+          {t("footer.disclaimer")}
         </span>
         <a
           href="http://github.com/tantara/worldcup-sim"
@@ -24,6 +28,8 @@ export function CompactFooter() {
 }
 
 export function Footer() {
+  const { t } = useI18n();
+
   return (
     <footer className="border-t bg-background/75 backdrop-blur">
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-6 text-sm text-muted-foreground sm:flex-row">
@@ -39,7 +45,7 @@ export function Footer() {
             />
             <span>WorldCup Simulator</span>
           </div>
-          <p>Matches are simulated for fun — no results are official.</p>
+          <p>{t("footer.disclaimer")}</p>
         </div>
         <a
           href="http://github.com/tantara/worldcup-sim"

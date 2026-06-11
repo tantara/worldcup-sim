@@ -26,6 +26,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import { useI18n } from "~/components/i18n/locale-provider";
 import { cn } from "~/lib/utils";
 
 interface AuthNavProps {
@@ -37,8 +38,10 @@ interface AuthNavProps {
 }
 
 export function AuthNav({ user }: AuthNavProps) {
+  const { t } = useI18n();
+
   if (user) {
-    const label = user.name ?? user.email ?? "Signed in";
+    const label = user.name ?? user.email ?? t("auth.signedIn");
 
     return (
       <DropdownMenu>
@@ -65,14 +68,14 @@ export function AuthNav({ user }: AuthNavProps) {
           <DropdownMenuSeparator />
           <DropdownMenuItem render={<Link href="/account" />}>
             <UserIcon />
-            Account
+            {t("auth.account")}
           </DropdownMenuItem>
           <DropdownMenuItem
             variant="destructive"
             onClick={() => void signOut({ callbackUrl: "/" })}
           >
             <LogOutIcon />
-            Sign out
+            {t("auth.signOut")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -81,7 +84,7 @@ export function AuthNav({ user }: AuthNavProps) {
 
   return (
     <LoginDialog>
-      <span className="hidden min-[420px]:inline">Login</span>
+      <span className="hidden min-[420px]:inline">{t("auth.login")}</span>
     </LoginDialog>
   );
 }
@@ -99,6 +102,8 @@ export function LoginDialog({
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }) {
+  const { t } = useI18n();
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       {children !== undefined && (
@@ -113,17 +118,17 @@ export function LoginDialog({
       )}
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Login</DialogTitle>
-          <DialogDescription>Choose an OAuth provider.</DialogDescription>
+          <DialogTitle>{t("auth.login")}</DialogTitle>
+          <DialogDescription>{t("auth.chooseProvider")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-2">
           <OAuthButton
-            label="Continue with Google"
+            label={t("auth.continueGoogle")}
             icon={<FcGoogle className="size-5" />}
             onClick={() => void signIn("google", { callbackUrl })}
           />
           <OAuthButton
-            label="Continue with Discord"
+            label={t("auth.continueDiscord")}
             icon={<FaDiscord className="size-5 text-[#5865F2]" />}
             onClick={() => void signIn("discord", { callbackUrl })}
           />
