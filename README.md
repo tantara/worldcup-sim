@@ -1,7 +1,5 @@
 <div align="center">
 
-![WorldCup Simulator — AI-powered match simulation](docs/thumbnail.jpg)
-
 # WorldCupSim
 
 **Explore and simulate the 2026 FIFA World Cup.**
@@ -14,6 +12,8 @@ Browse every group, venue, fixture, squad, and bracket path, then run unofficial
 ![pnpm](https://img.shields.io/badge/pnpm-11.2.2-F69220.svg?logo=pnpm&logoColor=white)
 
 [Features](#features) | [Examples](#examples) | [Repository Layout](#repository-layout) | [Setup](#setup) | [Development](#local-development) | [Packages](#packages) | [Verification](#verification) | [Disclaimer](#disclaimer)
+
+![WorldCup Simulator — AI-powered match simulation](docs/thumbnail.jpg)
 
 </div>
 
