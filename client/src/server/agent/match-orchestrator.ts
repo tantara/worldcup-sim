@@ -361,6 +361,9 @@ export async function* runMatch(
         yield { type: "error", message: ev.message };
       }
     }
+    // One consolidated content frame per turn — this is what is persisted
+    // (the deltas above are live-only).
+    yield { type: "agent_content", thread, content: text };
     return text;
   }
 
@@ -768,6 +771,7 @@ export async function* runLineup(
       yield { type: "error", message: ev.message };
     }
   }
+  yield { type: "agent_content", thread, content: text };
 
   const lineup = parseLineup(text, squad, rng);
   yield { type: "lineup", thread, teamName: team.name, lineup };

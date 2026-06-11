@@ -253,6 +253,21 @@ function reduce(state: MatchState, event: OrchestratorEvent): MatchState {
           ),
         },
       };
+    case "agent_content":
+      // Consolidated full-turn response — set it directly (replaces any deltas).
+      return {
+        ...state,
+        agentLogs: {
+          ...state.agentLogs,
+          [event.thread]: appendToLastTurn(
+            state.agentLogs[event.thread],
+            (turn) => ({
+              ...turn,
+              response: event.content,
+            }),
+          ),
+        },
+      };
     case "minute":
       return {
         ...state,
@@ -325,7 +340,7 @@ export function SimulatorExperience({
   isAuthenticated = false,
   title = (
     <>
-      Agent <span className="text-primary">Simulator</span>
+      WorldCup <span className="text-primary">Simulator</span>
     </>
   ),
   description = null,
@@ -367,6 +382,10 @@ export function SimulatorExperience({
   const [state, setState] = useState<MatchState>(initialState);
   const [standings, setStandings] = useState<StandingsResponse | null>(null);
   const [loginOpen, setLoginOpen] = useState(false);
+  // The full-time result pops up as a dialog the moment the match finishes; the
+  // "Result" button next to the title reopens it after it's dismissed.
+  const [resultOpen, setResultOpen] = useState(false);
+  const resultShownRef = useRef(false);
   const pathname = usePathname();
   const abortRef = useRef<AbortController | null>(null);
   // KVCache session key base, appended with the agent thread server-side. On a
@@ -383,6 +402,17 @@ export function SimulatorExperience({
   const scrollRef = useRef<HTMLDivElement>(null);
   // Columns are draggable on lg+; below that they stack and resizing is moot.
   const isDesktop = useMediaQuery("(min-width: 1024px)");
+
+  // Auto-open the result dialog once per run when full time lands; reset when a
+  // new run clears the result so the next match pops its own dialog.
+  useEffect(() => {
+    if (state.result && !resultShownRef.current) {
+      resultShownRef.current = true;
+      setResultOpen(true);
+    } else if (!state.result && resultShownRef.current) {
+      resultShownRef.current = false;
+    }
+  }, [state.result]);
 
   // The selected real fixture and its resolved teams.
   const fixtures = matchesByGroup(group);
@@ -738,6 +768,7 @@ export function SimulatorExperience({
           running={running}
           playbackStopped={playbackStopped}
           started={started}
+          isReplay={isReplay}
           canKick={isReplay ? true : playable}
           onKickoff={() => void (isReplay ? startReplay() : kickoff())}
           onTogglePlayback={() =>
@@ -815,6 +846,17 @@ export function SimulatorExperience({
                   </DialogContent>
                 </Dialog>
               )}
+              {state.result && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="ml-1 gap-1.5"
+                  onClick={() => setResultOpen(true)}
+                >
+                  <Goal className="size-4" />
+                  Result
+                </Button>
+              )}
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <UsageSummary stat={totalUsage} />
@@ -888,7 +930,23 @@ export function SimulatorExperience({
           </div>
         )}
 
-        {state.result && <ResultCard result={state.result} />}
+        {state.result && (
+          <Dialog open={resultOpen} onOpenChange={setResultOpen}>
+            <DialogContent className="max-w-lg">
+              <DialogHeader>
+                <DialogTitle className="flex items-center justify-between gap-2 pr-8">
+                  <span>
+                    Full time{state.result.abandoned ? " (abandoned)" : ""}
+                  </span>
+                  <Badge variant="outline" className="capitalize">
+                    {state.result.mode}
+                  </Badge>
+                </DialogTitle>
+              </DialogHeader>
+              <ResultDetails result={state.result} />
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
       </div>
     </SupertonicProvider>
@@ -1506,6 +1564,7 @@ function Commentary({
   running,
   playbackStopped,
   started,
+  isReplay,
   canKick,
   onKickoff,
   onTogglePlayback,
@@ -1520,6 +1579,7 @@ function Commentary({
   running: boolean;
   playbackStopped: boolean;
   started: boolean;
+  isReplay: boolean;
   canKick: boolean;
   onKickoff: () => void;
   onTogglePlayback: () => void;
@@ -1540,13 +1600,15 @@ function Commentary({
                 ? playbackStopped
                   ? "Match events are stopped until you resume."
                   : "Waiting for the first match event."
-                : "Pick a fixture and hit "}
+                : isReplay
+                  ? "Hit "
+                  : "Pick a fixture and hit "}
               {!running && (
                 <>
                   <span className="text-foreground font-semibold">
-                    Kick Off
+                    {isReplay ? "Replay" : "Kick Off"}
                   </span>{" "}
-                  to watch the agents play.
+                  to watch {isReplay ? "this simulation." : "the agents play."}
                 </>
               )}
             </p>
@@ -1571,7 +1633,7 @@ function Commentary({
                 ? "Resume"
                 : running
                   ? "Stop"
-                  : started
+                  : started || isReplay
                     ? "Replay"
                     : "Kick Off"}
             </Button>
@@ -2738,47 +2800,37 @@ function Stat({ label, value }: { label: string; value: number }) {
   );
 }
 
-function ResultCard({ result }: { result: MatchResult }) {
+function ResultDetails({ result }: { result: MatchResult }) {
   return (
-    <Card className="border-primary/30">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <span>Full time{result.abandoned ? " (abandoned)" : ""}</span>
-          <Badge variant="outline" className="capitalize">
-            {result.mode}
-          </Badge>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-3 text-sm">
-        <div className="text-center text-xl font-bold tabular-nums sm:text-2xl">
-          {result.homeName} {result.score.home} – {result.score.away}{" "}
-          {result.awayName}
+    <div className="flex flex-col gap-3 text-sm">
+      <div className="text-center text-xl font-bold tabular-nums sm:text-2xl">
+        {result.homeName} {result.score.home} – {result.score.away}{" "}
+        {result.awayName}
+      </div>
+      {result.scorers.length > 0 && (
+        <div>
+          <span className="font-medium">Scorers: </span>
+          {result.scorers.map((s) => `${s.player} ${s.minute}'`).join(", ")}
         </div>
-        {result.scorers.length > 0 && (
-          <div>
-            <span className="font-medium">Scorers: </span>
-            {result.scorers.map((s) => `${s.player} ${s.minute}'`).join(", ")}
-          </div>
-        )}
-        {result.cards.length > 0 && (
-          <div className="text-muted-foreground">
-            <span className="font-medium">Cards: </span>
-            {result.cards
-              .map(
-                (c) =>
-                  `${c.card === "red" ? "🟥" : "🟨"} ${c.player} ${c.minute}'`,
-              )
-              .join(", ")}
-          </div>
-        )}
-        <p className="text-muted-foreground text-xs">
-          Played {result.minutesPlayed}&apos; · stored for the standings below.
-        </p>
-        {result.assistants && result.assistants.length > 0 && (
-          <AssistantResultList assistants={result.assistants} />
-        )}
-      </CardContent>
-    </Card>
+      )}
+      {result.cards.length > 0 && (
+        <div className="text-muted-foreground">
+          <span className="font-medium">Cards: </span>
+          {result.cards
+            .map(
+              (c) =>
+                `${c.card === "red" ? "🟥" : "🟨"} ${c.player} ${c.minute}'`,
+            )
+            .join(", ")}
+        </div>
+      )}
+      <p className="text-muted-foreground text-xs">
+        Played {result.minutesPlayed}&apos; · stored for the standings below.
+      </p>
+      {result.assistants && result.assistants.length > 0 && (
+        <AssistantResultList assistants={result.assistants} />
+      )}
+    </div>
   );
 }
 

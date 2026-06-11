@@ -169,7 +169,13 @@ export type OrchestratorEvent =
     }
   | { type: "thread_start"; thread: Thread; label: string }
   | { type: "agent_prompt"; thread: Thread; prompt: string }
+  // Streaming token chunk — emitted live for the typewriter effect but no longer
+  // persisted. Deprecated in favor of a single `agent_content` per turn; still
+  // supported for live streaming and for replaying older stored simulations.
   | { type: "agent_delta"; thread: Thread; delta: string }
+  // The full agent response for one turn, emitted once when streaming completes.
+  // This is what gets persisted (one row per turn instead of one per token).
+  | { type: "agent_content"; thread: Thread; content: string }
   | { type: "lineup"; thread: Thread; teamName: string; lineup: Lineup }
   | {
       type: "minute";
