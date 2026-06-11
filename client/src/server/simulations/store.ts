@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, count, desc, eq } from "drizzle-orm";
 
 import type { MatchResult, Mode, OrchestratorEvent } from "~/lib/playground-types";
 import { db } from "~/server/db";
@@ -60,6 +60,26 @@ export async function listCompletedSimulationsForMatch(
     )
     .orderBy(desc(simulations.completedAt), desc(simulations.createdAt))
     .limit(limit);
+}
+
+/** Every simulation a user has kicked off, newest first — backs the account page. */
+export async function listSimulationsForUser(userId: string, limit = 100) {
+  return db
+    .select()
+    .from(simulations)
+    .where(eq(simulations.userId, userId))
+    .orderBy(desc(simulations.createdAt))
+    .limit(limit);
+}
+
+export async function countCompletedSimulationsForMatch(matchId: number) {
+  const [row] = await db
+    .select({ value: count() })
+    .from(simulations)
+    .where(
+      and(eq(simulations.matchId, matchId), eq(simulations.status, "completed")),
+    );
+  return row?.value ?? 0;
 }
 
 export async function getSimulationEvents(simulationId: string) {

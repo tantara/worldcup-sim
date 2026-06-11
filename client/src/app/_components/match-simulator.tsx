@@ -31,7 +31,7 @@ import {
   type MatchEventType,
   type Side,
 } from "~/lib/match-engine";
-import type { Player, Team } from "~/lib/teams";
+import { matchKits, type Kit, type Player, type Team } from "~/lib/teams";
 
 const SPEEDS = {
   slow: { label: "Slow", detail: "1 min, reasoning" },
@@ -107,9 +107,11 @@ export function MatchSimulator({ home, away }: { home: Team; away: Team }) {
     }
   };
 
+  const kits = matchKits(home, away);
+
   return (
     <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.7fr)_minmax(0,1fr)]">
-      <TeamPanel team={home} side="home" shown={shown} />
+      <TeamPanel team={home} side="home" kit={kits.home} shown={shown} />
 
       <Card className="order-first overflow-hidden pt-0 lg:order-none">
         <Scoreboard
@@ -177,7 +179,7 @@ export function MatchSimulator({ home, away }: { home: Team; away: Team }) {
         </CardContent>
       </Card>
 
-      <TeamPanel team={away} side="away" shown={shown} />
+      <TeamPanel team={away} side="away" kit={kits.away} shown={shown} />
     </div>
   );
 }
@@ -383,10 +385,12 @@ function CommentaryLine({ event }: { event: MatchEvent }) {
 function TeamPanel({
   team,
   side,
+  kit,
   shown,
 }: {
   team: Team;
   side: Side;
+  kit: Kit;
   shown: MatchEvent[];
 }) {
   const positions: Player["position"][] = ["GK", "DF", "MF", "FW"];
@@ -406,7 +410,7 @@ function TeamPanel({
     <Card className="overflow-hidden pt-0">
       <div
         className="h-1.5 w-full"
-        style={{ backgroundColor: team.colors.primary }}
+        style={{ backgroundColor: kit.primary }}
       />
       <CardHeader className="pt-5">
         <div className="flex items-center gap-3">

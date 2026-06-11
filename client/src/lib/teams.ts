@@ -17,6 +17,12 @@ export type Player = {
   number: number;
   name: string;
   position: "GK" | "DF" | "MF" | "FW";
+  /**
+   * Individual ability, ~58–95. Centered on the team rating and nudged by
+   * experience (caps) and depth-chart order so the simulation can ground
+   * scorer choice and shot quality in player quality. See {@link derivePlayerRating}.
+   */
+  rating: number;
 };
 
 /** A single kit's colors. */
@@ -38,7 +44,8 @@ export type Team = {
   /** Derived from the selected XI, e.g. "4-3-3". */
   formation: string;
   qualification: QualificationCampaign | null;
-  colors: { primary: string; secondary: string };
+  /** Home and away kits. Use `matchKits()` to pick clash-free kits for a fixture. */
+  colors: { home: Kit; away: Kit };
   squad: Player[];
 };
 
@@ -130,26 +137,85 @@ function ratingFor(team: WcTeam): number {
   return Math.round(clamp(base + signal, 70, 92));
 }
 
-// Real national-team theme colors from the dataset, with a deterministic
+/**
+ * Individual player ability, derived deterministically (no per-player data
+ * exists yet). Centered on the team rating, raised by international experience
+ * (caps) and lowered slightly by depth-chart order within a position so first
+ * choices outrate fringe squad members. Clamped to ~58–95.
+ *
+ * @param depthIndex 0-based rank within the player's position (0 = first choice).
+ */
+export function derivePlayerRating(
+  teamRating: number,
+  caps: number | null,
+  depthIndex: number,
+): number {
+  const experience = caps == null ? 0 : clamp((caps - 30) * 0.08, -3, 5);
+  const depth = -Math.min(depthIndex, 14) * 0.45;
+  return Math.round(clamp(teamRating + experience + depth, 58, 95));
+}
+
+// Real national-team home/away kits from the dataset, with a deterministic
 // hash-based fallback for any country missing curated colors.
-function colorsFor(country: string): { primary: string; secondary: string } {
+function colorsFor(country: string): { home: Kit; away: Kit } {
   const curated = getTeamColors(country);
   if (curated) {
-    return { primary: curated.primary, secondary: curated.secondary };
+    return { home: curated.home, away: curated.away };
   }
   let hash = 0;
   for (let i = 0; i < country.length; i++) {
     hash = (hash * 31 + country.charCodeAt(i)) % 360;
   }
   return {
-    primary: `hsl(${hash}, 65%, 48%)`,
-    secondary: `hsl(${(hash + 40) % 360}, 60%, 55%)`,
+    home: {
+      primary: `hsl(${hash}, 65%, 48%)`,
+      secondary: `hsl(${(hash + 40) % 360}, 60%, 55%)`,
+    },
+    // Fallback away kit: rotate the hue half the wheel so it can't clash.
+    away: {
+      primary: `hsl(${(hash + 180) % 360}, 60%, 45%)`,
+      secondary: `hsl(${(hash + 220) % 360}, 55%, 52%)`,
+    },
   };
+}
+
+// --- kit clash resolution for a fixture -------------------------------------
+
+function hexToRgb(hex: string): [number, number, number] | null {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m) return null;
+  const n = parseInt(m[1]!, 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+
+// Euclidean RGB distance; ~441 is the max (black↔white). Returns Infinity for
+// non-hex inputs (e.g. the hsl() fallback) so they're treated as non-clashing.
+function colorDistance(a: string, b: string): number {
+  const ra = hexToRgb(a);
+  const rb = hexToRgb(b);
+  if (!ra || !rb) return Infinity;
+  return Math.hypot(ra[0] - rb[0], ra[1] - rb[1], ra[2] - rb[2]);
+}
+
+// Below this distance two primaries read as "the same color" on the pitch.
+const KIT_CLASH_THRESHOLD = 100;
+
+/**
+ * Pick the kits each team wears in a fixture. The home team always wears its
+ * home kit; the away team switches to its away kit when its home primary would
+ * clash with the home team's home primary.
+ */
+export function matchKits(home: Team, away: Team): { home: Kit; away: Kit } {
+  const homeKit = home.colors.home;
+  const awayHome = away.colors.home;
+  const clash =
+    colorDistance(homeKit.primary, awayHome.primary) < KIT_CLASH_THRESHOLD;
+  return { home: homeKit, away: clash ? away.colors.away : awayHome };
 }
 
 // Pick a plausible XI (1 GK, 4 DF, 3 MF, 3 FW) from the 26-player squad,
 // filling any gaps from remaining players so we always get 11.
-function startingXI(players: WcPlayer[]): Player[] {
+function startingXI(players: WcPlayer[], teamRating: number): Player[] {
   const take = (pos: WcPlayer["position"], n: number) =>
     players.filter((p) => p.position === pos).slice(0, n);
 
@@ -166,11 +232,25 @@ function startingXI(players: WcPlayer[]): Player[] {
       if (!chosen.has(p)) xi.push(p);
     }
   }
-  return xi.slice(0, 11).map((p, i) => ({
-    number: p.number ?? i + 1,
-    name: p.name,
-    position: p.position,
-  }));
+  return withRatings(xi.slice(0, 11), teamRating);
+}
+
+/**
+ * Map dataset players to client {@link Player}s, attaching a derived rating.
+ * Depth rank is counted per position in list order (first listed = first choice).
+ */
+function withRatings(players: WcPlayer[], teamRating: number): Player[] {
+  const rank = new Map<WcPlayer["position"], number>();
+  return players.map((p, i) => {
+    const depthIndex = rank.get(p.position) ?? 0;
+    rank.set(p.position, depthIndex + 1);
+    return {
+      number: p.number ?? i + 1,
+      name: p.name,
+      position: p.position,
+      rating: derivePlayerRating(teamRating, p.caps, depthIndex),
+    };
+  });
 }
 
 function formationFor(squad: Player[]): string {
@@ -180,7 +260,8 @@ function formationFor(squad: Player[]): string {
 }
 
 function buildTeam(team: WcTeam): Team {
-  const squad = startingXI(team.players);
+  const rating = ratingFor(team);
+  const squad = startingXI(team.players, rating);
   const groupTier = getTeamGroupTier(team.country);
   if (!groupTier) {
     throw new Error(`Missing group tier for ${team.country}`);
@@ -195,7 +276,7 @@ function buildTeam(team: WcTeam): Team {
     manager: team.manager,
     fifaRanking: team.fifaRanking,
     groupTier,
-    rating: ratingFor(team),
+    rating,
     formation: formationFor(squad),
     qualification: getQualificationCampaign(team.country) ?? null,
     colors: colorsFor(team.country),
@@ -243,6 +324,17 @@ export type RosterPlayer = {
   /** Age at the start of the tournament; `null` where DOB isn't published. */
   age: number | null;
 };
+
+/**
+ * Full ~26-player squad (with derived ratings) for a built team — the pool a
+ * manager picks an XI from. Falls back to the default XI if the dataset entry
+ * isn't found.
+ */
+export function fullSquad(team: Team): Player[] {
+  const wc = getWcTeam(team.name);
+  if (!wc) return team.squad;
+  return withRatings(wc.players, team.rating);
+}
 
 const TOURNAMENT_START = new Date("2026-06-11");
 

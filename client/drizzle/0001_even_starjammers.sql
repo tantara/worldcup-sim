@@ -1,0 +1,1 @@
+ALTER TABLE "worldcupsim_user" ADD COLUMN "role" varchar(20) DEFAULT 'user' NOT NULL;

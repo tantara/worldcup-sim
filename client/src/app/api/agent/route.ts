@@ -1,6 +1,7 @@
 import type { AgentEvent, Message } from "@worldcupsim/sim-agent";
 import { z } from "zod";
 import { createSimAgent } from "~/server/agent/sim-agent";
+import { requireUser } from "~/server/auth/require-user";
 import { createSseResponse } from "~/server/http/sse";
 
 /**
@@ -18,12 +19,18 @@ const bodySchema = z.object({
   // Prior conversation (append-only). Validated structurally by the kernel's
   // sanitizer, so we accept it loosely here.
   history: z.array(z.unknown()).optional(),
+  // Stable conversation id (uuid), generated client-side once and replayed each
+  // turn so the provider keeps routing to the same KVCache partition.
+  sessionId: z.string().min(1).optional(),
 });
 
 /** Transport frame: agent events plus the closing history snapshot. */
 type Frame = AgentEvent | { type: "history"; messages: readonly Message[] };
 
 export async function POST(req: Request): Promise<Response> {
+  const gate = await requireUser("Sign in to use the agent.");
+  if (gate instanceof Response) return gate;
+
   let parsed: z.infer<typeof bodySchema>;
   try {
     parsed = bodySchema.parse(await req.json());
@@ -34,7 +41,7 @@ export async function POST(req: Request): Promise<Response> {
 
   let agent: ReturnType<typeof createSimAgent>;
   try {
-    agent = createSimAgent();
+    agent = createSimAgent(parsed.sessionId);
   } catch (err) {
     const message = err instanceof Error ? err.message : "agent unavailable";
     return Response.json({ error: message }, { status: 503 });

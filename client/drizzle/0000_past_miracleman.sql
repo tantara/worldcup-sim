@@ -74,11 +74,11 @@ ALTER TABLE "worldcupsim_post" ADD CONSTRAINT "worldcupsim_post_createdById_worl
 ALTER TABLE "worldcupsim_session" ADD CONSTRAINT "worldcupsim_session_userId_worldcupsim_user_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."worldcupsim_user"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "worldcupsim_simulation_event" ADD CONSTRAINT "worldcupsim_simulation_event_simulationId_worldcupsim_simulation_id_fk" FOREIGN KEY ("simulationId") REFERENCES "public"."worldcupsim_simulation"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "worldcupsim_simulation" ADD CONSTRAINT "worldcupsim_simulation_userId_worldcupsim_user_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."worldcupsim_user"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-CREATE INDEX "account_user_id_idx" ON "worldcupsim_account" USING btree ("userId");--> statement-breakpoint
-CREATE INDEX "created_by_idx" ON "worldcupsim_post" USING btree ("createdById");--> statement-breakpoint
-CREATE INDEX "name_idx" ON "worldcupsim_post" USING btree ("name");--> statement-breakpoint
-CREATE INDEX "t_user_id_idx" ON "worldcupsim_session" USING btree ("userId");--> statement-breakpoint
-CREATE INDEX "simulation_event_simulation_id_idx" ON "worldcupsim_simulation_event" USING btree ("simulationId");--> statement-breakpoint
-CREATE INDEX "simulation_event_seq_idx" ON "worldcupsim_simulation_event" USING btree ("simulationId","seq");--> statement-breakpoint
-CREATE INDEX "simulation_user_id_idx" ON "worldcupsim_simulation" USING btree ("userId");--> statement-breakpoint
-CREATE INDEX "simulation_match_id_idx" ON "worldcupsim_simulation" USING btree ("matchId");
+CREATE INDEX "worldcupsim_account_user_id_idx" ON "worldcupsim_account" USING btree ("userId");--> statement-breakpoint
+CREATE INDEX "worldcupsim_post_created_by_idx" ON "worldcupsim_post" USING btree ("createdById");--> statement-breakpoint
+CREATE INDEX "worldcupsim_post_name_idx" ON "worldcupsim_post" USING btree ("name");--> statement-breakpoint
+CREATE INDEX "worldcupsim_session_user_id_idx" ON "worldcupsim_session" USING btree ("userId");--> statement-breakpoint
+CREATE INDEX "worldcupsim_simulation_event_simulation_id_idx" ON "worldcupsim_simulation_event" USING btree ("simulationId");--> statement-breakpoint
+CREATE INDEX "worldcupsim_simulation_event_seq_idx" ON "worldcupsim_simulation_event" USING btree ("simulationId","seq");--> statement-breakpoint
+CREATE INDEX "worldcupsim_simulation_user_id_idx" ON "worldcupsim_simulation" USING btree ("userId");--> statement-breakpoint
+CREATE INDEX "worldcupsim_simulation_match_id_idx" ON "worldcupsim_simulation" USING btree ("matchId");

@@ -1,19 +1,10 @@
-import type { MatchResult, OrchestratorEvent } from "~/lib/playground-types";
-import { auth } from "~/server/auth";
-import { runMatch } from "~/server/agent/match-orchestrator";
+import type { OrchestratorEvent } from "~/lib/playground-types";
+import { requireUser } from "~/server/auth/require-user";
 import { createSseResponse } from "~/server/http/sse";
-import { archiveSimulationPayload } from "~/server/simulations/archive";
+import { runSimulationToCompletion } from "~/server/simulations/run";
 import {
-  buildSimulationArchive,
-  nextSimulationSeq,
-} from "~/server/simulations/model";
-import {
-  appendSimulationEvent,
-  completeSimulation,
-  failSimulation,
   getSimulationEvents,
   getSimulation,
-  markSimulationStatus,
 } from "~/server/simulations/store";
 
 function simulationSseResponse(
@@ -44,19 +35,16 @@ export async function POST(
     });
   }
 
-  const session = await auth();
-  if (!session?.user?.id) {
-    return Response.json(
-      { error: "Sign in to run this simulation." },
-      { status: 401 },
-    );
-  }
+  const user = await requireUser("Sign in to run this simulation.");
+  if (user instanceof Response) return user;
 
-  if (simulation.userId !== session.user.id) {
+  if (simulation.userId !== user.id) {
     return Response.json({ error: "Simulation not found." }, { status: 404 });
   }
 
-  if (simulation.status === "running") {
+  if (simulation.status === "running" || simulation.status === "queued") {
+    // "queued" simulations are owned by the headless queue consumer — don't
+    // start a second run from an interactive viewer.
     return Response.json(
       { error: "This simulation is already running." },
       { status: 409 },
@@ -72,52 +60,6 @@ export async function POST(
   }
 
   return simulationSseResponse(async (send) => {
-    await markSimulationStatus(simulation.id, "running");
-
-    let seq = nextSimulationSeq([]);
-    let result: MatchResult | null = null;
-    try {
-      for await (const event of runMatch({
-        homeId: simulation.homeId,
-        awayId: simulation.awayId,
-        mode: simulation.mode,
-        matchId: simulation.id,
-      })) {
-        await appendSimulationEvent(simulation.id, seq++, event);
-        send(event);
-        if (event.type === "result") {
-          result = event.result;
-        }
-      }
-
-      if (result) {
-        const events = await getSimulationEvents(simulation.id);
-        const archivePayload = buildSimulationArchive(
-          {
-            id: simulation.id,
-            userId: simulation.userId,
-            matchId: simulation.matchId,
-            homeId: simulation.homeId,
-            awayId: simulation.awayId,
-            status: "completed",
-            result,
-          },
-          events,
-        );
-        const archiveKey = await archiveSimulationPayload(
-          simulation.id,
-          archivePayload,
-        );
-        await completeSimulation({
-          simulationId: simulation.id,
-          result,
-          archiveKey,
-        });
-      }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      await failSimulation(simulation.id, message);
-      throw err;
-    }
+    await runSimulationToCompletion(simulation, send);
   });
 }

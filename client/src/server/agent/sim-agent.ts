@@ -34,9 +34,14 @@ const TEAM_MEMORY = [
  * Build a fresh agent. Stateless per request: the caller restores prior history
  * via `agent.loadHistory(...)` so the provider's prefix cache spans requests.
  *
+ * `sessionId` is the conversation's stable id, generated client-side once per
+ * chat (a uuid) and replayed on every turn. It becomes the provider `user_id`
+ * (`${sessionId}:assistant`), pinning the conversation to one DeepSeek KVCache
+ * partition so the warm prefix actually survives across separate HTTP requests.
+ *
  * Throws if the LLM key is unset — the route turns that into a 503.
  */
-export function createSimAgent(): Agent {
+export function createSimAgent(sessionId?: string): Agent {
   if (!env.DEEPSEEK_API_KEY) {
     throw new Error(
       "DEEPSEEK_API_KEY is not set. Add it to .env to use the sim-agent.",
@@ -47,6 +52,7 @@ export function createSimAgent(): Agent {
     apiKey: env.DEEPSEEK_API_KEY,
     baseURL: env.DEEPSEEK_BASE_URL,
     model: env.DEEPSEEK_MODEL,
+    userId: sessionId ? `${sessionId}:assistant` : undefined,
   });
 
   return new Agent({

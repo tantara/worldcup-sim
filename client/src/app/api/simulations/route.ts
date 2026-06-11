@@ -1,7 +1,8 @@
 import { z } from "zod";
 
 import { getMatch, resolveMatch } from "~/lib/tournament";
-import { auth } from "~/server/auth";
+import { requireUser } from "~/server/auth/require-user";
+import { resolveMode } from "~/server/mode";
 import { createSimulation } from "~/server/simulations/store";
 
 const createSimulationSchema = z.object({
@@ -10,10 +11,8 @@ const createSimulationSchema = z.object({
 });
 
 export async function POST(req: Request): Promise<Response> {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return Response.json({ error: "Sign in to kick off a match." }, { status: 401 });
-  }
+  const user = await requireUser("Sign in to kick off a match.");
+  if (user instanceof Response) return user;
 
   let body: z.infer<typeof createSimulationSchema>;
   try {
@@ -37,11 +36,11 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   const simulation = await createSimulation({
-    userId: session.user.id,
+    userId: user.id,
     matchId: fixture.match,
     homeId: home.id,
     awayId: away.id,
-    mode: body.mode,
+    mode: resolveMode(body.mode),
   });
   if (!simulation) {
     return Response.json(

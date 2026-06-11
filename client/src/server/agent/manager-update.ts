@@ -1,4 +1,9 @@
-import type { Lineup, Tactic } from "../../lib/playground-types";
+import type {
+  KnobLevel,
+  Lineup,
+  Tactic,
+  TacticalKnobs,
+} from "../../lib/playground-types";
 import type { Player } from "../../lib/teams";
 import { decideLineup } from "./dummy";
 
@@ -8,11 +13,14 @@ const TACTICS: ReadonlySet<string> = new Set([
   "defensive",
 ]);
 
+const KNOB_LEVELS: ReadonlySet<string> = new Set(["low", "medium", "high"]);
+
 export interface ManagerPlanContext {
   formation: string;
   tactic: Tactic;
   keyPlayer: string;
   strategy: string;
+  knobs?: TacticalKnobs;
   lineup: Player[];
 }
 
@@ -48,6 +56,27 @@ function entryName(entry: unknown): string | null {
   return rec ? str(rec.name) : null;
 }
 
+function level(value: unknown): KnobLevel | null {
+  return typeof value === "string" && KNOB_LEVELS.has(value)
+    ? (value as KnobLevel)
+    : null;
+}
+
+/**
+ * Parse the optional structured tactical knobs. All three must be present and
+ * valid; otherwise we return undefined and the orchestrator falls back to the
+ * tactic-derived defaults.
+ */
+function parseKnobs(value: unknown): TacticalKnobs | undefined {
+  const rec = asRecord(value);
+  if (!rec) return undefined;
+  const pressing = level(rec.pressing);
+  const lineHeight = level(rec.lineHeight);
+  const tempo = level(rec.tempo);
+  if (!pressing || !lineHeight || !tempo) return undefined;
+  return { pressing, lineHeight, tempo };
+}
+
 export function parseLineup(
   text: string,
   squad: Player[],
@@ -71,12 +100,14 @@ export function parseLineup(
     }
     // Accept a roughly-complete XI; otherwise fall back to a generated one.
     if (xi.length >= 7) {
+      const knobs = parseKnobs(obj.knobs);
       return {
         formation: str(obj.formation) ?? formationOf(xi),
         tactic: tactic as Tactic,
         keyPlayer: str(obj.keyPlayer) ?? xi[0]?.name ?? squad[0]!.name,
         reason: str(obj.reason) ?? undefined,
         strategy: str(obj.strategy) ?? undefined,
+        ...(knobs ? { knobs } : {}),
         substitutions: parseSubstitutions(obj.substitutions),
         lineup: xi.map((p) => ({
           number: p.number,
@@ -103,6 +134,7 @@ export function parseManagerUpdate(
       tactic: current.tactic,
       keyPlayer: current.keyPlayer,
       strategy: current.strategy,
+      ...(current.knobs ? { knobs: current.knobs } : {}),
       lineup: current.lineup.map((p) => ({
         number: p.number,
         name: p.name,

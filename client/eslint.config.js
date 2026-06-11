@@ -14,6 +14,9 @@ export default tseslint.config(
     "build/**",
     "next-env.d.ts",
     "cloudflare-env.d.ts",
+    // Excluded from tsconfig (imports the generated .open-next/worker.js); the
+    // type-aware lint parser can't resolve it.
+    "custom-worker.ts",
   ]),
   {
     files: ["**/*.ts", "**/*.tsx"],

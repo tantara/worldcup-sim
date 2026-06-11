@@ -15,6 +15,9 @@ import type {
  */
 export const createTable = pgTableCreator((name) => `worldcupsim_${name}`);
 
+export const USER_ROLES = ["user", "admin"] as const;
+export type UserRole = (typeof USER_ROLES)[number];
+
 export const posts = createTable(
   "post",
   (d) => ({
@@ -31,8 +34,8 @@ export const posts = createTable(
     updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
   }),
   (t) => [
-    index("created_by_idx").on(t.createdById),
-    index("name_idx").on(t.name),
+    index("worldcupsim_post_created_by_idx").on(t.createdById),
+    index("worldcupsim_post_name_idx").on(t.name),
   ]
 );
 
@@ -51,6 +54,11 @@ export const users = createTable("user", (d) => ({
     })
     .$defaultFn(() => /* @__PURE__ */ new Date()),
   image: d.varchar({ length: 255 }),
+  role: d
+    .varchar({ length: 20 })
+    .$type<UserRole>()
+    .notNull()
+    .default("user"),
 }));
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -78,7 +86,7 @@ export const accounts = createTable(
   }),
   (t) => [
     primaryKey({ columns: [t.provider, t.providerAccountId] }),
-    index("account_user_id_idx").on(t.userId),
+    index("worldcupsim_account_user_id_idx").on(t.userId),
   ]
 );
 
@@ -96,7 +104,7 @@ export const sessions = createTable(
       .references(() => users.id),
     expires: d.timestamp({ mode: "date", withTimezone: true }).notNull(),
   }),
-  (t) => [index("t_user_id_idx").on(t.userId)]
+  (t) => [index("worldcupsim_session_user_id_idx").on(t.userId)]
 );
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
@@ -131,7 +139,7 @@ export const simulations = createTable(
     mode: d.varchar({ length: 16 }).$type<Mode>().notNull().default("mock"),
     status: d
       .varchar({ length: 32 })
-      .$type<"created" | "running" | "completed" | "failed">()
+      .$type<"created" | "queued" | "running" | "completed" | "failed">()
       .notNull()
       .default("created"),
     scoreHome: d.integer().notNull().default(0),
@@ -147,8 +155,8 @@ export const simulations = createTable(
     completedAt: d.timestamp({ withTimezone: true }),
   }),
   (t) => [
-    index("simulation_user_id_idx").on(t.userId),
-    index("simulation_match_id_idx").on(t.matchId),
+    index("worldcupsim_simulation_user_id_idx").on(t.userId),
+    index("worldcupsim_simulation_match_id_idx").on(t.matchId),
   ]
 );
 
@@ -169,8 +177,8 @@ export const simulationEvents = createTable(
       .notNull(),
   }),
   (t) => [
-    index("simulation_event_simulation_id_idx").on(t.simulationId),
-    index("simulation_event_seq_idx").on(t.simulationId, t.seq),
+    index("worldcupsim_simulation_event_simulation_id_idx").on(t.simulationId),
+    index("worldcupsim_simulation_event_seq_idx").on(t.simulationId, t.seq),
   ]
 );
 

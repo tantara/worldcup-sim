@@ -28,6 +28,15 @@ export interface OpenAICompatConfig {
   /** Optional display name; defaults to `deepseek`. */
   name?: string;
   /**
+   * Stable per-session id, emitted as `user_id` on every request. DeepSeek uses
+   * `user_id` to isolate KVCache and scheduling per business-side user, so
+   * pinning one value per agent session keeps that session's requests routed to
+   * the same cache partition — which is what makes the prefix cache actually hit
+   * across a distributed/serverless runtime. Sanitized to DeepSeek's charset
+   * (`[a-zA-Z0-9\-_]`, max 512) via {@link sanitizeUserId}.
+   */
+  userId?: string;
+  /**
    * Extra fields merged into the request body (e.g. `reasoning_effort`, or
    * DeepSeek's `{ thinking: { type: "enabled" } }`). Keep these stable across a
    * session — they are part of the cached prefix shape.
@@ -38,18 +47,25 @@ export interface OpenAICompatConfig {
 const DEFAULT_BASE_URL = "https://api.deepseek.com";
 const DEFAULT_MODEL = "deepseek-chat";
 
+/** Coerce an arbitrary session id into DeepSeek's allowed `user_id` charset. */
+export function sanitizeUserId(raw: string): string {
+  const cleaned = raw.replace(/[^a-zA-Z0-9\-_]+/g, "-").replace(/^-+|-+$/g, "");
+  return (cleaned || "session").slice(0, 512);
+}
+
 export function createOpenAICompatProvider(
   config: OpenAICompatConfig,
 ): Provider {
   const baseURL = (config.baseURL ?? DEFAULT_BASE_URL).replace(/\/+$/, "");
   const model = config.model ?? DEFAULT_MODEL;
   const name = config.name ?? "deepseek";
+  const userId = config.userId ? sanitizeUserId(config.userId) : undefined;
 
   return {
     name,
     model,
     async *stream(req: ChatRequest): AsyncIterable<ProviderChunk> {
-      const body = buildBody(model, req, config.extraBody);
+      const body = buildBody(model, req, config.extraBody, userId);
       const res = await fetch(`${baseURL}/chat/completions`, {
         method: "POST",
         headers: {
@@ -83,6 +99,7 @@ function buildBody(
   model: string,
   req: ChatRequest,
   extraBody?: Record<string, unknown>,
+  userId?: string,
 ): Record<string, unknown> {
   const body: Record<string, unknown> = {
     model,
@@ -91,6 +108,9 @@ function buildBody(
     // Ask for a final usage frame so we can report cache hit/miss.
     stream_options: { include_usage: true },
   };
+  // KVCache / scheduling isolation per session. Not part of the token prefix —
+  // a routing key — so it's stable for the whole session and never volatile.
+  if (userId) body.user_id = userId;
   if (req.tools && req.tools.length > 0) {
     body.tools = req.tools.map((t) => ({
       type: "function",

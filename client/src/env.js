@@ -21,6 +21,11 @@ export const env = createEnv({
     DEEPSEEK_API_KEY: z.string().optional(),
     DEEPSEEK_BASE_URL: z.string().url().optional(),
     DEEPSEEK_MODEL: z.string().optional(),
+    // Shared secret for the admin headless-simulation trigger and the queue
+    // consumer's internal run endpoint. Optional so dev/CI can run without it;
+    // both endpoints reject requests when it is unset. Set it as a Cloudflare
+    // secret in production (`wrangler secret put ADMIN_TRIGGER_SECRET`).
+    ADMIN_TRIGGER_SECRET: z.string().optional(),
     S3_ENDPOINT: z.string().url().optional(),
     S3_ACCESS_KEY_ID: z.string().optional(),
     S3_SECRET_ACCESS_KEY: z.string().optional(),
@@ -57,6 +62,7 @@ export const env = createEnv({
     DEEPSEEK_API_KEY: process.env.DEEPSEEK_API_KEY,
     DEEPSEEK_BASE_URL: process.env.DEEPSEEK_BASE_URL,
     DEEPSEEK_MODEL: process.env.DEEPSEEK_MODEL,
+    ADMIN_TRIGGER_SECRET: process.env.ADMIN_TRIGGER_SECRET,
     S3_ENDPOINT: process.env.S3_ENDPOINT,
     S3_ACCESS_KEY_ID: process.env.S3_ACCESS_KEY_ID,
     S3_SECRET_ACCESS_KEY: process.env.S3_SECRET_ACCESS_KEY,

@@ -13,7 +13,7 @@ export type { AgentOptions } from "./agent";
 
 export { ToolRegistry } from "./tools";
 
-export { createOpenAICompatProvider } from "./provider/openai";
+export { createOpenAICompatProvider, sanitizeUserId } from "./provider/openai";
 export type { OpenAICompatConfig } from "./provider/openai";
 export { createScriptedProvider } from "./provider/scripted";
 export type {

@@ -1,5 +1,28 @@
 import Image from "next/image";
 
+// Slim, single-row footer for the full-height app views (playground / match) so
+// the simulation columns can fill the viewport without the page scrolling.
+export function CompactFooter() {
+  return (
+    <footer className="border-t bg-background/75 backdrop-blur">
+      <div className="text-muted-foreground mx-auto flex h-10 max-w-7xl items-center justify-between gap-3 px-4 text-xs">
+        <span className="truncate">
+          Matches are simulated for fun — no results are official.
+        </span>
+        <a
+          href="http://github.com/tantara/worldcup-sim"
+          target="_blank"
+          rel="noreferrer"
+          className="hover:text-foreground inline-flex shrink-0 items-center gap-1.5 font-medium transition-colors"
+        >
+          <GitHubIcon className="size-3.5" />
+          GitHub
+        </a>
+      </div>
+    </footer>
+  );
+}
+
 export function Footer() {
   return (
     <footer className="border-t bg-background/75 backdrop-blur">

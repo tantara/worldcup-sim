@@ -9,6 +9,7 @@ import {
   sessions,
   users,
   verificationTokens,
+  type UserRole,
 } from "~/server/db/schema";
 
 /**
@@ -21,15 +22,15 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
-      // ...other properties
-      // role: UserRole;
+      role: UserRole;
     } & DefaultSession["user"];
   }
+}
 
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
+declare module "next-auth/adapters" {
+  interface AdapterUser {
+    role: UserRole;
+  }
 }
 
 /**
@@ -51,6 +52,7 @@ export const authConfig = {
       user: {
         ...session.user,
         id: user.id,
+        role: user.role,
       },
     }),
   },

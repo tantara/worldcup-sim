@@ -48,6 +48,8 @@
   ],
   "exclude": [
     "node_modules",
-    "generated"
+    "generated",
+    "custom-worker.ts",
+    ".open-next"
   ]
 }

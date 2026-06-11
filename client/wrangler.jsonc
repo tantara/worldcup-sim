@@ -1,7 +1,10 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "worldcupsim",
-  "main": ".open-next/worker.js",
+  // Custom worker entry: wraps the OpenNext fetch handler and adds the
+  // simulation Queue consumer. It imports `.open-next/worker.js`, produced by
+  // `opennextjs-cloudflare build`.
+  "main": "custom-worker.ts",
   "compatibility_date": "2026-03-01",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
@@ -19,9 +22,30 @@
       "bucket_name": "worldcupsim-archives",
     },
   ],
+  // Headless simulation queue. The trigger endpoint (POST /api/admin/simulations)
+  // produces messages on SIM_QUEUE; the consumer in custom-worker.ts runs each
+  // one. Create the queue first: `wrangler queues create worldcupsim-simulations`.
+  "queues": {
+    "producers": [
+      { "binding": "SIM_QUEUE", "queue": "worldcupsim-simulations" },
+    ],
+    "consumers": [
+      {
+        "queue": "worldcupsim-simulations",
+        "max_batch_size": 1,
+        "max_concurrency": 5,
+        "max_retries": 3,
+      },
+    ],
+  },
+  // Self-reference service binding so the queue consumer can call back into the
+  // Next runtime (POST /api/internal/run-simulation) where DB/R2/env exist.
+  "services": [
+    { "binding": "WORKER_SELF_REFERENCE", "service": "worldcupsim" },
+  ],
   // Non-secret vars can live here. Secrets (AUTH_SECRET, AUTH_DISCORD_*,
-  // AUTH_GOOGLE_*, DATABASE_URL) must be set with `wrangler secret put <NAME>`
-  // instead — never commit them here.
+  // AUTH_GOOGLE_*, DATABASE_URL, ADMIN_TRIGGER_SECRET) must be set with
+  // `wrangler secret put <NAME>` instead — never commit them here.
   "vars": {
     "AUTH_TRUST_HOST": "true",
   },

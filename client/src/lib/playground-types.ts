@@ -13,6 +13,26 @@ export type GameSpeed = "slow" | "normal" | "fast";
 
 export type Tactic = "attacking" | "balanced" | "defensive";
 
+/** Three-step intensity used by the manager's structured tactical knobs. */
+export type KnobLevel = "low" | "medium" | "high";
+
+/**
+ * Structured tactical signal from a manager, layered on top of `tactic`. Where
+ * `tactic` is the headline risk dial, these add orthogonal texture the match
+ * agent (and mock `decideMinute`) can condition event rates on:
+ * - `pressing`   — how high/aggressively the side wins the ball back.
+ * - `lineHeight` — defensive line height; higher opens the game for both sides.
+ * - `tempo`      — overall speed of play; higher means more events and faster fatigue.
+ */
+export interface TacticalKnobs {
+  pressing: KnobLevel;
+  lineHeight: KnobLevel;
+  tempo: KnobLevel;
+}
+
+/** How strictly the referee is officiating; feeds forward into foul/card rates. */
+export type OfficiatingStrictness = "lenient" | "normal" | "strict";
+
 export interface LineupPlayer {
   number: number;
   name: string;
@@ -27,6 +47,8 @@ export interface Lineup {
   reason?: string;
   /** Short tactical instruction from the manager. */
   strategy?: string;
+  /** Structured tactical knobs layered on top of `tactic`. */
+  knobs?: TacticalKnobs;
   /** In-match player changes requested by the manager. */
   substitutions?: {
     off: string;
@@ -58,6 +80,11 @@ export interface MinuteOutcome {
 export interface RefereeVerdict {
   decision: "continue" | "stop";
   reason: string;
+  /**
+   * How strictly the referee is calling the game. Persisted by the orchestrator
+   * and fed forward into the match agent's next-minute foul/card likelihood.
+   */
+  strictness?: OfficiatingStrictness;
 }
 
 export interface MatchResult {

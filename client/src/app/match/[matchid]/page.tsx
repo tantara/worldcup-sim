@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ArrowLeft, CalendarDays, Clock, MapPin } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarDays, Clock, MapPin } from "lucide-react";
 
 import { PlaygroundExperience } from "~/app/playground/playground-experience";
+import { auth } from "~/server/auth";
 import { Badge } from "~/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import type { MatchResult } from "~/lib/playground-types";
+import { ReplayCard, type Replay } from "~/app/match/[matchid]/replays";
 import {
   getMatch,
   matchId,
@@ -13,7 +14,10 @@ import {
   resolveMatch,
   venueGoogleMapsUrl,
 } from "~/lib/tournament";
-import { listCompletedSimulationsForMatch } from "~/server/simulations/store";
+import {
+  countCompletedSimulationsForMatch,
+  listCompletedSimulationsForMatch,
+} from "~/server/simulations/store";
 
 export function generateStaticParams() {
   return MATCHES.map((m) => ({ matchid: matchId(m) }));
@@ -41,11 +45,16 @@ export default async function MatchPage({
   const canonicalId = matchId(match);
   if (matchid !== canonicalId) redirect(`/match/${canonicalId}`);
 
+  const session = await auth();
   const { home, away, playable } = resolveMatch(match);
   const venueUrl = venueGoogleMapsUrl(match);
+  const PREVIEW_LIMIT = 4;
   const previousSimulations = playable
-    ? await listCompletedSimulationsForMatch(match.match)
+    ? await listCompletedSimulationsForMatch(match.match, PREVIEW_LIMIT)
     : [];
+  const totalSimulations = playable
+    ? await countCompletedSimulationsForMatch(match.match)
+    : 0;
   const matchHeader = (
     <div className="flex flex-col gap-3">
       <Link
@@ -92,23 +101,20 @@ export default async function MatchPage({
           initialGroup={match.group ?? undefined}
           initialMatchNumber={match.match}
           fixtureLocked
-          beforeHeader={matchHeader}
+          requireAuth
+          isAuthenticated={Boolean(session?.user)}
           afterHeader={
-            <PreviousSimulations
-              simulations={previousSimulations}
-              canonicalId={canonicalId}
-            />
+            previousSimulations.length > 0 ? (
+              <PreviousSimulations
+                simulations={previousSimulations}
+                canonicalId={canonicalId}
+                total={totalSimulations}
+              />
+            ) : undefined
           }
           title={
             <>
               {home.name} <span className="text-primary">vs</span> {away.name}
-            </>
-          }
-          description={
-            <>
-              Use the same agent playground flow for this fixture: set manager
-              lineups, run the match thread, inspect referee checks, and follow
-              the minute-by-minute simulation.
             </>
           }
         />
@@ -147,62 +153,38 @@ export default async function MatchPage({
 function PreviousSimulations({
   simulations,
   canonicalId,
+  total,
 }: {
-  simulations: Awaited<ReturnType<typeof listCompletedSimulationsForMatch>>;
+  simulations: Replay[];
   canonicalId: string;
+  total: number;
 }) {
+  const hasMore = total > simulations.length;
   return (
     <Card size="sm">
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between gap-2">
         <CardTitle>Previous simulations</CardTitle>
+        {hasMore && (
+          <Link
+            href={`/match/${canonicalId}/history`}
+            className="text-primary inline-flex items-center gap-1 text-sm font-medium hover:underline"
+          >
+            View all {total}
+            <ArrowRight className="size-3.5" />
+          </Link>
+        )}
       </CardHeader>
       <CardContent>
-        {simulations.length === 0 ? (
-          <p className="text-muted-foreground text-sm">
-            No public replays for this fixture yet.
-          </p>
-        ) : (
-          <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
-            {simulations.map((simulation) => (
-              <Link
-                key={simulation.id}
-                href={`/match/${canonicalId}/s/${simulation.id}`}
-                className="hover:bg-muted/55 focus-visible:ring-ring/50 rounded-lg border p-3 transition outline-none focus-visible:ring-3"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="font-semibold tabular-nums">
-                      {simulation.result
-                        ? replayScore(simulation.result)
-                        : `${simulation.scoreHome}-${simulation.scoreAway}`}
-                    </div>
-                    <div className="text-muted-foreground mt-1 truncate text-xs">
-                      {formatReplayDate(
-                        simulation.completedAt ?? simulation.createdAt,
-                      )}
-                    </div>
-                  </div>
-                  <Badge variant="outline">Replay</Badge>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
+        <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
+          {simulations.map((simulation) => (
+            <ReplayCard
+              key={simulation.id}
+              simulation={simulation}
+              canonicalId={canonicalId}
+            />
+          ))}
+        </div>
       </CardContent>
     </Card>
   );
-}
-
-function replayScore(result: MatchResult): string {
-  return `${result.homeName} ${result.score.home}-${result.score.away} ${result.awayName}`;
-}
-
-function formatReplayDate(value: Date | null): string {
-  if (!value) return "Completed";
-  return new Intl.DateTimeFormat("en", {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(value);
 }

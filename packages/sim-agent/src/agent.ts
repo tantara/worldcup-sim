@@ -23,6 +23,8 @@ export interface AgentOptions {
   /** Max model calls per `run` before bailing out. Default 12. */
   maxSteps?: number;
   temperature?: number;
+  /** Cap on completion tokens per model call. Unset = provider default. */
+  maxTokens?: number;
 }
 
 /**
@@ -47,6 +49,7 @@ export class Agent {
   private readonly registry: ToolRegistry;
   private readonly maxSteps: number;
   private readonly temperature: number | undefined;
+  private readonly maxTokens: number | undefined;
 
   /** Frozen cached prefix. */
   private readonly system: Message;
@@ -71,6 +74,7 @@ export class Agent {
     this.registry = opts.registry;
     this.maxSteps = opts.maxSteps ?? 12;
     this.temperature = opts.temperature;
+    this.maxTokens = opts.maxTokens;
     this.system = composeSystem({ base: opts.systemPrompt, memory: opts.memory });
     this.toolSpecs = this.registry.toSpecs();
     this.prefixFingerprint = fingerprintPrefix(this.system, this.toolSpecs);
@@ -121,6 +125,7 @@ export class Agent {
           messages: [this.system, ...this.history],
           tools: this.toolSpecs,
           temperature: this.temperature,
+          maxTokens: this.maxTokens,
           signal: opts.signal,
         });
         for await (const chunk of stream) {

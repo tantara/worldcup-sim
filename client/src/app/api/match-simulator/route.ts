@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { AgentMatchFrame } from "~/server/agent/live-match-simulator";
 import { runAgentMatch } from "~/server/agent/live-match-simulator";
 import { getTeam } from "~/lib/teams";
+import { requireUser } from "~/server/auth/require-user";
 import { createSseResponse } from "~/server/http/sse";
 
 const bodySchema = z.object({
@@ -11,6 +12,9 @@ const bodySchema = z.object({
 });
 
 export async function POST(req: Request): Promise<Response> {
+  const gate = await requireUser("Sign in to run a match simulation.");
+  if (gate instanceof Response) return gate;
+
   let body: z.infer<typeof bodySchema>;
   try {
     body = bodySchema.parse(await req.json());

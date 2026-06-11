@@ -10,10 +10,23 @@
 import type {
   Lineup,
   MinuteOutcome,
+  OfficiatingStrictness,
   RefereeVerdict,
   Tactic,
+  TacticalKnobs,
 } from "~/lib/playground-types";
 import type { Player, Team } from "~/lib/teams";
+import { knobFactor, knobsForTactic, type SideState } from "./match-dynamics";
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
+
+/** Pick a stable, per-match officiating style for mock mode. */
+export function pickStrictness(rng: () => number): OfficiatingStrictness {
+  const r = rng();
+  return r < 0.25 ? "strict" : r < 0.5 ? "lenient" : "normal";
+}
 
 /** mulberry32 — tiny, fast, seedable PRNG. Deterministic per seed. */
 export function makeRng(seed: number): () => number {
@@ -146,12 +159,28 @@ export function decideLineup(squad: Player[], rng: () => number): Lineup {
     tactic,
     keyPlayer,
     strategy: pick(STRATEGIES, rng),
+    knobs: knobsForTactic(tactic),
     lineup: xi.map((p) => ({
       number: p.number,
       name: p.name,
       position: p.position,
     })),
   };
+}
+
+/**
+ * Forward-fed context that modulates per-minute event rates: the managers'
+ * structured tactical knobs, live momentum and fatigue, and the referee's
+ * officiating strictness. Optional — omit for the bare rating-driven baseline.
+ */
+export interface MinuteModifiers {
+  homeKnobs: TacticalKnobs;
+  awayKnobs: TacticalKnobs;
+  /** Running momentum per side (see match-dynamics). */
+  momentum: SideState;
+  /** Running stamina per side, 1 = fresh. */
+  fatigue: SideState;
+  refStrictness: OfficiatingStrictness;
 }
 
 export interface MinuteContext {
@@ -164,20 +193,40 @@ export interface MinuteContext {
   awayXI: Player[];
   homeTactic: Tactic;
   awayTactic: Tactic;
+  modifiers?: MinuteModifiers;
 }
+
+/** Card multiplier applied per foul, by how strictly the referee is calling it. */
+const STRICTNESS_CARD_MULT: Record<OfficiatingStrictness, number> = {
+  lenient: 0.6,
+  normal: 1,
+  strict: 1.5,
+};
 
 /** What happens in one minute. Pure: does not mutate score. */
 export function decideMinute(ctx: MinuteContext): MinuteOutcome {
-  const { rng, minute, home, away, homeXI, awayXI, homeTactic, awayTactic } =
+  const { rng, minute, home, away, homeXI, awayXI, homeTactic, awayTactic, modifiers: mod } =
     ctx;
 
+  // Busier sides (higher tempo) produce more events; clamp to a sane band.
+  const tempoFactor = mod
+    ? (knobFactor(mod.homeKnobs.tempo) + knobFactor(mod.awayKnobs.tempo)) / 2
+    : 1;
+  const eventProb = clamp(0.22 * tempoFactor, 0.1, 0.4);
   // Most minutes are uneventful.
-  if (rng() > 0.22) {
+  if (rng() > eventProb) {
     return { event: "none", side: null, player: null, text: "" };
   }
 
-  const homeWeight = home.rating + (homeTactic === "attacking" ? 4 : 0);
-  const awayWeight = away.rating + (awayTactic === "attacking" ? 4 : 0);
+  // Side weighting: ratings + attacking nudge, plus a momentum tilt.
+  let homeWeight = home.rating + (homeTactic === "attacking" ? 4 : 0);
+  let awayWeight = away.rating + (awayTactic === "attacking" ? 4 : 0);
+  if (mod) {
+    homeWeight += mod.momentum.home * 2;
+    awayWeight += mod.momentum.away * 2;
+  }
+  homeWeight = Math.max(1, homeWeight);
+  awayWeight = Math.max(1, awayWeight);
   const side: "home" | "away" =
     rng() < homeWeight / (homeWeight + awayWeight) ? "home" : "away";
   const team = side === "home" ? home : away;
@@ -186,10 +235,21 @@ export function decideMinute(ctx: MinuteContext): MinuteOutcome {
   const oppXI = side === "home" ? awayXI : homeXI;
   const tactic = side === "home" ? homeTactic : awayTactic;
 
-  // Foul / card branch.
-  if (rng() < 0.18) {
+  // Foul / card branch. More pressing and more tired legs mean more fouls; a
+  // stricter referee turns more of those fouls into cards.
+  const sideKnobs = mod
+    ? side === "home"
+      ? mod.homeKnobs
+      : mod.awayKnobs
+    : undefined;
+  const sideFatigue = mod ? mod.fatigue[side] : 1;
+  const foulFactor = sideKnobs
+    ? knobFactor(sideKnobs.pressing) * (2 - sideFatigue)
+    : 1;
+  if (rng() < 0.18 * foulFactor) {
+    const cardMult = STRICTNESS_CARD_MULT[mod?.refStrictness ?? "normal"];
     const fouler = pick(teamXI, rng);
-    if (rng() < 0.05) {
+    if (rng() < 0.05 * cardMult) {
       return {
         event: "red",
         side,
@@ -197,7 +257,7 @@ export function decideMinute(ctx: MinuteContext): MinuteOutcome {
         text: `🟥 Red card! ${fouler.name} (${team.name}) is sent off after a reckless tackle.`,
       };
     }
-    if (rng() < 0.25) {
+    if (rng() < 0.25 * cardMult) {
       return {
         event: "yellow",
         side,
@@ -215,7 +275,17 @@ export function decideMinute(ctx: MinuteContext): MinuteOutcome {
 
   const attacker = pick(attackers(teamXI), rng);
   const ratingEdge = (team.rating - opp.rating) / 100;
-  const goalProb = 0.26 + ratingEdge + TACTIC_GOAL_BOOST[tactic];
+  // Base chance, nudged by momentum, a high opponent line (more space), and a
+  // tired opponent (concedes more).
+  let goalProb = 0.26 + ratingEdge + TACTIC_GOAL_BOOST[tactic];
+  if (mod) {
+    const oppKnobs = side === "home" ? mod.awayKnobs : mod.homeKnobs;
+    const oppFatigue = side === "home" ? mod.fatigue.away : mod.fatigue.home;
+    goalProb += mod.momentum[side] * 0.01;
+    goalProb += (knobFactor(oppKnobs.lineHeight) - 1) * 0.15;
+    goalProb += (1 - oppFatigue) * 0.1;
+  }
+  goalProb = clamp(goalProb, 0.05, 0.6);
   const roll = rng();
 
   if (roll < goalProb) {
@@ -265,27 +335,32 @@ export interface RefereeContext {
   rng: () => number;
   minute: number;
   redCards: { home: number; away: number };
+  /** Stable per-match officiating style, fed forward into the match agent. */
+  strictness?: OfficiatingStrictness;
 }
 
 /** The referee's call on whether play should continue. */
 export function decideReferee(ctx: RefereeContext): RefereeVerdict {
-  const { rng, minute, redCards } = ctx;
+  const { rng, minute, redCards, strictness } = ctx;
   // Abandon if a side is down to a skeleton crew (3+ reds), or a rare incident.
   if (redCards.home >= 3 || redCards.away >= 3) {
     const side = redCards.home >= 3 ? "home" : "away";
     return {
       decision: "stop",
       reason: `Match abandoned in the ${minute}' — too many dismissals for the ${side} side.`,
+      strictness,
     };
   }
   if (rng() < 0.004) {
     return {
       decision: "stop",
       reason: `Play suspended in the ${minute}' over a safety concern on the pitch.`,
+      strictness,
     };
   }
   return {
     decision: "continue",
     reason: `Checks complete at ${minute}' — play continues.`,
+    strictness,
   };
 }

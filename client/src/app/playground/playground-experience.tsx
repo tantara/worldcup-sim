@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { GroupLetter } from "@worldcupsim/wc26-data";
 import {
@@ -33,6 +34,7 @@ import {
   Volume2,
 } from "lucide-react";
 
+import { LoginDialog } from "~/components/auth-nav";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -319,6 +321,8 @@ export function PlaygroundExperience({
   initialGroup = DEFAULT_GROUP,
   initialMatchNumber,
   fixtureLocked = false,
+  requireAuth = false,
+  isAuthenticated = false,
   title = (
     <>
       Agent <span className="text-primary">Playground</span>
@@ -331,6 +335,8 @@ export function PlaygroundExperience({
   initialGroup?: GroupLetter;
   initialMatchNumber?: number;
   fixtureLocked?: boolean;
+  requireAuth?: boolean;
+  isAuthenticated?: boolean;
   title?: React.ReactNode;
   description?: React.ReactNode;
   beforeHeader?: React.ReactNode;
@@ -353,7 +359,17 @@ export function PlaygroundExperience({
   );
   const [state, setState] = useState<MatchState>(initialState);
   const [standings, setStandings] = useState<StandingsResponse | null>(null);
+  const [loginOpen, setLoginOpen] = useState(false);
+  const pathname = usePathname();
   const abortRef = useRef<AbortController | null>(null);
+  // KVCache session key base, appended with the agent thread server-side. On a
+  // real fixture page we omit it so the orchestrator falls back to the fixture's
+  // match id ("simulation id + agent name"). In the free playground there is no
+  // durable id, so we mint a per-session uuid ("uuid + agent name") to give each
+  // browser session its own DeepSeek cache partition.
+  const sessionIdRef = useRef<string | null>(null);
+  sessionIdRef.current ??= crypto.randomUUID();
+  const sessionId = fixtureLocked ? undefined : sessionIdRef.current;
   const playbackStoppedRef = useRef(false);
   const resumeWaitersRef = useRef<(() => void)[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -473,6 +489,7 @@ export function PlaygroundExperience({
             side,
             mode,
             matchId: `${matchNumber}:${team.id}:${side}`,
+            sessionId,
             managerContext,
           }),
           signal: controller.signal,
@@ -498,11 +515,18 @@ export function PlaygroundExperience({
       mode,
       readEventStream,
       running,
+      sessionId,
     ],
   );
 
   const kickoff = useCallback(async () => {
     if (!home || !away || !playable || running) return;
+    // On gated views (e.g. a real fixture page) a sign-in is required before a
+    // simulation can be started; the open playground stays anonymous.
+    if (requireAuth && !isAuthenticated) {
+      setLoginOpen(true);
+      return;
+    }
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -526,6 +550,7 @@ export function PlaygroundExperience({
           homeLineup,
           awayLineup,
           matchId: String(matchNumber),
+          sessionId,
           managerContext,
         }),
         signal: controller.signal,
@@ -548,6 +573,8 @@ export function PlaygroundExperience({
     away,
     playable,
     running,
+    requireAuth,
+    isAuthenticated,
     state.homeLineup,
     state.awayLineup,
     state.agentLogs,
@@ -556,6 +583,7 @@ export function PlaygroundExperience({
     gameSpeed,
     maxMinutes,
     matchNumber,
+    sessionId,
     setPlaybackStoppedState,
     readEventStream,
     loadStandings,
@@ -618,7 +646,7 @@ export function PlaygroundExperience({
   );
 
   const centerCard = (
-    <Card className="order-first h-full overflow-hidden pt-0 lg:order-none lg:h-[calc(100vh-14.5rem)] lg:min-h-[40rem]">
+    <Card className="order-first h-full overflow-hidden pt-0 lg:order-none">
       <Scoreboard
         home={home}
         away={away}
@@ -631,6 +659,7 @@ export function PlaygroundExperience({
         abandoned={abandoned}
         homeLineup={state.homeLineup}
         awayLineup={state.awayLineup}
+        minutes={state.minutes}
       />
 
       <CardContent className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden">
@@ -700,7 +729,14 @@ export function PlaygroundExperience({
   return (
     <SupertonicProvider>
       <div className="flex-1">
-      <div className="flex w-full flex-col gap-6 px-3 py-6 sm:px-4 sm:py-8">
+      <div className="flex w-full flex-col gap-6 px-3 py-6 sm:px-4 sm:py-8 lg:h-[calc(100vh-6rem-2px)] lg:overflow-hidden">
+        {requireAuth && (
+          <LoginDialog
+            open={loginOpen}
+            onOpenChange={setLoginOpen}
+            callbackUrl={pathname}
+          />
+        )}
         {beforeHeader}
         <header className="flex flex-col gap-2">
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -735,7 +771,11 @@ export function PlaygroundExperience({
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <UsageSummary stat={totalUsage} />
-              <ModeControl mode={mode} onMode={setMode} disabled={running} />
+              {/* Mock mode is a local-dev convenience only; production always
+                  runs live against DeepSeek, so the toggle is hidden there. */}
+              {process.env.NODE_ENV !== "production" && (
+                <ModeControl mode={mode} onMode={setMode} disabled={running} />
+              )}
               <SpeedControl
                 gameSpeed={gameSpeed}
                 onGameSpeed={setGameSpeed}
@@ -764,7 +804,7 @@ export function PlaygroundExperience({
           <ResizablePanelGroup
             id="playground-columns"
             direction="horizontal"
-            className="w-full items-stretch"
+            className="w-full items-stretch lg:min-h-0 lg:flex-1"
           >
             <ResizablePanel
               id="playground-home"
@@ -819,6 +859,7 @@ function Scoreboard({
   abandoned,
   homeLineup,
   awayLineup,
+  minutes,
 }: {
   home: Team;
   away: Team;
@@ -831,8 +872,13 @@ function Scoreboard({
   abandoned: boolean;
   homeLineup: Lineup | null;
   awayLineup: Lineup | null;
+  minutes: MinuteRow[];
 }) {
   const hasLineups = Boolean(homeLineup ?? awayLineup);
+  const goals = minutes.filter((m) => m.outcome.event === "goal");
+  const homeGoals = goals.filter((m) => m.outcome.side === "home");
+  const awayGoals = goals.filter((m) => m.outcome.side === "away");
+  const hasGoals = homeGoals.length > 0 || awayGoals.length > 0;
   const [lineupsOpen, setLineupsOpen] = useState(true);
 
   useEffect(() => {
@@ -860,6 +906,13 @@ function Scoreboard({
         </div>
         <TeamBadge team={away} />
       </div>
+      {hasGoals && (
+        <div className="mt-3 grid grid-cols-[1fr_auto_1fr] items-start gap-2 text-xs text-white/90">
+          <ScorerList goals={homeGoals} align="right" />
+          <span className="text-white/40">⚽</span>
+          <ScorerList goals={awayGoals} align="left" />
+        </div>
+      )}
       {hasLineups && (
         <div className="mt-3">
           <button
@@ -896,6 +949,29 @@ function Scoreboard({
         </div>
       )}
     </CardHeader>
+  );
+}
+
+function ScorerList({
+  goals,
+  align,
+}: {
+  goals: MinuteRow[];
+  align: "left" | "right";
+}) {
+  return (
+    <ul
+      className={`flex flex-col gap-0.5 ${
+        align === "right" ? "items-end text-right" : "items-start text-left"
+      }`}
+    >
+      {goals.map((g, i) => (
+        <li key={`${g.minute}-${i}`} className="max-w-full truncate">
+          <span className="font-medium">{g.outcome.player ?? "Goal"}</span>{" "}
+          <span className="text-white/60 tabular-nums">{g.minute}&apos;</span>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -1722,7 +1798,7 @@ function ManagerPanel({
   }, [chatSignal, lineup, running]);
 
   return (
-    <Card className="h-full overflow-hidden pt-0 lg:h-[calc(100vh-14.5rem)] lg:min-h-[40rem]">
+    <Card className="h-full overflow-hidden pt-0">
       <div
         className="h-1.5 w-full"
         style={{ backgroundColor: kit.primary }}
@@ -2088,9 +2164,12 @@ function shortConfederation(confederation: Team["confederation"]): string {
 function AgentThread({
   turns,
   scrollSignal,
+  userLabel = "Manager",
 }: {
   turns: AgentTurn[];
   scrollSignal?: string;
+  /** Name shown on the user (prompt) turns — the role this thread belongs to. */
+  userLabel?: string;
 }) {
   const threadScrollRef = useRef<HTMLDivElement>(null);
 
@@ -2122,7 +2201,7 @@ function AgentThread({
             <div className="flex min-w-0 justify-end gap-2">
               <div className="flex min-w-0 max-w-[88%] flex-col items-end gap-1">
                 <div className="text-muted-foreground flex items-center gap-1.5 text-[11px] font-medium">
-                  Manager
+                  {userLabel}
                   <UserRound className="size-3" />
                 </div>
                 <div className="bg-primary text-primary-foreground max-w-full overflow-hidden rounded-2xl rounded-tr-sm px-3 py-2 text-xs leading-relaxed whitespace-pre-wrap break-words shadow-sm">
@@ -2190,7 +2269,12 @@ function ThreadDetail({
           Close
         </Button>
       </div>
-      <AgentThread turns={turns} />
+      <div className="h-80 min-h-0">
+        <AgentThread
+          turns={turns}
+          userLabel={thread === "match" ? "Match" : "Referee"}
+        />
+      </div>
     </div>
   );
 }

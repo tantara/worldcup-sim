@@ -1,6 +1,11 @@
 import type { MatchResult, OrchestratorEvent } from "~/lib/playground-types";
 
-export type SimulationStatus = "created" | "running" | "completed" | "failed";
+export type SimulationStatus =
+  | "created"
+  | "queued"
+  | "running"
+  | "completed"
+  | "failed";
 
 export interface SimulationRecord {
   id: string;

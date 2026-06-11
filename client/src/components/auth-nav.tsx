@@ -1,12 +1,13 @@
 "use client";
 
 import type { ReactNode } from "react";
-import Image from "next/image";
-import { LogOutIcon } from "lucide-react";
+import Link from "next/link";
+import { ChevronDownIcon, LogOutIcon, UserIcon } from "lucide-react";
 import { signIn, signOut } from "next-auth/react";
 import { FaDiscord } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -16,6 +17,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 import { cn } from "~/lib/utils";
 
 interface AuthNavProps {
@@ -31,34 +40,39 @@ export function AuthNav({ user }: AuthNavProps) {
     const label = user.name ?? user.email ?? "Signed in";
 
     return (
-      <div className="flex items-center gap-1.5">
-        <div className="bg-card/70 hidden max-w-36 items-center gap-2 rounded-lg border px-2 py-1 sm:flex">
-          {user.image ? (
-            <Image
-              src={user.image}
-              alt=""
-              width={24}
-              height={24}
-              className="size-6 rounded-full"
-            />
-          ) : (
-            <span className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-full text-xs font-semibold">
-              {label.slice(0, 1).toUpperCase()}
-            </span>
-          )}
-          <span className="truncate text-sm font-medium">{label}</span>
-        </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          aria-label="Sign out"
-          onClick={() => void signOut({ callbackUrl: "/" })}
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          aria-label={label}
+          className="group/account bg-card/70 hover:bg-muted focus-visible:ring-ring/50 data-popup-open:bg-muted flex items-center gap-1 rounded-lg border py-0.5 pr-1.5 pl-0.5 transition-colors outline-none focus-visible:ring-3"
         >
-          <LogOutIcon />
-          <span className="hidden sm:inline">Sign out</span>
-        </Button>
-      </div>
+          <Avatar size="sm">
+            <AvatarImage src={user.image ?? undefined} alt="" />
+            <AvatarFallback>{label.slice(0, 1).toUpperCase()}</AvatarFallback>
+          </Avatar>
+          <ChevronDownIcon className="text-muted-foreground size-4 transition-transform group-data-popup-open/account:rotate-180" />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          align="end"
+          sideOffset={6}
+          className="w-auto min-w-44"
+        >
+          <DropdownMenuLabel className="text-foreground truncate text-sm font-medium">
+            {label}
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem render={<Link href="/account" />}>
+            <UserIcon />
+            Account
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={() => void signOut({ callbackUrl: "/" })}
+          >
+            <LogOutIcon />
+            Sign out
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     );
   }
 
@@ -73,21 +87,27 @@ export function LoginDialog({
   children,
   callbackUrl = "/",
   triggerClassName,
+  open,
+  onOpenChange,
 }: {
-  children: ReactNode;
+  children?: ReactNode;
   callbackUrl?: string;
   triggerClassName?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) {
   return (
-    <Dialog>
-      <DialogTrigger
-        className={cn(
-          "group/button border-border bg-background hover:bg-muted hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 inline-flex h-8 shrink-0 items-center justify-center gap-1.5 rounded-lg border px-2 text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:ring-3 disabled:pointer-events-none disabled:opacity-50 sm:px-2.5",
-          triggerClassName,
-        )}
-      >
-        {children}
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      {children !== undefined && (
+        <DialogTrigger
+          className={cn(
+            "group/button border-border bg-background hover:bg-muted hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 inline-flex h-8 shrink-0 items-center justify-center gap-1.5 rounded-lg border px-2 text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:ring-3 disabled:pointer-events-none disabled:opacity-50 sm:px-2.5",
+            triggerClassName,
+          )}
+        >
+          {children}
+        </DialogTrigger>
+      )}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Login</DialogTitle>

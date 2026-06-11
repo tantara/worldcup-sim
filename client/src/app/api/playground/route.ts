@@ -3,6 +3,7 @@ import type { OrchestratorEvent } from "~/lib/playground-types";
 import { runLineup, runMatch } from "~/server/agent/match-orchestrator";
 import { computeStandings, listResults } from "~/server/agent/results-store";
 import { createSseResponse } from "~/server/http/sse";
+import { resolveMode } from "~/server/mode";
 
 /**
  * Playground transport.
@@ -53,6 +54,8 @@ const matchBodySchema = z.object({
   maxMinutes: z.number().int().min(1).max(90).optional(),
   /** Real WC26 fixture id (FIFA match number), when launched from a fixture. */
   matchId: z.string().min(1).optional(),
+  /** Per-session KVCache key base (a uuid for free playground runs). */
+  sessionId: z.string().min(1).optional(),
 });
 
 const lineupBodySchema = z.object({
@@ -61,6 +64,8 @@ const lineupBodySchema = z.object({
   side: z.enum(["home", "away"]),
   mode: z.enum(["mock", "live"]).default("mock"),
   matchId: z.string().min(1).optional(),
+  /** Per-session KVCache key base (a uuid for free playground runs). */
+  sessionId: z.string().min(1).optional(),
   managerContext: z.string().optional(),
 });
 
@@ -79,6 +84,8 @@ export async function POST(req: Request): Promise<Response> {
     const message = err instanceof Error ? err.message : "invalid request body";
     return Response.json({ error: message }, { status: 400 });
   }
+  // Production always runs live; mock is a local-dev convenience.
+  body.mode = resolveMode(body.mode);
   if ("homeId" in body && body.homeId === body.awayId) {
     return Response.json(
       { error: "Pick two different teams." },

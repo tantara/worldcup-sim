@@ -1,21 +1,22 @@
 import { describe, expect, it } from "vitest";
 
 import { parseManagerUpdate } from "./manager-update";
+import type { TacticalKnobs } from "~/lib/playground-types";
 import type { Player } from "~/lib/teams";
 
 const squad: Player[] = [
-  { number: 1, name: "Keeper One", position: "GK" },
-  { number: 2, name: "Right Back", position: "DF" },
-  { number: 3, name: "Center Back A", position: "DF" },
-  { number: 4, name: "Center Back B", position: "DF" },
-  { number: 5, name: "Left Back", position: "DF" },
-  { number: 6, name: "Holding Mid", position: "MF" },
-  { number: 7, name: "Box Mid", position: "MF" },
-  { number: 8, name: "Creator", position: "MF" },
-  { number: 9, name: "Right Wing", position: "FW" },
-  { number: 10, name: "Striker", position: "FW" },
-  { number: 11, name: "Left Wing", position: "FW" },
-  { number: 12, name: "Bench Forward", position: "FW" },
+  { number: 1, name: "Keeper One", position: "GK", rating: 80 },
+  { number: 2, name: "Right Back", position: "DF", rating: 80 },
+  { number: 3, name: "Center Back A", position: "DF", rating: 80 },
+  { number: 4, name: "Center Back B", position: "DF", rating: 80 },
+  { number: 5, name: "Left Back", position: "DF", rating: 80 },
+  { number: 6, name: "Holding Mid", position: "MF", rating: 80 },
+  { number: 7, name: "Box Mid", position: "MF", rating: 80 },
+  { number: 8, name: "Creator", position: "MF", rating: 80 },
+  { number: 9, name: "Right Wing", position: "FW", rating: 80 },
+  { number: 10, name: "Striker", position: "FW", rating: 80 },
+  { number: 11, name: "Left Wing", position: "FW", rating: 80 },
+  { number: 12, name: "Bench Forward", position: "FW", rating: 80 },
 ];
 
 const current = {
@@ -95,5 +96,56 @@ describe("parseManagerUpdate", () => {
         reason: "Fresh runner wide left.",
       },
     ]);
+  });
+
+  it("carries structured knobs forward on an unchanged update", () => {
+    const knobs: TacticalKnobs = {
+      pressing: "high",
+      lineHeight: "medium",
+      tempo: "high",
+    };
+    const update = parseManagerUpdate(
+      '{"reason":"Working well.","changes":false}',
+      squad,
+      () => 0,
+      { ...current, knobs },
+    );
+
+    expect(update.knobs).toEqual(knobs);
+  });
+
+  it("parses structured knobs from a changed update", () => {
+    const update = parseManagerUpdate(
+      JSON.stringify({
+        reason: "Drop the line and slow it down to protect the lead.",
+        changes: true,
+        formation: "5-3-2",
+        tactic: "defensive",
+        keyPlayer: "Creator",
+        strategy: "Sit deep and break on the counter.",
+        knobs: { pressing: "low", lineHeight: "low", tempo: "low" },
+        lineup: current.lineup.map((p) => p.name),
+      }),
+      squad,
+      () => 0,
+      current,
+    );
+
+    expect(update.knobs).toEqual({
+      pressing: "low",
+      lineHeight: "low",
+      tempo: "low",
+    });
+  });
+
+  it("omits knobs when none are present (unchanged, no current knobs)", () => {
+    const update = parseManagerUpdate(
+      '{"reason":"No change.","changes":false}',
+      squad,
+      () => 0,
+      current,
+    );
+
+    expect(update).not.toHaveProperty("knobs");
   });
 });

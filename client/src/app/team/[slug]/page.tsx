@@ -74,7 +74,7 @@ export default async function TeamPage({
         <Card className="overflow-hidden pt-0">
           <div
             className="h-2 w-full"
-            style={{ backgroundColor: team.colors.primary }}
+            style={{ backgroundColor: team.colors.home.primary }}
           />
           <CardHeader className="pt-5">
             <div className="flex flex-wrap items-center gap-4">
@@ -237,7 +237,7 @@ function QualificationCard({
             />
             <QualificationStat
               label="Goals"
-              value={`${record.goalsFor}GF-${record.goalsAgainst}GA`}
+              value={`${record.goalsFor}-${record.goalsAgainst}`}
             />
             <QualificationStat label="GD" value={formattedGoalDifference} />
           </div>
