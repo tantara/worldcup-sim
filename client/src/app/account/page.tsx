@@ -20,6 +20,7 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { getTeam } from "~/lib/teams";
+import { getMatch, matchId } from "~/lib/tournament";
 import { auth } from "~/server/auth";
 import { db } from "~/server/db";
 import { accounts } from "~/server/db/schema";
@@ -164,9 +165,14 @@ function SimulationCard({ simulation }: { simulation: Simulation }) {
     ? replayScore(simulation.result)
     : `${home?.name ?? simulation.homeId} ${simulation.scoreHome}-${simulation.scoreAway} ${away?.name ?? simulation.awayId}`;
 
+  // Prefer the canonical "{num}-{home}-vs-{away}" slug; fall back to the bare
+  // match number for any row whose fixture no longer resolves.
+  const match = getMatch(String(simulation.matchId));
+  const matchSlug = match ? matchId(match) : String(simulation.matchId);
+
   return (
     <Link
-      href={`/match/${simulation.matchId}/s/${simulation.id}`}
+      href={`/match/${matchSlug}/s/${simulation.id}`}
       className="hover:bg-muted/55 focus-visible:ring-ring/50 flex flex-col gap-2 rounded-lg border p-3 transition outline-none focus-visible:ring-3"
     >
       <div className="flex items-start justify-between gap-2">
