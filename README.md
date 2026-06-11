@@ -13,9 +13,7 @@ Browse every group, venue, fixture, squad, and bracket path, then run unofficial
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6.svg?logo=typescript&logoColor=white)
 ![pnpm](https://img.shields.io/badge/pnpm-11.2.2-F69220.svg?logo=pnpm&logoColor=white)
 
-[Features](#features) | [Repository Layout](#repository-layout) | [Setup](#setup) | [Development](#local-development) | [Packages](#packages) | [Verification](#verification)
-
-![WorldCupSim match command center](docs/screenshot_simulator.jpg)
+[Features](#features) | [Examples](#examples) | [Repository Layout](#repository-layout) | [Setup](#setup) | [Development](#local-development) | [Packages](#packages) | [Verification](#verification) | [Disclaimer](#disclaimer)
 
 </div>
 
@@ -31,11 +29,13 @@ WorldCupSim is a pnpm workspace centered on a Next.js app for the 2026 FIFA Worl
 - **Typed data package** - import teams, squads, fixtures, venues, and qualification campaigns from `@worldcupsim/wc26-data`.
 - **Cache-aware agent kernel** - use `@worldcupsim/sim-agent` for provider-neutral streaming agents tuned for stable prompt prefixes.
 
-The main app opens on a fixture and tournament dashboard with links into match, team, and playground views.
+## Examples
+
+The app opens on a fixture and tournament dashboard with links into match, team, and playground views.
 
 ![Tournament dashboard and schedule](docs/screenshot_landing.jpg)
 
-Open a match to kick off a simulation and inspect the generated result stream.
+Open a match to kick off a minute-by-minute simulation and read the full-time result with scorers, cards, and assistant activity.
 
 ![Live match simulation with full-time result](docs/screenshot_simulator.jpg)
 
@@ -110,6 +110,10 @@ WorldCupSim builds on and takes inspiration from several projects:
 
 - [Supertonic](https://github.com/supertone-inc/supertonic/) for Supertonic 3 in-browser text-to-speech.
 - [DeepSeek-Reasonix](https://github.com/esengine/deepseek-reasonix) for cache-stable agent kernel design inspiration.
+
+## Disclaimer
+
+WorldCupSim is an unofficial fan project and is not affiliated with, endorsed by, or sponsored by FIFA or any tournament organizer. All match outcomes, scorers, cards, commentary, and statistics are **AI-generated simulations** — they are fictional, produced for entertainment, and do not reflect or predict real results.
 
 ## License
 
