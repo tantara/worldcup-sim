@@ -6,17 +6,23 @@
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
     "directory": ".open-next/assets",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
   },
   // Custom domain on the bg.app zone. Cloudflare provisions the DNS record and
   // SSL cert automatically on deploy (zone must be in this account).
-  "routes": [{ "pattern": "wcsim.bg.app", "custom_domain": true }],
+  "routes": [{ "pattern": "worldcup-sim.bg.app", "custom_domain": true }],
   // Keep the *.workers.dev URL live alongside the custom domain.
   "workers_dev": true,
+  "r2_buckets": [
+    {
+      "binding": "SIM_ARCHIVE",
+      "bucket_name": "worldcupsim-archives",
+    },
+  ],
   // Non-secret vars can live here. Secrets (AUTH_SECRET, AUTH_DISCORD_*,
-  // DATABASE_URL) must be set with `wrangler secret put <NAME>` instead —
-  // never commit them here.
+  // AUTH_GOOGLE_*, DATABASE_URL) must be set with `wrangler secret put <NAME>`
+  // instead — never commit them here.
   "vars": {
-    "AUTH_TRUST_HOST": "true"
-  }
+    "AUTH_TRUST_HOST": "true",
+  },
 }
