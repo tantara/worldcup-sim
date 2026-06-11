@@ -31,13 +31,13 @@ WorldCupSim is a pnpm workspace centered on a Next.js app for the 2026 FIFA Worl
 
 ## Examples
 
-The app opens on a fixture and tournament dashboard with links into match, team, and playground views.
-
-![Tournament dashboard and schedule](docs/screenshot_landing.jpg)
-
 Open a match to kick off a minute-by-minute simulation and read the full-time result with scorers, cards, and assistant activity.
 
 ![Live match simulation with full-time result](docs/screenshot_simulator.jpg)
+
+The app opens on a fixture and tournament dashboard with links into match, team, and playground views.
+
+![Tournament dashboard and schedule](docs/screenshot_landing.jpg)
 
 ## Repository Layout
 
