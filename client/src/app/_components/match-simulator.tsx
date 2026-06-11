@@ -32,11 +32,12 @@ import {
   type Side,
 } from "~/lib/match-engine";
 import { matchKits, type Kit, type Player, type Team } from "~/lib/teams";
+import { useI18n } from "~/components/i18n/locale-provider";
 
 const SPEEDS = {
-  slow: { label: "Slow", detail: "1 min, reasoning" },
-  normal: { label: "Normal", detail: "1 min, no reasoning" },
-  fast: { label: "Fast", detail: "3 min, no reasoning" },
+  slow: { label: "sim.speed.slow", detail: "sim.speed.slowDetail" },
+  normal: { label: "sim.speed.normal", detail: "sim.speed.normalDetail" },
+  fast: { label: "sim.speed.fast", detail: "sim.speed.fastDetail" },
 } as const;
 type SpeedKey = keyof typeof SPEEDS;
 
@@ -45,6 +46,7 @@ type MatchStreamFrame =
   | { type: "error"; message: string };
 
 export function MatchSimulator({ home, away }: { home: Team; away: Team }) {
+  const { locale, t } = useI18n();
   const [speed, setSpeed] = useState<SpeedKey>("normal");
 
   const [events, setEvents] = useState<MatchEvent[]>([]);
@@ -86,16 +88,21 @@ export function MatchSimulator({ home, away }: { home: Team; away: Team }) {
           homeId: home.id,
           awayId: away.id,
           speed,
+          locale,
         }),
         signal: controller.signal,
       });
-      await readMatchStream(res, (frame) => {
-        if (frame.type === "event") {
-          setEvents((current) => [...current, frame.event]);
-        } else if (frame.type === "error") {
-          setError(frame.message);
-        }
-      });
+      await readMatchStream(
+        res,
+        (frame) => {
+          if (frame.type === "event") {
+            setEvents((current) => [...current, frame.event]);
+          } else if (frame.type === "error") {
+            setError(frame.message);
+          }
+        },
+        t("sim.requestFailed"),
+      );
     } catch (err) {
       if (!controller.signal.aborted) {
         setError(err instanceof Error ? err.message : String(err));
@@ -128,7 +135,7 @@ export function MatchSimulator({ home, away }: { home: Team; away: Team }) {
           <div className="grid grid-cols-1 items-end gap-3 sm:flex sm:flex-wrap">
             <div className="flex min-w-0 flex-col gap-1">
               <span className="text-muted-foreground text-xs font-medium">
-                Speed
+                {t("sim.speed")}
               </span>
               <Select
                 value={speed}
@@ -143,13 +150,13 @@ export function MatchSimulator({ home, away }: { home: Team; away: Team }) {
                 <SelectContent>
                   {Object.entries(SPEEDS).map(([key, s]) => (
                     <SelectItem key={key} value={key}>
-                      {s.label}
+                      {t(s.label)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <span className="text-muted-foreground text-[11px]">
-                {SPEEDS[speed].detail}
+                {t(SPEEDS[speed].detail)}
               </span>
             </div>
             <Button
@@ -159,11 +166,11 @@ export function MatchSimulator({ home, away }: { home: Team; away: Team }) {
             >
               {events.length === 0 ? (
                 <>
-                  <Play className="size-4" /> Kick Off
+                  <Play className="size-4" /> {t("sim.kickOff")}
                 </>
               ) : (
                 <>
-                  <RotateCcw className="size-4" /> Replay
+                  <RotateCcw className="size-4" /> {t("common.replay")}
                 </>
               )}
             </Button>
@@ -187,12 +194,15 @@ export function MatchSimulator({ home, away }: { home: Team; away: Team }) {
 async function readMatchStream(
   res: Response,
   onFrame: (frame: MatchStreamFrame) => void,
+  requestFailed: string,
 ): Promise<void> {
   if (!res.ok || !res.body) {
     const detail = (await res.json().catch(() => null)) as {
       error?: string;
     } | null;
-    throw new Error(detail?.error ?? `Request failed (${res.status})`);
+    throw new Error(
+      detail?.error ?? requestFailed.replace("{status}", String(res.status)),
+    );
   }
 
   const reader = res.body.getReader();
@@ -268,6 +278,7 @@ function ScorerList({
   goals: MatchEvent[];
   align: "left" | "right";
 }) {
+  const { t } = useI18n();
   return (
     <ul
       className={`flex flex-col gap-0.5 ${
@@ -276,7 +287,7 @@ function ScorerList({
     >
       {goals.map((g) => (
         <li key={g.id} className="max-w-full truncate">
-          <span className="font-medium">{g.player ?? "Goal"}</span>{" "}
+          <span className="font-medium">{g.player ?? t("sim.event.goal")}</span>{" "}
           <span className="text-white/60 tabular-nums">{g.minute}&apos;</span>
         </li>
       ))}
@@ -304,7 +315,12 @@ function ClockPill({
   playing: boolean;
   finished: boolean;
 }) {
-  const label = finished ? "FULL TIME" : clock > 0 ? `${clock}'` : "—";
+  const { t } = useI18n();
+  const label = finished
+    ? t("sim.fullTime").toUpperCase()
+    : clock > 0
+      ? `${clock}'`
+      : "—";
   return (
     <div className="mt-1.5 flex items-center gap-1.5 rounded-full bg-black/40 px-3 py-1 text-xs font-semibold text-white">
       {playing && !finished && (
@@ -339,6 +355,7 @@ function Commentary({
   events: MatchEvent[];
   scrollRef: React.RefObject<HTMLDivElement | null>;
 }) {
+  const { t } = useI18n();
   return (
     <ScrollArea
       ref={scrollRef}
@@ -347,9 +364,7 @@ function Commentary({
       <div className="flex flex-col gap-1.5 p-3">
         {events.length === 0 ? (
           <p className="text-muted-foreground py-24 text-center text-sm sm:py-32">
-            Pick two nations and hit{" "}
-            <span className="text-foreground font-semibold">Kick Off</span> to
-            start the match.
+            {t("sim.pickFixture")}
           </p>
         ) : (
           events.map((e) => <CommentaryLine key={e.id} event={e} />)
@@ -393,6 +408,7 @@ function TeamPanel({
   kit: Kit;
   shown: MatchEvent[];
 }) {
+  const { t } = useI18n();
   const positions: Player["position"][] = ["GK", "DF", "MF", "FW"];
   const shots = shown.filter(
     (e) =>
@@ -408,10 +424,7 @@ function TeamPanel({
 
   return (
     <Card className="overflow-hidden pt-0">
-      <div
-        className="h-1.5 w-full"
-        style={{ backgroundColor: kit.primary }}
-      />
+      <div className="h-1.5 w-full" style={{ backgroundColor: kit.primary }} />
       <CardHeader className="pt-5">
         <div className="flex items-center gap-3">
           <span className="text-4xl drop-shadow sm:text-5xl">{team.flag}</span>
@@ -423,22 +436,24 @@ function TeamPanel({
           </div>
         </div>
         <div className="mt-3 flex flex-wrap gap-1.5">
-          <Badge>Rating {team.rating}</Badge>
+          <Badge>
+            {t("team.rating")} {team.rating}
+          </Badge>
           <Badge variant="secondary">{team.formation}</Badge>
         </div>
       </CardHeader>
 
       <CardContent className="flex flex-col gap-4">
         <div className="grid grid-cols-2 gap-2">
-          <Stat label="Shots" value={shots} />
-          <Stat label="On Target" value={onTarget} />
+          <Stat label={t("sim.stats.shots")} value={shots} />
+          <Stat label={t("sim.stats.onTarget")} value={onTarget} />
         </div>
 
         <Separator />
 
         <div>
           <h3 className="text-muted-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
-            Line up
+            {t("sim.lineupTitle")}
           </h3>
           <ul className="flex flex-col gap-0.5">
             {positions.flatMap((pos) =>

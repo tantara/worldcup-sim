@@ -6,6 +6,8 @@ import {
   createOpenAICompatProvider,
 } from "@worldcupsim/sim-agent";
 import { env } from "~/env";
+import { DEFAULT_LOCALE, type Locale } from "~/lib/i18n/config";
+import { translate } from "~/lib/i18n/messages";
 import { TEAMS } from "~/lib/teams";
 import { worldCupTools } from "./tools";
 
@@ -41,7 +43,10 @@ const TEAM_MEMORY = [
  *
  * Throws if the LLM key is unset — the route turns that into a 503.
  */
-export function createSimAgent(sessionId?: string): Agent {
+export function createSimAgent(
+  sessionId?: string,
+  locale: Locale = DEFAULT_LOCALE,
+): Agent {
   if (!env.DEEPSEEK_API_KEY) {
     throw new Error(
       "DEEPSEEK_API_KEY is not set. Add it to .env to use the sim-agent.",
@@ -58,7 +63,7 @@ export function createSimAgent(sessionId?: string): Agent {
   return new Agent({
     provider,
     registry: new ToolRegistry(worldCupTools),
-    systemPrompt: SYSTEM_PROMPT,
+    systemPrompt: `${SYSTEM_PROMPT}\n\n${translate(locale, "agent.localeInstruction")}`,
     memory: TEAM_MEMORY,
     temperature: 0.7,
   });

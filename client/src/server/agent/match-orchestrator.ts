@@ -9,6 +9,8 @@ import {
   type Usage,
 } from "@worldcupsim/sim-agent";
 import { env } from "~/env";
+import { DEFAULT_LOCALE, type Locale } from "~/lib/i18n/config";
+import { translate } from "~/lib/i18n/messages";
 import type {
   AssistantSummary,
   GameSpeed,
@@ -76,6 +78,8 @@ export interface OrchestratorOptions {
   sessionId?: string;
   /** Aborts in-flight model calls (e.g. when the client disconnects). */
   signal?: AbortSignal;
+  /** UI/request locale used for live agent-facing prose. */
+  locale?: Locale;
 }
 
 export interface LineupOptions {
@@ -86,6 +90,7 @@ export interface LineupOptions {
   /** Provider `user_id` base for the manager thread. See {@link OrchestratorOptions.sessionId}. */
   sessionId?: string;
   managerContext?: string;
+  locale?: Locale;
 }
 
 const DEFAULT_MANAGER_INTERVAL_MINUTES = 5;
@@ -134,12 +139,13 @@ export async function* runMatch(
     ),
   );
   const mode = opts.mode;
+  const locale = opts.locale ?? DEFAULT_LOCALE;
+  const localeInstruction = translate(locale, "agent.localeInstruction");
 
   if (mode === "live" && !env.DEEPSEEK_API_KEY) {
     yield {
       type: "error",
-      message:
-        "DEEPSEEK_API_KEY is not set. Switch to Mock mode to run offline.",
+      message: translate(locale, "api.errors.deepseekMissing"),
     };
     return;
   }
@@ -229,21 +235,21 @@ export async function* runMatch(
 
   const homeManager = newAgent(
     "home-manager",
-    managerSystem(home, homeSquad, away, awaySquad),
+    managerSystem(home, homeSquad, away, awaySquad, localeInstruction),
     () => JSON.stringify(decideLineup(homeSquad, homeRng)),
     0.6,
     700,
   );
   const awayManager = newAgent(
     "away-manager",
-    managerSystem(away, awaySquad, home, homeSquad),
+    managerSystem(away, awaySquad, home, homeSquad, localeInstruction),
     () => JSON.stringify(decideLineup(awaySquad, awayRng)),
     0.6,
     700,
   );
   const matchAgent = newAgent(
     "match",
-    mainAgentSystem(home, away),
+    mainAgentSystem(home, away, localeInstruction),
     () =>
       JSON.stringify(
         decideMinute({
@@ -271,7 +277,7 @@ export async function* runMatch(
   );
   const referee = newAgent(
     "referee",
-    refereeSystem(),
+    refereeSystem(localeInstruction),
     () =>
       JSON.stringify(
         decideReferee({
@@ -699,13 +705,14 @@ export async function* runLineup(
 ): AsyncGenerator<OrchestratorEvent> {
   const team = getTeam(opts.teamId);
   const mode = opts.mode;
+  const locale = opts.locale ?? DEFAULT_LOCALE;
+  const localeInstruction = translate(locale, "agent.localeInstruction");
   const thread: Thread = opts.side === "home" ? "home-manager" : "away-manager";
 
   if (mode === "live" && !env.DEEPSEEK_API_KEY) {
     yield {
       type: "error",
-      message:
-        "DEEPSEEK_API_KEY is not set. Switch to Mock mode to run offline.",
+      message: translate(locale, "api.errors.deepseekMissing"),
     };
     return;
   }
@@ -734,7 +741,13 @@ export async function* runLineup(
   const manager = new Agent({
     provider,
     registry: new ToolRegistry([]),
-    systemPrompt: managerSystem(team, squad),
+    systemPrompt: managerSystem(
+      team,
+      squad,
+      undefined,
+      undefined,
+      localeInstruction,
+    ),
     temperature: 0.6,
   });
 
@@ -784,6 +797,7 @@ function managerSystem(
   squad: Player[],
   opponent?: Team,
   opponentSquad?: Player[],
+  localeInstruction = translate(DEFAULT_LOCALE, "agent.localeInstruction"),
 ): string {
   // The rosters and the reply protocol are static for the whole match, so they
   // live here in the cached system prefix (sent once) instead of being repeated
@@ -811,6 +825,8 @@ function managerSystem(
     : "";
   return `You are the manager of ${team.name} in a simulated football match. You keep one append-only match thread: first choose the starting XI, then revisit formation, tactical detail, and player changes whenever the main match agent delegates a scheduled update.
 
+${localeInstruction}
+
 Manage like a real coach:
 - Pick your strongest available XI for the chosen formation; players are listed with position and a rating (higher = better). Build around your highest-rated players and put your key player where they influence the most valuable chances.
 - Match the opponent's shape and the game state: protect a lead by tightening up, chase a deficit by adding attacking quality, and rotate tired or booked players. A player on a yellow is a sending-off risk and a candidate to be subbed.
@@ -831,8 +847,14 @@ The squads above never change — each user turn gives you only the changing mat
 Always include a top-level "reason" explaining the decision. Respond with ONLY a JSON object — no prose, no code fences.`;
 }
 
-function mainAgentSystem(home: Team, away: Team): string {
+function mainAgentSystem(
+  home: Team,
+  away: Team,
+  localeInstruction = translate(DEFAULT_LOCALE, "agent.localeInstruction"),
+): string {
   return `You are the main game-play agent for a simulated football match between ${home.name} and ${away.name}. You own the whole match flow: open the game, delegate lineup and scheduled tactical updates to the manager agents, decide each minute of play, and delegate referee checks after notable events (goals, fouls, bookings, red cards).
+
+${localeInstruction}
 
 Calibrate every minute to real football:
 - Most minutes are uneventful — emit "none" the large majority of the time. A typical 90-minute match has only ~2–3 goals and a handful of cards; do not manufacture action every minute.
@@ -850,8 +872,12 @@ Each minute prompt also carries forward-fed context — weight it:
 Your conversation is append-only to maximize KV-cache hits. When asked for a minute result, respond with ONLY a JSON object — no prose, no code fences.`;
 }
 
-function refereeSystem(): string {
+function refereeSystem(
+  localeInstruction = translate(DEFAULT_LOCALE, "agent.localeInstruction"),
+): string {
   return `You are the referee of a simulated football match, triggered by the main match agent after notable events. Review the specific event, score, and dismissals, then keep play going unless player safety, abandonment rules (e.g. a team reduced below 7 players), or repeated serious incidents force a stop. Stopping a match is rare — continue in the overwhelming majority of reviews.
+
+${localeInstruction}
 
 Also report how strictly you are officiating as "strictness": "lenient" (let play flow, few cards), "normal", or "strict" (punish fouls firmly, more cards). Be consistent across the match unless the players' conduct clearly pushes you to tighten up or ease off — this signal feeds the match agent's foul and card likelihood.
 
@@ -892,7 +918,9 @@ function managerAdjustmentPrompt(opts: {
 }
 
 function formatRoster(players: Player[]): string {
-  return players.map((p) => `${p.name} (${p.position}, ${p.rating})`).join(", ");
+  return players
+    .map((p) => `${p.name} (${p.position}, ${p.rating})`)
+    .join(", ");
 }
 
 /**
@@ -937,7 +965,10 @@ function mainOpeningPrompt(
 /** Stable fingerprint of who is on the pitch, to detect lineup changes. */
 function lineupSignature(homeXI: Player[], awayXI: Player[]): string {
   const names = (xi: Player[]) =>
-    xi.map((p) => p.name).sort().join("|");
+    xi
+      .map((p) => p.name)
+      .sort()
+      .join("|");
   return `${names(homeXI)}//${names(awayXI)}`;
 }
 
@@ -952,7 +983,8 @@ function matchPhase(minute: number): string {
   if (minute < 45) return "first half";
   if (minute <= 60) return "early second half";
   if (minute <= 80) return "second half";
-  if (minute <= 90) return "closing stages — urgency rises, late goals and stoppage time likely";
+  if (minute <= 90)
+    return "closing stages — urgency rises, late goals and stoppage time likely";
   return "stoppage time";
 }
 
@@ -1120,7 +1152,9 @@ const STRICTNESS_VALUES: ReadonlySet<string> = new Set([
 
 function parseStrictness(value: unknown): OfficiatingStrictness | undefined {
   const s = str(value);
-  return s && STRICTNESS_VALUES.has(s) ? (s as OfficiatingStrictness) : undefined;
+  return s && STRICTNESS_VALUES.has(s)
+    ? (s as OfficiatingStrictness)
+    : undefined;
 }
 
 function parseVerdict(text: string): RefereeVerdict {

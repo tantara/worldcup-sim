@@ -1,6 +1,7 @@
 import "server-only";
 
 import { env } from "~/env";
+import { requestTranslator } from "~/lib/i18n/request";
 
 export const ADMIN_SECRET_HEADER = "x-admin-secret";
 
@@ -21,16 +22,17 @@ function safeEqual(a: string, b: string): boolean {
  * (403); returns `null` when the request is authorized.
  */
 export function checkAdminSecret(req: Request): Response | null {
+  const { t } = requestTranslator(req);
   const secret = env.ADMIN_TRIGGER_SECRET;
   if (!secret) {
     return Response.json(
-      { error: "Admin trigger is not configured." },
+      { error: t("api.errors.adminNotConfigured") },
       { status: 503 },
     );
   }
   const provided = req.headers.get(ADMIN_SECRET_HEADER);
   if (!provided || !safeEqual(provided, secret)) {
-    return Response.json({ error: "Forbidden." }, { status: 403 });
+    return Response.json({ error: t("api.errors.forbidden") }, { status: 403 });
   }
   return null;
 }

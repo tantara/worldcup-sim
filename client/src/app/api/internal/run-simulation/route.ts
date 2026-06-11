@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { errorResponse, requestTranslator } from "~/lib/i18n/request";
 import { checkAdminSecret } from "~/server/auth/admin-secret";
 import { runSimulationToCompletion } from "~/server/simulations/run";
 import { getSimulation } from "~/server/simulations/store";
@@ -16,20 +17,23 @@ const runSchema = z.object({
  * simulations are acked without re-running.
  */
 export async function POST(req: Request): Promise<Response> {
+  const { locale, t } = requestTranslator(req);
   const denied = checkAdminSecret(req);
   if (denied) return denied;
 
   let body: z.infer<typeof runSchema>;
   try {
     body = runSchema.parse(await req.json());
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "invalid request body";
-    return Response.json({ error: message }, { status: 400 });
+  } catch {
+    return errorResponse(req, "api.errors.invalidRequest", 400);
   }
 
   const simulation = await getSimulation(body.simulationId);
   if (!simulation) {
-    return Response.json({ error: "Simulation not found." }, { status: 404 });
+    return Response.json(
+      { error: t("api.errors.simulationNotFound") },
+      { status: 404 },
+    );
   }
 
   // Idempotency guard for queue redelivery: don't kick off a second run.
@@ -38,7 +42,11 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   try {
-    const result = await runSimulationToCompletion(simulation);
+    const result = await runSimulationToCompletion(
+      simulation,
+      undefined,
+      locale,
+    );
     return Response.json({
       ok: true,
       status: result ? "completed" : "failed",

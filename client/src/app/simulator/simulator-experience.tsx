@@ -486,7 +486,12 @@ export function SimulatorExperience({
         const detail = (await res.json().catch(() => null)) as {
           error?: string;
         } | null;
-        throw new Error(detail?.error ?? `Request failed (${res.status})`);
+        throw new Error(
+          detail?.error ??
+            t("sim.requestFailed", {
+              status: res.status,
+            }),
+        );
       }
 
       const reader = res.body.getReader();
@@ -508,7 +513,7 @@ export function SimulatorExperience({
         }
       }
     },
-    [waitForPlaybackResume],
+    [t, waitForPlaybackResume],
   );
 
   const setManagerLineup = useCallback(
@@ -1095,7 +1100,9 @@ function ScorerList({
     >
       {goals.map((g, i) => (
         <li key={`${g.minute}-${i}`} className="max-w-full truncate">
-          <span className="font-medium">{g.outcome.player ?? "Goal"}</span>{" "}
+          <span className="font-medium">
+            {g.outcome.player ?? t("sim.event.goal")}
+          </span>{" "}
           <span className="text-white/60 tabular-nums">{g.minute}&apos;</span>
         </li>
       ))}
@@ -2164,7 +2171,7 @@ function ManagerPanel({
               {t("sim.usage.completion")} {stat.completionTokens} ·
               {t("sim.usage.cache")} {Math.round(stat.cumulativeHitRate * 100)}
               % · {t("sim.usage.latency")}{" "}
-              {formatLatency(stat.latencyMs)} · cost{" "}
+              {formatLatency(stat.latencyMs)} · {t("sim.usage.cost")}{" "}
               {formatUsdCost(deepSeekV4ProCost(stat))}
             </div>
           )}
@@ -2219,6 +2226,7 @@ function summarizeLineupEvents(
 }
 
 function PlayerEventChips({ events }: { events: PlayerLineupEvents }) {
+  const { t } = useI18n();
   type PlayerEventChip = {
     label: string;
     title: string;
@@ -2229,7 +2237,7 @@ function PlayerEventChips({ events }: { events: PlayerLineupEvents }) {
     events.goals > 0
       ? {
           label: String(events.goals),
-          title: `${events.goals} goal${events.goals === 1 ? "" : "s"}`,
+          title: `${events.goals} ${t("sim.event.goal")}`,
           tone: "primary",
           icon: <Goal className="size-3" />,
         }
@@ -2237,7 +2245,7 @@ function PlayerEventChips({ events }: { events: PlayerLineupEvents }) {
     events.assists > 0
       ? {
           label: String(events.assists),
-          title: `${events.assists} assist${events.assists === 1 ? "" : "s"}`,
+          title: `${events.assists} ${t("sim.event.assist")}`,
           tone: "sky",
           icon: <Handshake className="size-3" />,
         }
@@ -2245,7 +2253,7 @@ function PlayerEventChips({ events }: { events: PlayerLineupEvents }) {
     events.yellow > 0
       ? {
           label: events.yellow > 1 ? String(events.yellow) : "",
-          title: `${events.yellow} yellow card${events.yellow === 1 ? "" : "s"}`,
+          title: `${events.yellow} ${t("sim.event.yellow")}`,
           tone: "yellow",
           icon: <span className="block h-3.5 w-2.5 rounded-[2px] bg-yellow-400" />,
         }
@@ -2253,7 +2261,7 @@ function PlayerEventChips({ events }: { events: PlayerLineupEvents }) {
     events.red > 0
       ? {
           label: events.red > 1 ? String(events.red) : "",
-          title: `${events.red} red card${events.red === 1 ? "" : "s"}`,
+          title: `${events.red} ${t("sim.event.red")}`,
           tone: "red",
           icon: <span className="block h-3.5 w-2.5 rounded-[2px] bg-red-500" />,
         }
@@ -2261,7 +2269,7 @@ function PlayerEventChips({ events }: { events: PlayerLineupEvents }) {
     events.subbedOn
       ? {
           label: "",
-          title: "Subbed on",
+          title: t("sim.subbedOn"),
           tone: "green",
           icon: <ArrowUp className="size-3" />,
         }
@@ -2269,7 +2277,7 @@ function PlayerEventChips({ events }: { events: PlayerLineupEvents }) {
     events.subbedOff
       ? {
           label: "",
-          title: "Subbed off",
+          title: t("sim.subbedOff"),
           tone: "red",
           icon: <ArrowDown className="size-3" />,
         }

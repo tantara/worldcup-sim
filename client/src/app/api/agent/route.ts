@@ -1,5 +1,7 @@
 import type { AgentEvent, Message } from "@worldcupsim/sim-agent";
 import { z } from "zod";
+import { SUPPORTED_LOCALES } from "~/lib/i18n/config";
+import { errorResponse, requestTranslator } from "~/lib/i18n/request";
 import { createSimAgent } from "~/server/agent/sim-agent";
 import { requireUser } from "~/server/auth/require-user";
 import { createSseResponse } from "~/server/http/sse";
@@ -22,29 +24,29 @@ const bodySchema = z.object({
   // Stable conversation id (uuid), generated client-side once and replayed each
   // turn so the provider keeps routing to the same KVCache partition.
   sessionId: z.string().min(1).optional(),
+  locale: z.enum(SUPPORTED_LOCALES).optional(),
 });
 
 /** Transport frame: agent events plus the closing history snapshot. */
 type Frame = AgentEvent | { type: "history"; messages: readonly Message[] };
 
 export async function POST(req: Request): Promise<Response> {
-  const gate = await requireUser("Sign in to use the agent.");
+  const { locale: requestLocale, t } = requestTranslator(req);
+  const gate = await requireUser(t("api.errors.signInAgent"));
   if (gate instanceof Response) return gate;
 
   let parsed: z.infer<typeof bodySchema>;
   try {
     parsed = bodySchema.parse(await req.json());
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "invalid request body";
-    return Response.json({ error: message }, { status: 400 });
+  } catch {
+    return errorResponse(req, "api.errors.invalidRequest", 400);
   }
 
   let agent: ReturnType<typeof createSimAgent>;
   try {
-    agent = createSimAgent(parsed.sessionId);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "agent unavailable";
-    return Response.json({ error: message }, { status: 503 });
+    agent = createSimAgent(parsed.sessionId, parsed.locale ?? requestLocale);
+  } catch {
+    return errorResponse(req, "api.errors.agentUnavailable", 503);
   }
 
   if (parsed.history) {

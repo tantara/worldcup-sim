@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { errorResponse, requestTranslator } from "~/lib/i18n/request";
 import { getMatch, resolveMatch } from "~/lib/tournament";
 import { requireUser } from "~/server/auth/require-user";
 import { resolveMode } from "~/server/mode";
@@ -11,26 +12,29 @@ const createSimulationSchema = z.object({
 });
 
 export async function POST(req: Request): Promise<Response> {
-  const user = await requireUser("Sign in to kick off a match.");
+  const { t } = requestTranslator(req);
+  const user = await requireUser(t("api.errors.signInKickoff"));
   if (user instanceof Response) return user;
 
   let body: z.infer<typeof createSimulationSchema>;
   try {
     body = createSimulationSchema.parse(await req.json());
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "invalid request body";
-    return Response.json({ error: message }, { status: 400 });
+  } catch {
+    return errorResponse(req, "api.errors.invalidRequest", 400);
   }
 
   const fixture = getMatch(String(body.matchId));
   if (!fixture) {
-    return Response.json({ error: "Match not found." }, { status: 404 });
+    return Response.json(
+      { error: t("api.errors.matchNotFound") },
+      { status: 404 },
+    );
   }
 
   const { home, away, playable } = resolveMatch(fixture);
   if (!playable || !home || !away) {
     return Response.json(
-      { error: "This fixture is not playable yet." },
+      { error: t("api.errors.notPlayable") },
       { status: 400 },
     );
   }
@@ -44,7 +48,7 @@ export async function POST(req: Request): Promise<Response> {
   });
   if (!simulation) {
     return Response.json(
-      { error: "Simulation could not be created." },
+      { error: t("api.errors.createSimulation") },
       { status: 500 },
     );
   }

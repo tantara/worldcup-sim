@@ -8,6 +8,7 @@ import { LoginDialog } from "~/components/auth-nav";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
+import { useI18n } from "~/components/i18n/locale-provider";
 import type { Team } from "~/lib/teams";
 
 export function MatchKickoff({
@@ -21,6 +22,7 @@ export function MatchKickoff({
   away: Team;
   signedIn: boolean;
 }) {
+  const { locale, t } = useI18n();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,7 +36,7 @@ export function MatchKickoff({
       const res = await fetch("/api/simulations", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ matchId }),
+        body: JSON.stringify({ matchId, locale }),
       });
       const payload = (await res.json().catch(() => null)) as {
         error?: string;
@@ -42,7 +44,12 @@ export function MatchKickoff({
       } | null;
 
       if (!res.ok || !payload?.url) {
-        throw new Error(payload?.error ?? `Request failed (${res.status})`);
+        throw new Error(
+          payload?.error ??
+            t("sim.requestFailed", {
+              status: res.status,
+            }),
+        );
       }
 
       router.push(payload.url);
@@ -60,8 +67,10 @@ export function MatchKickoff({
 
         <div className="flex flex-col items-center gap-4">
           <div className="flex items-center gap-2">
-            <Badge variant="secondary">Persistent simulation</Badge>
-            <Badge variant="outline">Match {matchId}</Badge>
+            <Badge variant="secondary">{t("match.persistentSimulation")}</Badge>
+            <Badge variant="outline">
+              {t("common.match")} {matchId}
+            </Badge>
           </div>
           <div className="text-muted-foreground text-sm">vs</div>
           {signedIn ? (
@@ -73,7 +82,7 @@ export function MatchKickoff({
               onClick={kickoff}
             >
               <PlayIcon />
-              {loading ? "Creating..." : "Kick off"}
+              {loading ? t("match.creating") : t("sim.kickOff")}
             </Button>
           ) : (
             <LoginDialog
@@ -81,7 +90,7 @@ export function MatchKickoff({
               triggerClassName="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground h-11 min-w-40 border-transparent px-8 text-base shadow-xs"
             >
               <PlayIcon className="size-4" />
-              <span>Kick off</span>
+              <span>{t("sim.kickOff")}</span>
             </LoginDialog>
           )}
           {error && (
@@ -91,7 +100,7 @@ export function MatchKickoff({
           )}
           <div className="text-muted-foreground flex items-center gap-1.5 text-xs">
             <ShieldCheckIcon className="size-3.5" />
-            Saved simulations can be replayed or resumed from their URL.
+            {t("match.savedSimulationHelp")}
           </div>
         </div>
 
@@ -101,13 +110,7 @@ export function MatchKickoff({
   );
 }
 
-function TeamPanel({
-  team,
-  align,
-}: {
-  team: Team;
-  align: "left" | "right";
-}) {
+function TeamPanel({ team, align }: { team: Team; align: "left" | "right" }) {
   return (
     <div
       className={`flex items-center gap-4 ${

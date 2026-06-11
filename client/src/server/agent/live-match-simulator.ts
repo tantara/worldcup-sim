@@ -2,6 +2,8 @@ import "server-only";
 
 import type { MatchEvent, MatchEventType, Side } from "~/lib/match-engine";
 import type { Team } from "~/lib/teams";
+import { DEFAULT_LOCALE, type Locale } from "~/lib/i18n/config";
+import { translate, type MessageKey } from "~/lib/i18n/messages";
 import type { GameSpeed, MinuteEventType } from "~/lib/simulator-types";
 import { runMatch } from "./match-orchestrator";
 
@@ -25,6 +27,7 @@ export async function* runAgentMatch(
   away: Team,
   speed: AgentMatchSpeed,
   signal?: AbortSignal,
+  locale: Locale = DEFAULT_LOCALE,
 ): AsyncGenerator<AgentMatchFrame> {
   let eventId = 0;
   let score = { home: 0, away: 0 };
@@ -38,10 +41,25 @@ export async function* runAgentMatch(
     player?: string,
   ): AgentMatchFrame => ({
     type: "event",
-    event: { id: eventId++, minute, type, side, text, player, score: { ...score } },
+    event: {
+      id: eventId++,
+      minute,
+      type,
+      side,
+      text,
+      player,
+      score: { ...score },
+    },
   });
 
-  yield event(0, "kickoff", `Kick off! ${home.name} vs ${away.name} is under way.`);
+  yield event(
+    0,
+    "kickoff",
+    translate(locale, "sim.kickoffMarker", {
+      home: home.name,
+      away: away.name,
+    }),
+  );
 
   for await (const ev of runMatch({
     homeId: home.id,
@@ -49,6 +67,7 @@ export async function* runAgentMatch(
     mode: "live",
     gameSpeed: speed,
     signal,
+    locale,
   })) {
     if (ev.type === "error") {
       yield { type: "error", message: ev.message };
@@ -61,7 +80,7 @@ export async function* runAgentMatch(
         yield event(
           45,
           "halftime",
-          `Half time. ${home.flag} ${score.home} - ${score.away} ${away.flag}`,
+          `${translate(locale, "sim.halfTime")}. ${home.flag} ${score.home} - ${score.away} ${away.flag}`,
         );
       }
       score = ev.score;
@@ -70,7 +89,7 @@ export async function* runAgentMatch(
         yield event(
           ev.minute,
           MINUTE_EVENT_TO_MATCH[kind],
-          text || describe(kind, side, home, away),
+          text || describe(kind, side, home, away, locale),
           side ?? undefined,
           player ?? undefined,
         );
@@ -83,8 +102,8 @@ export async function* runAgentMatch(
         ev.result.minutesPlayed,
         "fulltime",
         ev.result.abandoned
-          ? `Match stopped. ${home.flag} ${home.name} ${score.home} - ${score.away} ${away.name} ${away.flag}`
-          : `Full time! ${home.flag} ${home.name} ${score.home} - ${score.away} ${away.name} ${away.flag}`,
+          ? `${translate(locale, "sim.matchStopped")} ${home.flag} ${home.name} ${score.home} - ${score.away} ${away.name} ${away.flag}`
+          : `${translate(locale, "sim.fullTimeMarker")} ${home.flag} ${home.name} ${score.home} - ${score.away} ${away.name} ${away.flag}`,
       );
     }
   }
@@ -102,13 +121,16 @@ const MINUTE_EVENT_TO_MATCH: Record<
   red: "red",
 };
 
-const EVENT_FALLBACK: Record<Exclude<MinuteEventType, "none">, string> = {
-  goal: "Goal for",
-  save: "Save denies",
-  miss: "Chance goes close for",
-  foul: "Foul by",
-  yellow: "Yellow card for",
-  red: "Red card for",
+const EVENT_FALLBACK_KEY: Record<
+  Exclude<MinuteEventType, "none">,
+  MessageKey
+> = {
+  goal: "sim.event.goal",
+  save: "sim.event.save",
+  miss: "sim.event.miss",
+  foul: "sim.event.foul",
+  yellow: "sim.event.yellow",
+  red: "sim.event.red",
 };
 
 /** Fallback commentary if the model returned an event with no text. */
@@ -117,7 +139,9 @@ function describe(
   side: Side | null,
   home: Team,
   away: Team,
+  locale: Locale,
 ): string {
-  const team = side === "home" ? home.name : side === "away" ? away.name : "a side";
-  return `${EVENT_FALLBACK[kind]} ${team}.`;
+  const team =
+    side === "home" ? home.name : side === "away" ? away.name : "a side";
+  return `${translate(locale, EVENT_FALLBACK_KEY[kind])} ${team}.`;
 }

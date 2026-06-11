@@ -6,6 +6,7 @@ import type {
   Mode,
   OrchestratorEvent,
 } from "~/lib/simulator-types";
+import type { Locale } from "~/lib/i18n/config";
 import { runMatch } from "~/server/agent/match-orchestrator";
 import { archiveSimulationPayload } from "./archive";
 import { buildSimulationArchive, nextSimulationSeq } from "./model";
@@ -38,6 +39,7 @@ export interface RunnableSimulation {
 export async function runSimulationToCompletion(
   simulation: RunnableSimulation,
   onEvent?: (event: OrchestratorEvent) => void,
+  locale?: Locale,
 ): Promise<MatchResult | null> {
   await markSimulationStatus(simulation.id, "running");
 
@@ -50,6 +52,7 @@ export async function runSimulationToCompletion(
       mode: simulation.mode,
       gameSpeed: simulation.gameSpeed,
       matchId: simulation.id,
+      locale,
     })) {
       // Forward everything to a live viewer (deltas drive the typewriter), but
       // don't persist the per-token deltas — the consolidated `agent_content`

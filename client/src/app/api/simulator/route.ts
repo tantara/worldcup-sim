@@ -1,5 +1,7 @@
 import { z } from "zod";
 import type { OrchestratorEvent } from "~/lib/simulator-types";
+import { SUPPORTED_LOCALES } from "~/lib/i18n/config";
+import { errorResponse, requestTranslator } from "~/lib/i18n/request";
 import { runLineup, runMatch } from "~/server/agent/match-orchestrator";
 import { computeStandings, listResults } from "~/server/agent/results-store";
 import { createSseResponse } from "~/server/http/sse";
@@ -41,6 +43,8 @@ const lineupSchema = z.object({
     .min(1),
 });
 
+const localeSchema = z.enum(SUPPORTED_LOCALES);
+
 const matchBodySchema = z.object({
   action: z.literal("match").optional(),
   homeId: z.string().min(1),
@@ -56,6 +60,7 @@ const matchBodySchema = z.object({
   matchId: z.string().min(1).optional(),
   /** Per-session KVCache key base (a uuid for free simulator runs). */
   sessionId: z.string().min(1).optional(),
+  locale: localeSchema.optional(),
 });
 
 const lineupBodySchema = z.object({
@@ -66,10 +71,12 @@ const lineupBodySchema = z.object({
   matchId: z.string().min(1).optional(),
   /** Per-session KVCache key base (a uuid for free simulator runs). */
   sessionId: z.string().min(1).optional(),
+  locale: localeSchema.optional(),
   managerContext: z.string().optional(),
 });
 
 export async function POST(req: Request): Promise<Response> {
+  const { t, locale: requestLocale } = requestTranslator(req);
   let body: z.infer<typeof matchBodySchema> | z.infer<typeof lineupBodySchema>;
   try {
     const raw: unknown = await req.json();
@@ -80,15 +87,15 @@ export async function POST(req: Request): Promise<Response> {
       raw.action === "lineup"
         ? lineupBodySchema.parse(raw)
         : matchBodySchema.parse(raw);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "invalid request body";
-    return Response.json({ error: message }, { status: 400 });
+  } catch {
+    return errorResponse(req, "api.errors.invalidRequest", 400);
   }
+  body.locale ??= requestLocale;
   // Production always runs live; mock is a local-dev convenience.
   body.mode = resolveMode(body.mode);
   if ("homeId" in body && body.homeId === body.awayId) {
     return Response.json(
-      { error: "Pick two different teams." },
+      { error: t("api.errors.pickDifferentTeams") },
       { status: 400 },
     );
   }

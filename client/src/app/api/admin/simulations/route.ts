@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { env } from "~/env";
+import { errorResponse, requestTranslator } from "~/lib/i18n/request";
 import { getMatch, resolveMatch } from "~/lib/tournament";
 import { checkAdminSecret } from "~/server/auth/admin-secret";
 import { resolveMode } from "~/server/mode";
@@ -33,37 +34,43 @@ const triggerSchema = z.object({
  * run; falls back to an inline run when no queue binding exists (dev).
  */
 export async function POST(req: Request): Promise<Response> {
+  const { locale, t } = requestTranslator(req);
   const denied = checkAdminSecret(req);
   if (denied) return denied;
 
   let body: z.infer<typeof triggerSchema>;
   try {
     body = triggerSchema.parse(await req.json());
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "invalid request body";
-    return Response.json({ error: message }, { status: 400 });
+  } catch {
+    return errorResponse(req, "api.errors.invalidRequest", 400);
   }
 
   const user = await getUserByEmail(body.email);
   if (!user) {
-    return Response.json({ error: "User not found." }, { status: 404 });
+    return Response.json(
+      { error: t("api.errors.userNotFound") },
+      { status: 404 },
+    );
   }
   if (user.role !== "admin") {
     return Response.json(
-      { error: "Admin access required." },
+      { error: t("api.errors.adminRequired") },
       { status: 403 },
     );
   }
 
   const fixture = getMatch(body.matchId);
   if (!fixture) {
-    return Response.json({ error: "Match not found." }, { status: 404 });
+    return Response.json(
+      { error: t("api.errors.matchNotFound") },
+      { status: 404 },
+    );
   }
 
   const { home, away, playable } = resolveMatch(fixture);
   if (!playable || !home || !away) {
     return Response.json(
-      { error: "This fixture is not playable yet." },
+      { error: t("api.errors.notPlayable") },
       { status: 400 },
     );
   }
@@ -78,7 +85,7 @@ export async function POST(req: Request): Promise<Response> {
   });
   if (!simulation) {
     return Response.json(
-      { error: "Simulation could not be created." },
+      { error: t("api.errors.createSimulation") },
       { status: 500 },
     );
   }
@@ -90,10 +97,9 @@ export async function POST(req: Request): Promise<Response> {
   // consumes it, so we run inline there to keep the trigger testable. A failed
   // enqueue in production also falls back to inline as a safety net.
   const enqueued =
-    env.NODE_ENV === "production" &&
-    (await enqueueSimulation(simulation.id));
+    env.NODE_ENV === "production" && (await enqueueSimulation(simulation.id));
   if (!enqueued) {
-    await runSimulationToCompletion(simulation);
+    await runSimulationToCompletion(simulation, undefined, locale);
   }
 
   return Response.json({
