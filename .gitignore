@@ -1,9 +1,11 @@
 # dependencies
 node_modules
 
-# local reference material (not part of the app)
-DeepSeek-Reasonix/
-supertonic/
+# local reference material (not part of the app). Anchored to the repo root so
+# these only exclude the vendored top-level dirs, not same-named app source
+# folders (e.g. client/src/lib/supertonic/).
+/DeepSeek-Reasonix/
+/supertonic/
 
 # logs
 *.log

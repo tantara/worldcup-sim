@@ -42,6 +42,7 @@
     "next": "^16.2.9",
     "next-auth": "5.0.0-beta.31",
     "next-themes": "^0.4.6",
+    "onnxruntime-web": "1.26.0",
     "postgres": "^3.4.4",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",

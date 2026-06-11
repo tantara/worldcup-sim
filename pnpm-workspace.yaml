@@ -3,6 +3,7 @@ packages:
   - packages/*
 allowBuilds:
   esbuild: true
+  protobufjs: false
   sharp: true
   unrs-resolver: true
   workerd: true
@@ -11,3 +12,7 @@ onlyBuiltDependencies:
   - sharp
   - unrs-resolver
   - workerd
+# protobufjs ships a build script we intentionally don't run; listing it here
+# tells pnpm the skip is deliberate so installs don't fail on ERR_PNPM_IGNORED_BUILDS.
+ignoredBuiltDependencies:
+  - protobufjs

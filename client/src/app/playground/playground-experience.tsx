@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { GroupLetter } from "@worldcupsim/wc26-data";
 import {
   ArrowDown,
   ArrowUp,
+  ArrowUpRight,
   Bot,
   CalendarDays,
   ChevronDown,
@@ -18,6 +20,7 @@ import {
   Goal,
   Handshake,
   Hand,
+  Loader2,
   MapPin,
   Play,
   RotateCcw,
@@ -27,6 +30,7 @@ import {
   TriangleAlert,
   UserRound,
   Users,
+  Volume2,
 } from "lucide-react";
 
 import { Badge } from "~/components/ui/badge";
@@ -72,7 +76,9 @@ import type {
 import {
   getTeam,
   GROUP_LETTERS,
+  matchKits,
   teamsInGroup,
+  type Kit,
   type Player,
   type Team,
 } from "~/lib/teams";
@@ -82,6 +88,11 @@ import {
   resolveMatch,
   venueGoogleMapsUrl,
 } from "~/lib/tournament";
+import { LANGUAGES, VOICES } from "~/lib/supertonic/voices";
+import {
+  SupertonicProvider,
+  useSupertonic,
+} from "./supertonic-provider";
 
 // The playground is driven by the real WC26 group-stage schedule.
 const DEFAULT_GROUP: GroupLetter = GROUP_LETTERS[0] ?? "A";
@@ -585,12 +596,17 @@ export function PlaygroundExperience({
     );
   }
 
+  // Resolve clash-free kits for the fixture (away switches to its change kit
+  // when its home colors would clash with the home team's).
+  const kits = matchKits(home, away);
+
   // The three columns are shared between the stacked (mobile) and the
   // draggable (desktop) layouts, so build them once here.
   const homePanel = (
     <ManagerPanel
       team={home}
       side="home"
+      kit={kits.home}
       lineup={state.homeLineup}
       stat={state.cache["home-manager"]}
       minutes={state.minutes}
@@ -602,10 +618,12 @@ export function PlaygroundExperience({
   );
 
   const centerCard = (
-    <Card className="order-first h-full overflow-hidden pt-0 lg:order-none lg:h-[calc(100vh-12rem)] lg:min-h-[44rem]">
+    <Card className="order-first h-full overflow-hidden pt-0 lg:order-none lg:h-[calc(100vh-14.5rem)] lg:min-h-[40rem]">
       <Scoreboard
         home={home}
         away={away}
+        homeKit={kits.home}
+        awayKit={kits.away}
         score={state.score}
         clock={clock}
         playing={running && !finished}
@@ -668,6 +686,7 @@ export function PlaygroundExperience({
     <ManagerPanel
       team={away}
       side="away"
+      kit={kits.away}
       lineup={state.awayLineup}
       stat={state.cache["away-manager"]}
       minutes={state.minutes}
@@ -679,7 +698,8 @@ export function PlaygroundExperience({
   );
 
   return (
-    <div className="flex-1">
+    <SupertonicProvider>
+      <div className="flex-1">
       <div className="flex w-full flex-col gap-6 px-3 py-6 sm:px-4 sm:py-8">
         {beforeHeader}
         <header className="flex flex-col gap-2">
@@ -721,6 +741,8 @@ export function PlaygroundExperience({
                 onGameSpeed={setGameSpeed}
                 disabled={running}
               />
+              <VoiceControl />
+              <LanguageControl />
             </div>
           </div>
           {description && (
@@ -778,7 +800,8 @@ export function PlaygroundExperience({
 
         {state.result && <ResultCard result={state.result} />}
       </div>
-    </div>
+      </div>
+    </SupertonicProvider>
   );
 }
 
@@ -787,6 +810,8 @@ export function PlaygroundExperience({
 function Scoreboard({
   home,
   away,
+  homeKit,
+  awayKit,
   score,
   clock,
   playing,
@@ -797,6 +822,8 @@ function Scoreboard({
 }: {
   home: Team;
   away: Team;
+  homeKit: Kit;
+  awayKit: Kit;
   score: { home: number; away: number };
   clock: number;
   playing: boolean;
@@ -834,30 +861,36 @@ function Scoreboard({
         <TeamBadge team={away} />
       </div>
       {hasLineups && (
-        <div className="mt-4">
-          <div className="mb-2 flex items-center justify-center">
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              className="h-8 gap-1.5 bg-white/15 px-2.5 text-xs font-semibold text-white hover:bg-white/25"
-              onClick={() => setLineupsOpen((open) => !open)}
-              aria-expanded={lineupsOpen}
-              aria-label={lineupsOpen ? "Hide lineups" : "Show lineups"}
-            >
-              <Users className="size-3.5" />
-              Line up
-              {lineupsOpen ? (
-                <ChevronUp className="size-3.5" />
-              ) : (
-                <ChevronDown className="size-3.5" />
-              )}
-            </Button>
-          </div>
+        <div className="mt-3">
+          <button
+            type="button"
+            onClick={() => setLineupsOpen((open) => !open)}
+            aria-expanded={lineupsOpen}
+            aria-label={lineupsOpen ? "Hide lineups" : "Show lineups"}
+            className="flex w-full items-center justify-center gap-1.5 rounded-md py-1 text-[11px] font-semibold tracking-wide text-white/75 uppercase transition-colors hover:bg-white/10 hover:text-white"
+          >
+            <Users className="size-3.5" />
+            Line up
+            {lineupsOpen ? (
+              <ChevronUp className="size-3.5" />
+            ) : (
+              <ChevronDown className="size-3.5" />
+            )}
+          </button>
           {lineupsOpen && (
-            <div className="grid gap-2 sm:grid-cols-2">
-              <ScoreboardLineup team={home} lineup={homeLineup} align="left" />
-              <ScoreboardLineup team={away} lineup={awayLineup} align="right" />
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+              <ScoreboardLineup
+                team={home}
+                kit={homeKit}
+                lineup={homeLineup}
+                align="left"
+              />
+              <ScoreboardLineup
+                team={away}
+                kit={awayKit}
+                lineup={awayLineup}
+                align="right"
+              />
             </div>
           )}
         </div>
@@ -868,10 +901,12 @@ function Scoreboard({
 
 function ScoreboardLineup({
   team,
+  kit,
   lineup,
   align,
 }: {
   team: Team;
+  kit: Kit;
   lineup: Lineup | null;
   align: "left" | "right";
 }) {
@@ -891,7 +926,7 @@ function ScoreboardLineup({
         </div>
       </div>
       {lineup ? (
-        <FormationPitch team={team} lineup={lineup} align={align} />
+        <FormationPitch team={team} kit={kit} lineup={lineup} align={align} />
       ) : (
         <div className="rounded bg-white/10 px-2 py-3 text-center text-xs text-white/65">
           Waiting for manager decision
@@ -905,10 +940,12 @@ type FormationPlayer = Lineup["lineup"][number];
 
 function FormationPitch({
   team,
+  kit,
   lineup,
   align,
 }: {
   team: Team;
+  kit: Kit;
   lineup: Lineup;
   align: "left" | "right";
 }) {
@@ -935,7 +972,7 @@ function FormationPitch({
               >
                 <span
                   className="flex size-7 items-center justify-center rounded-full border border-white/55 text-[11px] font-black text-white shadow-sm tabular-nums"
-                  style={{ backgroundColor: team.colors.primary }}
+                  style={{ backgroundColor: kit.primary }}
                 >
                   {player.number}
                 </span>
@@ -1196,7 +1233,7 @@ function Controls({
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-muted-foreground text-xs">Threads:</span>
+        <span className="text-muted-foreground text-xs">AI agents:</span>
         <CacheBadge
           label="match"
           stat={matchStat}
@@ -1434,7 +1471,7 @@ function Commentary({
               </Button>
             </div>
             {items.map((item, i) => (
-              <FeedLine key={i} item={item} home={home} away={away} />
+              <FeedLine key={i} index={i} item={item} home={home} away={away} />
             ))}
           </>
         )}
@@ -1445,10 +1482,12 @@ function Commentary({
 
 function FeedLine({
   item,
+  index,
   home,
   away,
 }: {
   item: FeedItem;
+  index: number;
   home: Team;
   away: Team;
 }) {
@@ -1503,7 +1542,10 @@ function FeedLine({
               {item.verdict.decision}
             </Badge>
           </div>
-          <p className="text-foreground/90 text-sm leading-relaxed">{text}</p>
+          <div className="flex items-end justify-between gap-2">
+            <p className="text-foreground/90 text-sm leading-relaxed">{text}</p>
+            <PlayBubbleButton id={`ref-${item.minute}-${index}`} text={text} />
+          </div>
         </div>
       </div>
     );
@@ -1516,9 +1558,7 @@ function FeedLine({
       : item.outcome.side === "away"
         ? away
         : null;
-  const sideLabel = sideTeam
-    ? `${sideTeam.flag} ${sideTeam.name}`
-    : "Match thread";
+  const sideLabel = sideTeam ? `${sideTeam.flag} ${sideTeam.name}` : null;
   text = item.outcome.text || "Play continues without a clear chance.";
 
   return (
@@ -1536,11 +1576,16 @@ function FeedLine({
           <span className={`rounded-md px-2 py-0.5 text-xs font-bold ${tone.badge}`}>
             {tone.label}
           </span>
-          <span className="text-muted-foreground min-w-0 truncate text-xs font-medium">
-            {sideLabel}
-          </span>
+          {sideLabel && (
+            <span className="text-muted-foreground min-w-0 truncate text-xs font-medium">
+              {sideLabel}
+            </span>
+          )}
         </div>
-        <p className={`text-sm leading-relaxed ${tone.copy}`}>{text}</p>
+        <div className="flex items-end justify-between gap-2">
+          <p className={`text-sm leading-relaxed ${tone.copy}`}>{text}</p>
+          <PlayBubbleButton id={`minute-${item.minute}-${index}`} text={text} />
+        </div>
       </div>
     </div>
   );
@@ -1621,6 +1666,7 @@ function eventTone(event: MinuteOutcome["event"]) {
 function ManagerPanel({
   team,
   side,
+  kit,
   lineup,
   stat,
   minutes,
@@ -1631,6 +1677,7 @@ function ManagerPanel({
 }: {
   team: Team;
   side: "home" | "away";
+  kit: Kit;
   lineup: Lineup | null;
   stat: ThreadStat;
   minutes: MinuteRow[];
@@ -1675,16 +1722,28 @@ function ManagerPanel({
   }, [chatSignal, lineup, running]);
 
   return (
-    <Card className="h-full overflow-hidden pt-0 lg:h-[calc(100vh-12rem)] lg:min-h-[44rem]">
+    <Card className="h-full overflow-hidden pt-0 lg:h-[calc(100vh-14.5rem)] lg:min-h-[40rem]">
       <div
         className="h-1.5 w-full"
-        style={{ backgroundColor: team.colors.primary }}
+        style={{ backgroundColor: kit.primary }}
       />
       <CardHeader className="pt-5">
         <div className="flex flex-wrap items-start gap-3">
           <span className="text-4xl drop-shadow sm:text-5xl">{team.flag}</span>
           <div className="min-w-0 flex-1">
-            <CardTitle className="truncate text-xl">{team.name}</CardTitle>
+            <div className="flex items-center gap-1.5">
+              <CardTitle className="truncate text-xl">{team.name}</CardTitle>
+              <Link
+                href={`/team/${team.id}`}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={`View ${team.name} team details`}
+                title={`View ${team.name} team details`}
+                className="text-muted-foreground hover:bg-muted hover:text-foreground inline-flex size-6 shrink-0 items-center justify-center rounded-md transition-colors"
+              >
+                <ArrowUpRight className="size-4" />
+              </Link>
+            </div>
             <p className="text-muted-foreground mt-0.5 text-sm">
               {team.manager}
             </p>
@@ -1701,20 +1760,6 @@ function ManagerPanel({
           />
           <TeamMeta label="Rating" value={team.rating} />
         </div>
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {lineup ? (
-            <>
-              <Badge variant="secondary">{lineup.formation}</Badge>
-              <Badge variant="outline" className="capitalize">
-                {lineup.tactic}
-              </Badge>
-            </>
-          ) : picking ? (
-            <Badge variant="outline" className="text-muted-foreground">
-              selecting formation…
-            </Badge>
-          ) : null}
-        </div>
         <div className="mt-3 grid grid-cols-2 gap-2">
           <Stat label="Shots" value={shots} />
           <Stat label="On Target" value={onTarget} />
@@ -1727,21 +1772,37 @@ function ManagerPanel({
           onValueChange={setActiveTab}
           className="flex min-h-0 flex-1 flex-col"
         >
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <h3 className="text-muted-foreground flex items-center gap-2 text-xs font-semibold tracking-wide uppercase">
-              Line up
-              {lineup && (
-                <span className="text-primary font-medium normal-case">
-                  ★ {lineup.keyPlayer}
-                </span>
-              )}
-            </h3>
-            <TabsList className="grid h-8 grid-cols-2">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex min-w-0 flex-col gap-2">
+              <h3 className="text-muted-foreground flex items-center gap-2 text-xs font-semibold tracking-wide uppercase">
+                Line up
+                {lineup && (
+                  <span className="text-primary font-medium normal-case">
+                    ★ {lineup.keyPlayer}
+                  </span>
+                )}
+              </h3>
+              {lineup ? (
+                <div className="flex flex-wrap gap-1.5">
+                  <Badge variant="secondary">{lineup.formation}</Badge>
+                  <Badge variant="outline" className="capitalize">
+                    {lineup.tactic}
+                  </Badge>
+                </div>
+              ) : picking ? (
+                <div className="flex flex-wrap gap-1.5">
+                  <Badge variant="outline" className="text-muted-foreground">
+                    selecting formation…
+                  </Badge>
+                </div>
+              ) : null}
+            </div>
+            <TabsList className="grid h-8 shrink-0 grid-cols-2">
               <TabsTrigger value="lineup" className="px-3 text-xs">
                 Lineup
               </TabsTrigger>
               <TabsTrigger value="agent" className="px-3 text-xs">
-                Agent
+                AI agent
               </TabsTrigger>
             </TabsList>
           </div>
@@ -2054,7 +2115,7 @@ function AgentThread({
   }
 
   return (
-    <ScrollArea ref={threadScrollRef} className="h-full min-h-[24rem] w-full">
+    <ScrollArea ref={threadScrollRef} className="h-full min-h-0 w-full">
       <div className="flex flex-col gap-4">
         {turns.map((turn, index) => (
           <div key={index} className="flex min-w-0 flex-col gap-3">
@@ -2369,6 +2430,90 @@ function SpeedControl({
         </Select>
       </div>
     </div>
+  );
+}
+
+// --- supertonic TTS controls ------------------------------------------------
+
+/** Voice preset selector — only shown when the in-browser engine is supported. */
+function VoiceControl() {
+  const { supported, voiceId, setVoiceId } = useSupertonic();
+  if (supported !== true) return null;
+  return (
+    <div className="flex w-full items-start justify-between gap-2 sm:w-auto">
+      <span className="text-muted-foreground pt-2 text-xs font-medium">
+        Voice
+      </span>
+      <div className="min-w-36">
+        <Select value={voiceId} onValueChange={(v) => v && setVoiceId(v)}>
+          <SelectTrigger className="h-9 w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {VOICES.map((voice) => (
+              <SelectItem key={voice.id} value={voice.id}>
+                {voice.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  );
+}
+
+/** Synthesis-language selector — only shown when the engine is supported. */
+function LanguageControl() {
+  const { supported, lang, setLang } = useSupertonic();
+  if (supported !== true) return null;
+  return (
+    <div className="flex w-full items-start justify-between gap-2 sm:w-auto">
+      <span className="text-muted-foreground pt-2 text-xs font-medium">
+        Language
+      </span>
+      <div className="min-w-36">
+        <Select value={lang} onValueChange={(v) => v && setLang(v)}>
+          <SelectTrigger className="h-9 w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {LANGUAGES.map((language) => (
+              <SelectItem key={language.code} value={language.code}>
+                {language.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  );
+}
+
+/** Speaker icon that synthesises and plays a commentary bubble's text. */
+function PlayBubbleButton({ id, text }: { id: string; text: string }) {
+  const { supported, busyId, playingId, play } = useSupertonic();
+  if (supported !== true) return null;
+  const busy = busyId === id;
+  const playing = playingId === id;
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon"
+      onClick={() => play(id, text)}
+      disabled={busy}
+      aria-label={playing ? "Stop audio" : "Play audio"}
+      title={playing ? "Stop" : "Listen"}
+      className="text-muted-foreground hover:text-foreground size-7 shrink-0"
+    >
+      {busy ? (
+        <Loader2 className="size-4 animate-spin" />
+      ) : playing ? (
+        <CircleStop className="size-4" />
+      ) : (
+        <Volume2 className="size-4" />
+      )}
+    </Button>
   );
 }
 
