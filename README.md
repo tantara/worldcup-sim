@@ -25,6 +25,7 @@ WorldCupSim is a pnpm workspace centered on a Next.js app for the 2026 FIFA Worl
 - **Bracket view** - follow the group-stage and knockout structure from opener to final.
 - **Match simulations** - run minute-by-minute unofficial simulations from the web app.
 - **Playground** - experiment with simulation inputs and generated match narratives.
+- **Voice narration** - play any commentary line aloud with on-device text-to-speech (Supertonic 3 via ONNX Runtime Web, WebGPU with WASM fallback). Ten voices and 31 languages, synthesized entirely in the browser inside a Web Worker - no server inference. Models stream from the Hugging Face CDN on first use.
 - **Typed data package** - import teams, squads, fixtures, venues, and qualification campaigns from `@worldcupsim/wc26-data`.
 - **Cache-aware agent kernel** - use `@worldcupsim/sim-agent` for provider-neutral streaming agents tuned for stable prompt prefixes.
 
@@ -45,6 +46,7 @@ client/
     app/_components/      Bracket, simulator, and page-level UI
     components/           Shared UI, navigation, theme, and auth components
     lib/                  Tournament, team, match-engine, and playground logic
+    lib/supertonic/       In-browser TTS engine + Web Worker (ONNX Runtime Web)
     server/
       agent/              Match simulation agent orchestration and tools
       api/                tRPC root and routers
@@ -194,6 +196,13 @@ git diff --check
 ```
 
 Do not run the production build unless you specifically need to validate build output.
+
+## Acknowledgements
+
+WorldCupSim builds on and takes inspiration from several projects:
+
+- [Supertonic](https://github.com/supertone-inc/supertonic/) for Supertonic 3 in-browser text-to-speech.
+- [DeepSeek-Reasonix](https://github.com/esengine/deepseek-reasonix) for cache-stable agent kernel design inspiration.
 
 ## License
 
