@@ -1,14 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CalendarDays, MapPin } from "lucide-react";
+import { ArrowLeft, CalendarDays, Clock, MapPin } from "lucide-react";
 
 import { MatchSimulator } from "~/app/_components/match-simulator";
 import { Badge } from "~/components/ui/badge";
-import { getTeam } from "~/lib/teams";
-import { getMatch, TOURNAMENT } from "~/lib/tournament";
+import { Card, CardContent } from "~/components/ui/card";
+import { getMatch, MATCHES, resolveMatch } from "~/lib/tournament";
 
 export function generateStaticParams() {
-  return TOURNAMENT.map((m) => ({ matchid: m.id }));
+  return MATCHES.map((m) => ({ matchid: String(m.match) }));
 }
 
 export async function generateMetadata({
@@ -19,9 +19,7 @@ export async function generateMetadata({
   const { matchid } = await params;
   const match = getMatch(matchid);
   if (!match) return { title: "Match not found" };
-  const home = getTeam(match.homeId);
-  const away = getTeam(match.awayId);
-  return { title: `${home.name} vs ${away.name} · World Cup Simulator` };
+  return { title: `${match.home} vs ${match.away} · World Cup Simulator` };
 }
 
 export default async function MatchPage({
@@ -32,6 +30,8 @@ export default async function MatchPage({
   const { matchid } = await params;
   const match = getMatch(matchid);
   if (!match) notFound();
+
+  const { home, away, playable } = resolveMatch(match);
 
   return (
     <main className="flex-1">
@@ -45,20 +45,51 @@ export default async function MatchPage({
             All fixtures
           </Link>
           <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-            <Badge variant="secondary">{match.stage}</Badge>
-            <Badge variant="outline">Matchday {match.matchday}</Badge>
+            <Badge variant="secondary">
+              {match.group ? `Group ${match.group}` : match.round}
+            </Badge>
+            <Badge variant="outline">Match {match.match}</Badge>
             <span className="flex items-center gap-1.5">
               <CalendarDays className="size-3.5" />
-              {match.kickoff}
+              {match.date}
             </span>
+            {match.kickoff_local && (
+              <span className="flex items-center gap-1.5">
+                <Clock className="size-3.5" />
+                {match.kickoff_local}
+              </span>
+            )}
             <span className="flex items-center gap-1.5">
               <MapPin className="size-3.5" />
-              {match.venue}
+              {match.venue}, {match.city}
             </span>
           </div>
         </div>
 
-        <MatchSimulator homeId={match.homeId} awayId={match.awayId} />
+        {playable && home && away ? (
+          <MatchSimulator home={home} away={away} />
+        ) : (
+          <Card>
+            <CardContent className="flex flex-col items-center gap-3 py-16 text-center">
+              <div className="text-3xl font-bold">
+                {match.home}{" "}
+                <span className="mx-2 text-muted-foreground">vs</span>{" "}
+                {match.away}
+              </div>
+              <p className="max-w-md text-sm text-muted-foreground">
+                This {match.round} fixture isn&apos;t playable yet — the
+                qualifying teams are decided once the earlier rounds are
+                simulated.
+              </p>
+              <Link
+                href="/"
+                className="text-sm font-medium text-primary hover:underline"
+              >
+                Back to fixtures
+              </Link>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </main>
   );

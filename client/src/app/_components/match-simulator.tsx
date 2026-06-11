@@ -37,7 +37,7 @@ import {
   type MatchEventType,
   type Side,
 } from "~/lib/match-engine";
-import { getTeam, type Player, type Team } from "~/lib/teams";
+import type { Player, Team } from "~/lib/teams";
 
 const SPEEDS = {
   slow: { label: "Slow", ms: 1100 },
@@ -46,17 +46,8 @@ const SPEEDS = {
 } as const;
 type SpeedKey = keyof typeof SPEEDS;
 
-export function MatchSimulator({
-  homeId,
-  awayId,
-}: {
-  homeId: string;
-  awayId: string;
-}) {
+export function MatchSimulator({ home, away }: { home: Team; away: Team }) {
   const [speed, setSpeed] = useState<SpeedKey>("normal");
-
-  const home = getTeam(homeId);
-  const away = getTeam(awayId);
 
   const [events, setEvents] = useState<MatchEvent[]>([]);
   const [revealed, setRevealed] = useState(0);
@@ -90,7 +81,6 @@ export function MatchSimulator({
   const finished = revealed >= events.length && events.length > 0;
 
   const kickOff = () => {
-    if (homeId === awayId) return;
     const result = simulateMatch(home, away);
     setEvents(result.events);
     setRevealed(0);

@@ -1,78 +1,83 @@
-export type Match = {
-  id: string;
-  stage: string;
-  matchday: number;
-  homeId: string;
-  awayId: string;
-  kickoff: string;
-  venue: string;
-};
+import {
+  matches as wcMatches,
+  schedule as wcSchedule,
+  type GroupLetter,
+  type Match,
+  type Round,
+} from "@worldcupsim/wc26-data";
 
-/** Eight nations split into two groups. */
-export const GROUPS: Record<string, string[]> = {
-  "Group A": ["bra", "fra", "eng", "ned"],
-  "Group B": ["arg", "esp", "ger", "por"],
-};
+import { getTeamByCountry, GROUP_LETTERS, type Team } from "./teams";
 
-const VENUES = [
-  "MetLife Stadium",
-  "SoFi Stadium",
-  "AT&T Stadium",
-  "Mercedes-Benz Stadium",
-  "Hard Rock Stadium",
-  "Lumen Field",
-];
+export type { Match, Round } from "@worldcupsim/wc26-data";
 
-const DATES = ["Jun 14, 2026", "Jun 18, 2026", "Jun 22, 2026"];
+export const TOURNAMENT_NAME = wcSchedule.tournament;
+export const TOURNAMENT_DATES = wcSchedule.dates;
+export const HOSTS = wcSchedule.hosts;
+export const VENUES = wcSchedule.venues;
+export const MATCHES = wcMatches;
 
-// Round-robin pairings (by index) for a group of four, one row per matchday.
-const SCHEDULE: ReadonlyArray<ReadonlyArray<readonly [number, number]>> = [
-  [
-    [0, 1],
-    [2, 3],
-  ],
-  [
-    [0, 2],
-    [3, 1],
-  ],
-  [
-    [0, 3],
-    [1, 2],
-  ],
-];
-
-function buildGroup(stage: string, ids: string[]): Match[] {
-  const matches: Match[] = [];
-  SCHEDULE.forEach((day, dayIdx) => {
-    day.forEach((pair, gameIdx) => {
-      const homeId = ids[pair[0]]!;
-      const awayId = ids[pair[1]]!;
-      matches.push({
-        id: `${homeId}-${awayId}`,
-        stage,
-        matchday: dayIdx + 1,
-        homeId,
-        awayId,
-        kickoff: DATES[dayIdx]!,
-        venue: VENUES[(dayIdx * 2 + gameIdx) % VENUES.length]!,
-      });
-    });
-  });
-  return matches;
-}
-
-export const TOURNAMENT: Match[] = Object.entries(GROUPS).flatMap(
-  ([stage, ids]) => buildGroup(stage, ids),
-);
-
-/** Fixtures grouped by stage, preserving group order. */
-export function getSchedule(): { stage: string; matches: Match[] }[] {
-  return Object.keys(GROUPS).map((stage) => ({
-    stage,
-    matches: TOURNAMENT.filter((m) => m.stage === stage),
-  }));
+/** Stable URL id for a match (its FIFA match number). */
+export function matchId(m: Match): string {
+  return String(m.match);
 }
 
 export function getMatch(id: string): Match | undefined {
-  return TOURNAMENT.find((m) => m.id === id);
+  const num = Number(id);
+  return Number.isInteger(num)
+    ? wcMatches.find((m) => m.match === num)
+    : undefined;
+}
+
+/** Group-stage matches only have real nations as participants. */
+export function isGroupStage(m: Match): boolean {
+  return m.round === "Group Stage";
+}
+
+export type ResolvedMatch = {
+  match: Match;
+  home?: Team;
+  away?: Team;
+  /** True when both sides are real teams (i.e. the match is playable). */
+  playable: boolean;
+};
+
+export function resolveMatch(m: Match): ResolvedMatch {
+  const home = getTeamByCountry(m.home);
+  const away = getTeamByCountry(m.away);
+  return { match: m, home, away, playable: Boolean(home && away) };
+}
+
+export const KNOCKOUT_ROUNDS: Round[] = [
+  "Round of 32",
+  "Round of 16",
+  "Quarter-final",
+  "Semi-final",
+  "Third-place play-off",
+  "Final",
+];
+
+/** All group-stage matches for one group, in match order. */
+export function matchesByGroup(group: GroupLetter): Match[] {
+  return wcMatches.filter((m) => m.group === group);
+}
+
+/** Matches for one knockout round, in match order. */
+export function matchesByRound(round: Round): Match[] {
+  return wcMatches.filter((m) => m.round === round);
+}
+
+/** Group-stage fixtures grouped by group letter (A–L). */
+export function groupStageSchedule(): { group: GroupLetter; matches: Match[] }[] {
+  return GROUP_LETTERS.map((group) => ({
+    group,
+    matches: matchesByGroup(group),
+  }));
+}
+
+/** Knockout fixtures grouped by round, in tournament order. */
+export function knockoutSchedule(): { round: Round; matches: Match[] }[] {
+  return KNOCKOUT_ROUNDS.map((round) => ({
+    round,
+    matches: matchesByRound(round),
+  }));
 }

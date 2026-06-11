@@ -1,3 +1,12 @@
+import {
+  getTeamsByGroup,
+  teams as wcTeams,
+  type Confederation,
+  type GroupLetter,
+  type Player as WcPlayer,
+  type Team as WcTeam,
+} from "@worldcupsim/wc26-data";
+
 export type Player = {
   number: number;
   name: string;
@@ -8,195 +17,190 @@ export type Team = {
   id: string;
   name: string;
   flag: string;
-  /** Overall strength, roughly 60-95. Drives the simulation. */
-  rating: number;
+  group: GroupLetter;
+  confederation: Confederation;
   manager: string;
+  /** Overall strength, ~70-92. Drives the simulation. */
+  rating: number;
+  /** Derived from the selected XI, e.g. "4-3-3". */
   formation: string;
   colors: { primary: string; secondary: string };
   squad: Player[];
 };
 
-export const TEAMS: Team[] = [
-  {
-    id: "bra",
-    name: "Brazil",
-    flag: "🇧🇷",
-    rating: 91,
-    manager: "Dorival Júnior",
-    formation: "4-2-3-1",
-    colors: { primary: "#f7d117", secondary: "#1c8a43" },
-    squad: [
-      { number: 1, name: "Alisson", position: "GK" },
-      { number: 2, name: "Danilo", position: "DF" },
-      { number: 3, name: "Marquinhos", position: "DF" },
-      { number: 4, name: "Gabriel Magalhães", position: "DF" },
-      { number: 6, name: "Wendell", position: "DF" },
-      { number: 5, name: "Bruno Guimarães", position: "MF" },
-      { number: 8, name: "Lucas Paquetá", position: "MF" },
-      { number: 10, name: "Rodrygo", position: "MF" },
-      { number: 7, name: "Vinícius Jr.", position: "FW" },
-      { number: 11, name: "Raphinha", position: "FW" },
-      { number: 9, name: "Endrick", position: "FW" },
-    ],
-  },
-  {
-    id: "arg",
-    name: "Argentina",
-    flag: "🇦🇷",
-    rating: 92,
-    manager: "Lionel Scaloni",
-    formation: "4-3-3",
-    colors: { primary: "#75aadb", secondary: "#ffffff" },
-    squad: [
-      { number: 23, name: "Emiliano Martínez", position: "GK" },
-      { number: 4, name: "Gonzalo Montiel", position: "DF" },
-      { number: 13, name: "Cristian Romero", position: "DF" },
-      { number: 19, name: "Nicolás Otamendi", position: "DF" },
-      { number: 3, name: "Nicolás Tagliafico", position: "DF" },
-      { number: 7, name: "Rodrigo De Paul", position: "MF" },
-      { number: 5, name: "Enzo Fernández", position: "MF" },
-      { number: 20, name: "Alexis Mac Allister", position: "MF" },
-      { number: 11, name: "Ángel Di María", position: "FW" },
-      { number: 10, name: "Lionel Messi", position: "FW" },
-      { number: 22, name: "Lautaro Martínez", position: "FW" },
-    ],
-  },
-  {
-    id: "fra",
-    name: "France",
-    flag: "🇫🇷",
-    rating: 91,
-    manager: "Didier Deschamps",
-    formation: "4-2-3-1",
-    colors: { primary: "#1e3a8a", secondary: "#ffffff" },
-    squad: [
-      { number: 1, name: "Mike Maignan", position: "GK" },
-      { number: 2, name: "Jules Koundé", position: "DF" },
-      { number: 4, name: "Dayot Upamecano", position: "DF" },
-      { number: 5, name: "William Saliba", position: "DF" },
-      { number: 22, name: "Theo Hernández", position: "DF" },
-      { number: 8, name: "Aurélien Tchouaméni", position: "MF" },
-      { number: 14, name: "Adrien Rabiot", position: "MF" },
-      { number: 7, name: "Antoine Griezmann", position: "MF" },
-      { number: 11, name: "Ousmane Dembélé", position: "FW" },
-      { number: 10, name: "Kylian Mbappé", position: "FW" },
-      { number: 9, name: "Marcus Thuram", position: "FW" },
-    ],
-  },
-  {
-    id: "eng",
-    name: "England",
-    flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
-    rating: 89,
-    manager: "Thomas Tuchel",
-    formation: "4-2-3-1",
-    colors: { primary: "#ffffff", secondary: "#cf0a2c" },
-    squad: [
-      { number: 1, name: "Jordan Pickford", position: "GK" },
-      { number: 2, name: "Kyle Walker", position: "DF" },
-      { number: 5, name: "John Stones", position: "DF" },
-      { number: 6, name: "Marc Guéhi", position: "DF" },
-      { number: 3, name: "Luke Shaw", position: "DF" },
-      { number: 4, name: "Declan Rice", position: "MF" },
-      { number: 8, name: "Jude Bellingham", position: "MF" },
-      { number: 10, name: "Cole Palmer", position: "MF" },
-      { number: 7, name: "Bukayo Saka", position: "FW" },
-      { number: 9, name: "Harry Kane", position: "FW" },
-      { number: 11, name: "Phil Foden", position: "FW" },
-    ],
-  },
-  {
-    id: "esp",
-    name: "Spain",
-    flag: "🇪🇸",
-    rating: 90,
-    manager: "Luis de la Fuente",
-    formation: "4-3-3",
-    colors: { primary: "#c60b1e", secondary: "#ffc400" },
-    squad: [
-      { number: 23, name: "Unai Simón", position: "GK" },
-      { number: 2, name: "Dani Carvajal", position: "DF" },
-      { number: 14, name: "Aymeric Laporte", position: "DF" },
-      { number: 4, name: "Robin Le Normand", position: "DF" },
-      { number: 24, name: "Marc Cucurella", position: "DF" },
-      { number: 16, name: "Rodri", position: "MF" },
-      { number: 8, name: "Fabián Ruiz", position: "MF" },
-      { number: 26, name: "Pedri", position: "MF" },
-      { number: 11, name: "Nico Williams", position: "FW" },
-      { number: 9, name: "Álvaro Morata", position: "FW" },
-      { number: 19, name: "Lamine Yamal", position: "FW" },
-    ],
-  },
-  {
-    id: "ger",
-    name: "Germany",
-    flag: "🇩🇪",
-    rating: 88,
-    manager: "Julian Nagelsmann",
-    formation: "4-2-3-1",
-    colors: { primary: "#000000", secondary: "#dd0000" },
-    squad: [
-      { number: 1, name: "Manuel Neuer", position: "GK" },
-      { number: 6, name: "Joshua Kimmich", position: "DF" },
-      { number: 2, name: "Antonio Rüdiger", position: "DF" },
-      { number: 23, name: "Jonathan Tah", position: "DF" },
-      { number: 3, name: "David Raum", position: "DF" },
-      { number: 8, name: "Robert Andrich", position: "MF" },
-      { number: 21, name: "İlkay Gündoğan", position: "MF" },
-      { number: 10, name: "Jamal Musiala", position: "MF" },
-      { number: 17, name: "Florian Wirtz", position: "MF" },
-      { number: 7, name: "Kai Havertz", position: "FW" },
-      { number: 9, name: "Niclas Füllkrug", position: "FW" },
-    ],
-  },
-  {
-    id: "por",
-    name: "Portugal",
-    flag: "🇵🇹",
-    rating: 89,
-    manager: "Roberto Martínez",
-    formation: "4-3-3",
-    colors: { primary: "#006600", secondary: "#cc0000" },
-    squad: [
-      { number: 1, name: "Diogo Costa", position: "GK" },
-      { number: 20, name: "João Cancelo", position: "DF" },
-      { number: 3, name: "Pepe", position: "DF" },
-      { number: 4, name: "Rúben Dias", position: "DF" },
-      { number: 19, name: "Nuno Mendes", position: "DF" },
-      { number: 18, name: "Rúben Neves", position: "MF" },
-      { number: 8, name: "Bruno Fernandes", position: "MF" },
-      { number: 16, name: "Vitinha", position: "MF" },
-      { number: 11, name: "Rafael Leão", position: "FW" },
-      { number: 7, name: "Cristiano Ronaldo", position: "FW" },
-      { number: 21, name: "Diogo Jota", position: "FW" },
-    ],
-  },
-  {
-    id: "ned",
-    name: "Netherlands",
-    flag: "🇳🇱",
-    rating: 87,
-    manager: "Ronald Koeman",
-    formation: "4-3-3",
-    colors: { primary: "#f36c21", secondary: "#ffffff" },
-    squad: [
-      { number: 1, name: "Bart Verbruggen", position: "GK" },
-      { number: 22, name: "Denzel Dumfries", position: "DF" },
-      { number: 4, name: "Virgil van Dijk", position: "DF" },
-      { number: 3, name: "Matthijs de Ligt", position: "DF" },
-      { number: 17, name: "Daley Blind", position: "DF" },
-      { number: 6, name: "Jordan Henderson", position: "MF" },
-      { number: 8, name: "Tijjani Reijnders", position: "MF" },
-      { number: 14, name: "Frenkie de Jong", position: "MF" },
-      { number: 11, name: "Cody Gakpo", position: "FW" },
-      { number: 9, name: "Memphis Depay", position: "FW" },
-      { number: 10, name: "Xavi Simons", position: "FW" },
-    ],
-  },
-];
+// Emoji flags for all 48 finalists (subdivision flags for England/Scotland).
+const FLAGS: Record<string, string> = {
+  "Czech Republic": "🇨🇿",
+  Mexico: "🇲🇽",
+  "South Africa": "🇿🇦",
+  "South Korea": "🇰🇷",
+  "Bosnia and Herzegovina": "🇧🇦",
+  Canada: "🇨🇦",
+  Qatar: "🇶🇦",
+  Switzerland: "🇨🇭",
+  Brazil: "🇧🇷",
+  Haiti: "🇭🇹",
+  Morocco: "🇲🇦",
+  Scotland: "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
+  Australia: "🇦🇺",
+  Paraguay: "🇵🇾",
+  Turkey: "🇹🇷",
+  "United States": "🇺🇸",
+  "Curaçao": "🇨🇼",
+  Ecuador: "🇪🇨",
+  Germany: "🇩🇪",
+  "Ivory Coast": "🇨🇮",
+  Japan: "🇯🇵",
+  Netherlands: "🇳🇱",
+  Sweden: "🇸🇪",
+  Tunisia: "🇹🇳",
+  Belgium: "🇧🇪",
+  Egypt: "🇪🇬",
+  Iran: "🇮🇷",
+  "New Zealand": "🇳🇿",
+  "Cape Verde": "🇨🇻",
+  "Saudi Arabia": "🇸🇦",
+  Spain: "🇪🇸",
+  Uruguay: "🇺🇾",
+  France: "🇫🇷",
+  Iraq: "🇮🇶",
+  Norway: "🇳🇴",
+  Senegal: "🇸🇳",
+  Algeria: "🇩🇿",
+  Argentina: "🇦🇷",
+  Austria: "🇦🇹",
+  Jordan: "🇯🇴",
+  Colombia: "🇨🇴",
+  "DR Congo": "🇨🇩",
+  Portugal: "🇵🇹",
+  Uzbekistan: "🇺🇿",
+  England: "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+  Croatia: "🇭🇷",
+  Ghana: "🇬🇭",
+  Panama: "🇵🇦",
+};
+
+const CONFED_BASE: Record<Confederation, number> = {
+  UEFA: 80,
+  CONMEBOL: 80,
+  CAF: 76,
+  CONCACAF: 75,
+  AFC: 75,
+  OFC: 72,
+};
+
+export function slugify(country: string): string {
+  return country
+    .toLowerCase()
+    .normalize("NFD")
+    // strip combining diacritical marks (U+0300–U+036F)
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function clamp(n: number, lo: number, hi: number): number {
+  return Math.max(lo, Math.min(hi, n));
+}
+
+// Strength: confederation baseline nudged by squad experience (avg caps).
+// Falls back to the baseline for teams whose caps aren't published yet.
+function ratingFor(team: WcTeam): number {
+  const base = CONFED_BASE[team.confederation];
+  const caps = team.players
+    .map((p) => p.caps)
+    .filter((c): c is number => c != null);
+  const avg =
+    caps.length >= 8 ? caps.reduce((a, b) => a + b, 0) / caps.length : null;
+  const signal = avg == null ? 0 : clamp((avg - 25) * 0.2, -4, 8);
+  return Math.round(clamp(base + signal, 70, 92));
+}
+
+// Deterministic accent color from the country name (stable across renders).
+function colorsFor(country: string): { primary: string; secondary: string } {
+  let hash = 0;
+  for (let i = 0; i < country.length; i++) {
+    hash = (hash * 31 + country.charCodeAt(i)) % 360;
+  }
+  return {
+    primary: `hsl(${hash}, 65%, 48%)`,
+    secondary: `hsl(${(hash + 40) % 360}, 60%, 55%)`,
+  };
+}
+
+// Pick a plausible XI (1 GK, 4 DF, 3 MF, 3 FW) from the 26-player squad,
+// filling any gaps from remaining players so we always get 11.
+function startingXI(players: WcPlayer[]): Player[] {
+  const take = (pos: WcPlayer["position"], n: number) =>
+    players.filter((p) => p.position === pos).slice(0, n);
+
+  const xi = [
+    ...take("GK", 1),
+    ...take("DF", 4),
+    ...take("MF", 3),
+    ...take("FW", 3),
+  ];
+  if (xi.length < 11) {
+    const chosen = new Set(xi);
+    for (const p of players) {
+      if (xi.length >= 11) break;
+      if (!chosen.has(p)) xi.push(p);
+    }
+  }
+  return xi.slice(0, 11).map((p, i) => ({
+    number: p.number ?? i + 1,
+    name: p.name,
+    position: p.position,
+  }));
+}
+
+function formationFor(squad: Player[]): string {
+  const count = (pos: Player["position"]) =>
+    squad.filter((p) => p.position === pos).length;
+  return `${count("DF")}-${count("MF")}-${count("FW")}`;
+}
+
+function buildTeam(team: WcTeam): Team {
+  const squad = startingXI(team.players);
+  return {
+    id: slugify(team.country),
+    name: team.country,
+    flag: FLAGS[team.country] ?? "🏳️",
+    group: team.group,
+    confederation: team.confederation,
+    manager: team.manager,
+    rating: ratingFor(team),
+    formation: formationFor(squad),
+    colors: colorsFor(team.country),
+    squad,
+  };
+}
+
+export const TEAMS: Team[] = wcTeams.map(buildTeam);
+
+const BY_ID = new Map(TEAMS.map((t) => [t.id, t]));
+const BY_COUNTRY = new Map(TEAMS.map((t) => [t.name, t]));
 
 export function getTeam(id: string): Team {
-  const team = TEAMS.find((t) => t.id === id);
+  const team = BY_ID.get(id);
   if (!team) throw new Error(`Unknown team: ${id}`);
   return team;
+}
+
+export function findTeam(id: string): Team | undefined {
+  return BY_ID.get(id);
+}
+
+/** Resolve by exact country name (matches the dataset's `home`/`away` fields). */
+export function getTeamByCountry(country: string): Team | undefined {
+  return BY_COUNTRY.get(country);
+}
+
+export const GROUP_LETTERS: GroupLetter[] = [
+  "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L",
+];
+
+/** Teams in a group, mapped to the client `Team` shape. */
+export function teamsInGroup(group: GroupLetter): Team[] {
+  return getTeamsByGroup(group).map(buildTeam);
 }

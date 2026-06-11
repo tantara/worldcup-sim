@@ -9,9 +9,9 @@ const config = {
   // `postgres` (postgres-js) ships workerd-specific code; keep it external so
   // Next doesn't bundle it and the Cloudflare entrypoint is used at runtime.
   serverExternalPackages: ["postgres"],
-  // The agent kernel ships as TypeScript source (workspace package); let Next
-  // transpile it instead of expecting a prebuilt dist.
-  transpilePackages: ["@worldcupsim/sim-agent"],
+  // Workspace packages ship as TypeScript source; let Next transpile them
+  // instead of expecting a prebuilt dist.
+  transpilePackages: ["@worldcupsim/sim-agent", "@worldcupsim/wc26-data"],
 };
 
 export default config;
