@@ -66,12 +66,14 @@ export async function* runAgentMatch(
     type: MatchEventType,
     text: string,
     side?: Side,
+    player?: string,
   ): MatchEvent => ({
     id: eventId++,
     minute,
     type,
     side,
     text,
+    player,
     score: { ...score },
   });
 
@@ -121,6 +123,7 @@ export async function* runAgentMatch(
         decision.event,
         decision.text,
         decision.side ?? undefined,
+        decision.player ?? undefined,
       ),
     };
   }

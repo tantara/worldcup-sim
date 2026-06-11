@@ -21,6 +21,8 @@ export type MatchEvent = {
   type: MatchEventType;
   side?: Side;
   text: string;
+  /** Player involved in the event (e.g. the goal scorer). */
+  player?: string;
   /** Running score after this event. */
   score: { home: number; away: number };
 };
@@ -64,6 +66,7 @@ export function simulateMatch(home: Team, away: Team): MatchResult {
     type: MatchEventType,
     text: string,
     side?: Side,
+    player?: string,
   ) => {
     events.push({
       id: eventId++,
@@ -71,6 +74,7 @@ export function simulateMatch(home: Team, away: Team): MatchResult {
       type,
       side,
       text,
+      player,
       score: { ...score },
     });
   };
@@ -137,6 +141,7 @@ export function simulateMatch(home: Team, away: Team): MatchResult {
         "goal",
         `⚽ GOAL! ${attacker.name} scores for ${team.name}! ${home.flag} ${score.home} - ${score.away} ${away.flag}`,
         side,
+        attacker.name,
       );
     } else if (roll < goalProb + 0.22) {
       const gk = keeper(opp);

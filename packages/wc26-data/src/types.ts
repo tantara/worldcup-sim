@@ -68,6 +68,28 @@ export interface Team {
   players: Player[];
 }
 
+export interface TeamKit {
+  /** Dominant kit color, as a hex string. */
+  primary: string;
+  /** Complementary accent color, as a hex string. */
+  secondary: string;
+}
+
+export interface TeamColors {
+  country: string;
+  /** Home kit — the team's iconic identity colors. */
+  home: TeamKit;
+  /** Away (change) kit — distinct from home so similar teams don't clash. */
+  away: TeamKit;
+}
+
+export interface ColorsFile {
+  tournament: string;
+  source: string;
+  notes: string;
+  teams: TeamColors[];
+}
+
 export type QualificationResultCode = "W" | "D" | "L";
 
 export type QualificationVenue = "home" | "away";

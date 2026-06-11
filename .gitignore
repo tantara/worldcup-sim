@@ -3,6 +3,7 @@ node_modules
 
 # local reference material (not part of the app)
 DeepSeek-Reasonix/
+supertonic/
 
 # logs
 *.log

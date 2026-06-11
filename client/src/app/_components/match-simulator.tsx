@@ -119,6 +119,7 @@ export function MatchSimulator({ home, away }: { home: Team; away: Team }) {
           clock={clock}
           playing={playing}
           finished={finished}
+          goals={shown.filter((e) => e.type === "goal")}
         />
 
         <CardContent className="flex flex-col gap-4">
@@ -218,6 +219,7 @@ function Scoreboard({
   clock,
   playing,
   finished,
+  goals,
 }: {
   home: Team;
   away: Team;
@@ -225,7 +227,12 @@ function Scoreboard({
   clock: number;
   playing: boolean;
   finished: boolean;
+  goals: MatchEvent[];
 }) {
+  const homeGoals = goals.filter((g) => g.side === "home");
+  const awayGoals = goals.filter((g) => g.side === "away");
+  const hasGoals = homeGoals.length > 0 || awayGoals.length > 0;
+
   return (
     <CardHeader className="pitch-stripes border-b py-4 sm:py-5 [.border-b]:pb-4 sm:[.border-b]:pb-5">
       <div className="flex items-center justify-between gap-2">
@@ -240,7 +247,38 @@ function Scoreboard({
         </div>
         <TeamBadge team={away} />
       </div>
+
+      {hasGoals && (
+        <div className="mt-3 grid grid-cols-[1fr_auto_1fr] items-start gap-2 text-xs text-white/90">
+          <ScorerList goals={homeGoals} align="right" />
+          <span className="text-white/40">⚽</span>
+          <ScorerList goals={awayGoals} align="left" />
+        </div>
+      )}
     </CardHeader>
+  );
+}
+
+function ScorerList({
+  goals,
+  align,
+}: {
+  goals: MatchEvent[];
+  align: "left" | "right";
+}) {
+  return (
+    <ul
+      className={`flex flex-col gap-0.5 ${
+        align === "right" ? "items-end text-right" : "items-start text-left"
+      }`}
+    >
+      {goals.map((g) => (
+        <li key={g.id} className="max-w-full truncate">
+          <span className="font-medium">{g.player ?? "Goal"}</span>{" "}
+          <span className="text-white/60 tabular-nums">{g.minute}&apos;</span>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -396,7 +434,7 @@ function TeamPanel({
 
         <div>
           <h3 className="text-muted-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
-            Starting XI
+            Line up
           </h3>
           <ul className="flex flex-col gap-0.5">
             {positions.flatMap((pos) =>

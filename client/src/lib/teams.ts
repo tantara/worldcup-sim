@@ -1,5 +1,6 @@
 import {
   getTeam as getWcTeam,
+  getTeamColors,
   getTeamGroupTier,
   getQualificationCampaign,
   getTeamsByGroup,
@@ -17,6 +18,9 @@ export type Player = {
   name: string;
   position: "GK" | "DF" | "MF" | "FW";
 };
+
+/** A single kit's colors. */
+export type Kit = { primary: string; secondary: string };
 
 export type Team = {
   id: string;
@@ -126,8 +130,13 @@ function ratingFor(team: WcTeam): number {
   return Math.round(clamp(base + signal, 70, 92));
 }
 
-// Deterministic accent color from the country name (stable across renders).
+// Real national-team theme colors from the dataset, with a deterministic
+// hash-based fallback for any country missing curated colors.
 function colorsFor(country: string): { primary: string; secondary: string } {
+  const curated = getTeamColors(country);
+  if (curated) {
+    return { primary: curated.primary, secondary: curated.secondary };
+  }
   let hash = 0;
   for (let i = 0; i < country.length; i++) {
     hash = (hash * 31 + country.charCodeAt(i)) % 360;

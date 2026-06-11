@@ -3,7 +3,7 @@ import "~/styles/globals.css";
 import { type Metadata } from "next";
 import { Geist, Noto_Sans_KR } from "next/font/google";
 
-import { Footer } from "~/components/footer";
+import { ConditionalFooter } from "~/components/conditional-footer";
 import { Navbar } from "~/components/navbar";
 import { ThemeProvider } from "~/components/theme-provider";
 import { env } from "~/env";
@@ -90,7 +90,7 @@ export default function RootLayout({
             <div className="app-shell flex min-h-screen flex-col bg-background">
               <Navbar />
               <div className="flex flex-1 flex-col">{children}</div>
-              <Footer />
+              <ConditionalFooter />
             </div>
           </TRPCReactProvider>
         </ThemeProvider>

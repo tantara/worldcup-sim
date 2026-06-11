@@ -30,6 +30,11 @@ import {
   hashSeed,
   makeRng,
 } from "./dummy";
+import {
+  parseLineup,
+  parseManagerUpdate,
+  type ManagerPlanContext,
+} from "./manager-update";
 import { saveResult } from "./results-store";
 
 /**
@@ -74,11 +79,6 @@ export interface LineupOptions {
   managerContext?: string;
 }
 
-const TACTICS: ReadonlySet<string> = new Set([
-  "attacking",
-  "balanced",
-  "defensive",
-]);
 const DEFAULT_MANAGER_INTERVAL_MINUTES = 5;
 const DEFAULT_GAME_SPEED: GameSpeed = "normal";
 const GAME_SPEED_CONFIG: Record<
@@ -147,6 +147,8 @@ export async function* runMatch(
     awayTactic: "balanced" as Tactic,
     homeFormation: "4-3-3",
     awayFormation: "4-3-3",
+    homeKeyPlayer: home.squad[0]?.name ?? home.name,
+    awayKeyPlayer: away.squad[0]?.name ?? away.name,
     homeStrategy: "Start balanced and read the match.",
     awayStrategy: "Start balanced and read the match.",
     redCards: { home: 0, away: 0 },
@@ -328,12 +330,14 @@ export async function* runMatch(
     if (side === "home") {
       state.homeTactic = lineup.tactic;
       state.homeFormation = lineup.formation;
+      state.homeKeyPlayer = lineup.keyPlayer;
       state.homeStrategy = lineup.strategy ?? state.homeStrategy;
       state.homeXI = xi;
       homeLineupKnown = true;
     } else {
       state.awayTactic = lineup.tactic;
       state.awayFormation = lineup.formation;
+      state.awayKeyPlayer = lineup.keyPlayer;
       state.awayStrategy = lineup.strategy ?? state.awayStrategy;
       state.awayXI = xi;
       awayLineupKnown = true;
@@ -360,6 +364,7 @@ export async function* runMatch(
       ? {
           formation: state.awayFormation,
           tactic: state.awayTactic,
+          keyPlayer: state.awayKeyPlayer,
           strategy: state.awayStrategy,
           lineup: state.awayXI,
           known: awayLineupKnown,
@@ -367,6 +372,7 @@ export async function* runMatch(
       : {
           formation: state.homeFormation,
           tactic: state.homeTactic,
+          keyPlayer: state.homeKeyPlayer,
           strategy: state.homeStrategy,
           lineup: state.homeXI,
           known: homeLineupKnown,
@@ -375,12 +381,14 @@ export async function* runMatch(
       ? {
           formation: state.homeFormation,
           tactic: state.homeTactic,
+          keyPlayer: state.homeKeyPlayer,
           strategy: state.homeStrategy,
           lineup: state.homeXI,
         }
       : {
           formation: state.awayFormation,
           tactic: state.awayTactic,
+          keyPlayer: state.awayKeyPlayer,
           strategy: state.awayStrategy,
           lineup: state.awayXI,
         };
@@ -405,11 +413,11 @@ export async function* runMatch(
             opponentSquad,
             opponentPlan: opponentState.known ? opponentState : undefined,
           });
-    const lineup = parseLineup(
-      yield* drive(manager, thread, prompt),
-      squad,
-      rng,
-    );
+    const response = yield* drive(manager, thread, prompt);
+    const lineup =
+      reason === "scheduled_update"
+        ? parseManagerUpdate(response, squad, rng, current)
+        : parseLineup(response, squad, rng);
     const enriched =
       reason === "scheduled_update"
         ? withSubstitutionSummary(current.lineup, lineup)
@@ -689,13 +697,6 @@ function managerPrompt(team: Team, squad: Player[], context?: string): string {
   return managerLineupPrompt({ team, squad, context });
 }
 
-interface ManagerPlanContext {
-  formation: string;
-  tactic: Tactic;
-  strategy: string;
-  lineup: Player[];
-}
-
 function managerLineupPrompt(opts: {
   team: Team,
   squad: Player[],
@@ -733,7 +734,7 @@ function managerAdjustmentPrompt(opts: {
   const opponentPlan = opts.opponentPlan
     ? `\nKnown opponent lineup and plan: ${formatManagerPlan(opts.opponentPlan)}.`
     : "";
-  return `The main match agent delegates your scheduled in-match manager update.\n\nMinute ${opts.minute}. Score: home ${opts.score.home}-${opts.score.away} away. Opponent: ${opts.opponent.name}.\nCurrent plan and XI: ${currentPlan}.\nAvailable squad: ${roster}.\nOpponent squad information for ${opts.opponent.name}: ${opponentRoster}.${opponentPlan}\n\nReassess formation, tactic, detailed strategy, key player, and player changes. You may keep the XI unchanged or change players. Reply as JSON {"reason","formation","tactic","keyPlayer","strategy","substitutions","lineup"} where reason is the first property and explains why you made the update, substitutions is an array of {"off","on","reason"}, and lineup is the current on-pitch XI after changes.`;
+  return `The main match agent delegates your scheduled in-match manager update.\n\nMinute ${opts.minute}. Score: home ${opts.score.home}-${opts.score.away} away. Opponent: ${opts.opponent.name}.\nCurrent plan and XI: ${currentPlan}.\nAvailable squad: ${roster}.\nOpponent squad information for ${opts.opponent.name}: ${opponentRoster}.${opponentPlan}\n\nReassess formation, tactic, detailed strategy, key player, and player changes. If you would keep everything unchanged, reply with only JSON {"reason":"...","changes":false}; do not repeat formation, tactic, keyPlayer, strategy, substitutions, or lineup. If you change anything, reply as JSON {"reason","changes":true,"formation","tactic","keyPlayer","strategy","substitutions","lineup"} where reason is the first property and explains why you made the update, substitutions is an array of {"off","on","reason"}, and lineup is the current on-pitch XI after changes.`;
 }
 
 function formatRoster(players: Player[]): string {
@@ -741,7 +742,7 @@ function formatRoster(players: Player[]): string {
 }
 
 function formatManagerPlan(plan: ManagerPlanContext): string {
-  return `${plan.formation}, ${plan.tactic}, ${plan.strategy}; XI: ${plan.lineup
+  return `${plan.formation}, ${plan.tactic}, key player ${plan.keyPlayer}, ${plan.strategy}; XI: ${plan.lineup
     .map((p) => `${p.name} (${p.position})`)
     .join(", ")}`;
 }
@@ -816,70 +817,6 @@ function str(value: unknown): string | null {
   return typeof value === "string" ? value : null;
 }
 
-/** Extract a player name from a lineup entry (a bare name or `{ name }`). */
-function entryName(entry: unknown): string | null {
-  if (typeof entry === "string") return entry;
-  const rec = asRecord(entry);
-  return rec ? str(rec.name) : null;
-}
-
-function parseLineup(text: string, squad: Player[], rng: () => number): Lineup {
-  const obj = asRecord(extractJSON(text));
-  const tactic = str(obj?.tactic);
-
-  if (obj && tactic && TACTICS.has(tactic) && Array.isArray(obj.lineup)) {
-    // Resolve the picked names back to real squad players (for number/position).
-    const byName = new Map(squad.map((p) => [p.name.toLowerCase(), p]));
-    const xi: Player[] = [];
-    const seen = new Set<string>();
-    for (const entry of obj.lineup) {
-      const name = entryName(entry);
-      const player = name ? byName.get(name.toLowerCase()) : undefined;
-      if (player && !seen.has(player.name)) {
-        seen.add(player.name);
-        xi.push(player);
-      }
-    }
-    // Accept a roughly-complete XI; otherwise fall back to a generated one.
-    if (xi.length >= 7) {
-      return {
-        formation: str(obj.formation) ?? formationOf(xi),
-        tactic: tactic as Tactic,
-        keyPlayer: str(obj.keyPlayer) ?? xi[0]?.name ?? squad[0]!.name,
-        reason: str(obj.reason) ?? undefined,
-        strategy: str(obj.strategy) ?? undefined,
-        substitutions: parseSubstitutions(obj.substitutions),
-        lineup: xi.map((p) => ({
-          number: p.number,
-          name: p.name,
-          position: p.position,
-        })),
-      };
-    }
-  }
-  return decideLineup(squad, rng); // live model returned junk — fall back
-}
-
-function parseSubstitutions(value: unknown): Lineup["substitutions"] {
-  if (!Array.isArray(value)) return undefined;
-  const substitutions = value
-    .map((entry) => {
-      const rec = asRecord(entry);
-      const off = str(rec?.off);
-      const on = str(rec?.on);
-      if (!off || !on) return null;
-      return {
-        off,
-        on,
-        reason: str(rec?.reason) ?? "Manager adjustment.",
-      };
-    })
-    .filter((entry): entry is NonNullable<Lineup["substitutions"]>[number] =>
-      Boolean(entry),
-    );
-  return substitutions.length > 0 ? substitutions : undefined;
-}
-
 function withSubstitutionSummary(previousXI: Player[], next: Lineup): Lineup {
   if (next.substitutions && next.substitutions.length > 0) return next;
   const previous = new Set(previousXI.map((p) => p.name));
@@ -892,13 +829,6 @@ function withSubstitutionSummary(previousXI: Player[], next: Lineup): Lineup {
     reason: "Scheduled manager adjustment.",
   }));
   return substitutions.length > 0 ? { ...next, substitutions } : next;
-}
-
-/** "4-3-3"-style summary of an XI's outfield shape. */
-function formationOf(xi: Player[]): string {
-  const n = (pos: Player["position"]) =>
-    xi.filter((p) => p.position === pos).length;
-  return `${n("DF")}-${n("MF")}-${n("FW")}`;
 }
 
 const MINUTE_EVENTS: ReadonlySet<string> = new Set([

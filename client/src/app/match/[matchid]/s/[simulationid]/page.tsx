@@ -5,7 +5,7 @@ import { ArrowLeftIcon } from "lucide-react";
 import { Badge } from "~/components/ui/badge";
 import { getMatch, resolveMatch } from "~/lib/tournament";
 import { auth } from "~/server/auth";
-import { getSimulationForUser } from "~/server/simulations/store";
+import { getSimulation } from "~/server/simulations/store";
 import { SimulationClient } from "./simulation-client";
 
 export default async function SimulationPage({
@@ -17,14 +17,19 @@ export default async function SimulationPage({
   const match = getMatch(matchid);
   if (!match) notFound();
 
-  const session = await auth();
-  if (!session?.user?.id) {
-    redirect(`/match/${match.match}`);
-  }
-
-  const simulation = await getSimulationForUser(simulationid, session.user.id);
+  const simulation = await getSimulation(simulationid);
   if (simulation?.matchId !== match.match) {
     notFound();
+  }
+
+  if (simulation.status !== "completed") {
+    const session = await auth();
+    if (!session?.user?.id) {
+      redirect(`/match/${match.match}`);
+    }
+    if (simulation.userId !== session.user.id) {
+      notFound();
+    }
   }
 
   const { home, away, playable } = resolveMatch(match);

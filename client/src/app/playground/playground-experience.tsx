@@ -32,6 +32,18 @@ import {
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "~/components/ui/resizable";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import {
   Select,
@@ -42,6 +54,7 @@ import {
 } from "~/components/ui/select";
 import { Separator } from "~/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { useMediaQuery } from "~/hooks/use-media-query";
 import type {
   AgentUsageSummary,
   GameSpeed,
@@ -300,14 +313,9 @@ export function PlaygroundExperience({
       Agent <span className="text-primary">Playground</span>
     </>
   ),
-  description = (
-    <>
-      The main sim-agent owns game play, delegates manager updates every five
-      minutes by default, and calls the referee after notable events. Each role
-      keeps an append-only cache-stable thread.
-    </>
-  ),
+  description = null,
   beforeHeader,
+  afterHeader,
 }: {
   initialGroup?: GroupLetter;
   initialMatchNumber?: number;
@@ -315,6 +323,7 @@ export function PlaygroundExperience({
   title?: React.ReactNode;
   description?: React.ReactNode;
   beforeHeader?: React.ReactNode;
+  afterHeader?: React.ReactNode;
 }) {
   const [group, setGroup] = useState<GroupLetter>(initialGroup);
   const [matchNumber, setMatchNumber] = useState<number>(
@@ -324,6 +333,7 @@ export function PlaygroundExperience({
   const [gameSpeed, setGameSpeed] = useState<GameSpeed>("normal");
   const [maxMinutes, setMaxMinutes] = useState(90);
   const [running, setRunning] = useState(false);
+  const [playbackStopped, setPlaybackStopped] = useState(false);
   const [activeCenterThread, setActiveCenterThread] = useState<
     "match" | "referee" | null
   >(null);
@@ -333,7 +343,11 @@ export function PlaygroundExperience({
   const [state, setState] = useState<MatchState>(initialState);
   const [standings, setStandings] = useState<StandingsResponse | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const playbackStoppedRef = useRef(false);
+  const resumeWaitersRef = useRef<(() => void)[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
+  // Columns are draggable on lg+; below that they stack and resizing is moot.
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
 
   // The selected real fixture and its resolved teams.
   const fixtures = matchesByGroup(group);
@@ -359,6 +373,28 @@ export function PlaygroundExperience({
     setState(initialState());
   };
 
+  const releasePlaybackStop = useCallback(() => {
+    const waiters = resumeWaitersRef.current;
+    resumeWaitersRef.current = [];
+    for (const resume of waiters) resume();
+  }, []);
+
+  const setPlaybackStoppedState = useCallback(
+    (stopped: boolean) => {
+      playbackStoppedRef.current = stopped;
+      setPlaybackStopped(stopped);
+      if (!stopped) releasePlaybackStop();
+    },
+    [releasePlaybackStop],
+  );
+
+  const waitForPlaybackResume = useCallback(async () => {
+    if (!playbackStoppedRef.current) return;
+    await new Promise<void>((resolve) => {
+      resumeWaitersRef.current.push(resolve);
+    });
+  }, []);
+
   const loadStandings = useCallback(async () => {
     try {
       const res = await fetch("/api/playground");
@@ -375,32 +411,36 @@ export function PlaygroundExperience({
     void loadStandings();
   }, [loadStandings]);
 
-  const readEventStream = useCallback(async (res: Response) => {
-    if (!res.ok || !res.body) {
-      const detail = (await res.json().catch(() => null)) as {
-        error?: string;
-      } | null;
-      throw new Error(detail?.error ?? `Request failed (${res.status})`);
-    }
-
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = "";
-    for (;;) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      let nl: number;
-      while ((nl = buffer.indexOf("\n\n")) !== -1) {
-        const frame = buffer.slice(0, nl);
-        buffer = buffer.slice(nl + 2);
-        const line = frame.trim();
-        if (!line.startsWith("data:")) continue;
-        const event = JSON.parse(line.slice(5).trim()) as OrchestratorEvent;
-        setState((s) => reduce(s, event));
+  const readEventStream = useCallback(
+    async (res: Response) => {
+      if (!res.ok || !res.body) {
+        const detail = (await res.json().catch(() => null)) as {
+          error?: string;
+        } | null;
+        throw new Error(detail?.error ?? `Request failed (${res.status})`);
       }
-    }
-  }, []);
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        let nl: number;
+        while ((nl = buffer.indexOf("\n\n")) !== -1) {
+          const frame = buffer.slice(0, nl);
+          buffer = buffer.slice(nl + 2);
+          const line = frame.trim();
+          if (!line.startsWith("data:")) continue;
+          const event = JSON.parse(line.slice(5).trim()) as OrchestratorEvent;
+          await waitForPlaybackResume();
+          setState((s) => reduce(s, event));
+        }
+      }
+    },
+    [waitForPlaybackResume],
+  );
 
   const setManagerLineup = useCallback(
     async (side: "home" | "away") => {
@@ -459,6 +499,7 @@ export function PlaygroundExperience({
     const awayLineup = state.awayLineup ?? undefined;
     const agentLogs = state.agentLogs;
     setState({ ...initialState(), agentLogs });
+    setPlaybackStoppedState(false);
     setRunning(true);
 
     try {
@@ -488,6 +529,7 @@ export function PlaygroundExperience({
       }
     } finally {
       setRunning(false);
+      setPlaybackStoppedState(false);
       void loadStandings();
     }
   }, [
@@ -503,11 +545,19 @@ export function PlaygroundExperience({
     gameSpeed,
     maxMinutes,
     matchNumber,
+    setPlaybackStoppedState,
     readEventStream,
     loadStandings,
   ]);
 
-  useEffect(() => () => abortRef.current?.abort(), []);
+  useEffect(
+    () => () => {
+      abortRef.current?.abort();
+      playbackStoppedRef.current = false;
+      releasePlaybackStop();
+    },
+    [releasePlaybackStop],
+  );
 
   // Keep the commentary feed pinned to the latest line.
   useEffect(() => {
@@ -535,6 +585,99 @@ export function PlaygroundExperience({
     );
   }
 
+  // The three columns are shared between the stacked (mobile) and the
+  // draggable (desktop) layouts, so build them once here.
+  const homePanel = (
+    <ManagerPanel
+      team={home}
+      side="home"
+      lineup={state.homeLineup}
+      stat={state.cache["home-manager"]}
+      minutes={state.minutes}
+      agentTurns={state.agentLogs["home-manager"]}
+      running={running}
+      settingLineup={lineupLoading === "home"}
+      onSetLineup={() => void setManagerLineup("home")}
+    />
+  );
+
+  const centerCard = (
+    <Card className="order-first h-full overflow-hidden pt-0 lg:order-none lg:h-[calc(100vh-12rem)] lg:min-h-[44rem]">
+      <Scoreboard
+        home={home}
+        away={away}
+        score={state.score}
+        clock={clock}
+        playing={running && !finished}
+        finished={finished}
+        abandoned={abandoned}
+        homeLineup={state.homeLineup}
+        awayLineup={state.awayLineup}
+      />
+
+      <CardContent className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden">
+        <Controls
+          group={group}
+          onGroup={onGroup}
+          matchNumber={matchNumber}
+          fixtures={fixtures}
+          onMatch={onMatch}
+          maxMinutes={maxMinutes}
+          onMaxMinutes={setMaxMinutes}
+          running={running}
+          fixtureLocked={fixtureLocked}
+          matchStat={state.cache.match}
+          refStat={state.cache.referee}
+          activeThread={activeCenterThread}
+          onThread={setActiveCenterThread}
+        />
+
+        <FixtureMeta match={fixture} />
+
+        <Commentary
+          scrollRef={scrollRef}
+          minutes={state.minutes}
+          referee={state.referee}
+          finished={finished}
+          abandoned={abandoned}
+          home={home}
+          away={away}
+          running={running}
+          playbackStopped={playbackStopped}
+          started={started}
+          canKick={playable}
+          onKickoff={() => void kickoff()}
+          onTogglePlayback={() =>
+            setPlaybackStoppedState(!playbackStoppedRef.current)
+          }
+        />
+
+        {activeCenterThread && (
+          <ThreadDetail
+            thread={activeCenterThread}
+            stat={state.cache[activeCenterThread]}
+            turns={state.agentLogs[activeCenterThread]}
+            onClose={() => setActiveCenterThread(null)}
+          />
+        )}
+      </CardContent>
+    </Card>
+  );
+
+  const awayPanel = (
+    <ManagerPanel
+      team={away}
+      side="away"
+      lineup={state.awayLineup}
+      stat={state.cache["away-manager"]}
+      minutes={state.minutes}
+      agentTurns={state.agentLogs["away-manager"]}
+      running={running}
+      settingLineup={lineupLoading === "away"}
+      onSetLineup={() => void setManagerLineup("away")}
+    />
+  );
+
   return (
     <div className="flex-1">
       <div className="flex w-full flex-col gap-6 px-3 py-6 sm:px-4 sm:py-8">
@@ -546,6 +689,29 @@ export function PlaygroundExperience({
                 <FlaskConical className="size-5" />
               </span>
               <h1 className="text-2xl font-extrabold tracking-tight">{title}</h1>
+              {standings && standings.results.length > 0 && (
+                <Dialog>
+                  <DialogTrigger
+                    render={
+                      <Button variant="outline" size="sm" className="ml-1 gap-1.5">
+                        <Trophy className="size-4" />
+                        Standings
+                      </Button>
+                    }
+                  />
+                  <DialogContent className="max-w-3xl">
+                    <DialogHeader>
+                      <DialogTitle>
+                        Standings{" "}
+                        <span className="text-muted-foreground text-sm font-normal">
+                          ({standings.results.length} matches played)
+                        </span>
+                      </DialogTitle>
+                    </DialogHeader>
+                    <StandingsView standings={standings.standings} />
+                  </DialogContent>
+                </Dialog>
+              )}
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <UsageSummary stat={totalUsage} />
@@ -557,10 +723,13 @@ export function PlaygroundExperience({
               />
             </div>
           </div>
-          <p className="text-muted-foreground max-w-2xl text-sm">
-            {description}
-          </p>
+          {description && (
+            <p className="text-muted-foreground max-w-2xl text-sm">
+              {description}
+            </p>
+          )}
         </header>
+        {afterHeader}
 
         {state.error && (
           <div className="border-destructive/40 bg-destructive/10 text-destructive rounded-md border px-4 py-3 text-sm">
@@ -569,97 +738,45 @@ export function PlaygroundExperience({
         )}
 
         {/* three columns: home manager · match · away manager */}
-        <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.7fr)_minmax(0,1fr)]">
-          <ManagerPanel
-            team={home}
-            side="home"
-            lineup={state.homeLineup}
-            stat={state.cache["home-manager"]}
-            minutes={state.minutes}
-            agentTurns={state.agentLogs["home-manager"]}
-            running={running}
-            settingLineup={lineupLoading === "home"}
-            onSetLineup={() => void setManagerLineup("home")}
-          />
-
-          <Card className="order-first overflow-hidden pt-0 lg:order-none">
-            <Scoreboard
-              home={home}
-              away={away}
-              score={state.score}
-              clock={clock}
-              playing={running && !finished}
-              finished={finished}
-              abandoned={abandoned}
-              homeLineup={state.homeLineup}
-              awayLineup={state.awayLineup}
-            />
-
-            <CardContent className="flex flex-col gap-4">
-              <Controls
-                group={group}
-                onGroup={onGroup}
-                matchNumber={matchNumber}
-                fixtures={fixtures}
-                onMatch={onMatch}
-                maxMinutes={maxMinutes}
-                onMaxMinutes={setMaxMinutes}
-                running={running}
-                fixtureLocked={fixtureLocked}
-                matchStat={state.cache.match}
-                refStat={state.cache.referee}
-                activeThread={activeCenterThread}
-                onThread={setActiveCenterThread}
-              />
-
-              <FixtureMeta match={fixture} />
-
-              <Commentary
-                scrollRef={scrollRef}
-                minutes={state.minutes}
-                referee={state.referee}
-                finished={finished}
-                abandoned={abandoned}
-                home={home}
-                away={away}
-                running={running}
-                started={started}
-                canKick={playable}
-                onKickoff={() => void kickoff()}
-              />
-
-              {activeCenterThread && (
-                <ThreadDetail
-                  thread={activeCenterThread}
-                  stat={state.cache[activeCenterThread]}
-                  turns={state.agentLogs[activeCenterThread]}
-                  onClose={() => setActiveCenterThread(null)}
-                />
-              )}
-            </CardContent>
-          </Card>
-
-          <ManagerPanel
-            team={away}
-            side="away"
-            lineup={state.awayLineup}
-            stat={state.cache["away-manager"]}
-            minutes={state.minutes}
-            agentTurns={state.agentLogs["away-manager"]}
-            running={running}
-            settingLineup={lineupLoading === "away"}
-            onSetLineup={() => void setManagerLineup("away")}
-          />
-        </div>
+        {isDesktop ? (
+          <ResizablePanelGroup
+            id="playground-columns"
+            direction="horizontal"
+            className="w-full items-stretch"
+          >
+            <ResizablePanel
+              id="playground-home"
+              defaultSize="27%"
+              minSize="220px"
+            >
+              {homePanel}
+            </ResizablePanel>
+            <ResizableHandle withHandle className="mx-1.5" />
+            <ResizablePanel
+              id="playground-match"
+              defaultSize="46%"
+              minSize="360px"
+            >
+              {centerCard}
+            </ResizablePanel>
+            <ResizableHandle withHandle className="mx-1.5" />
+            <ResizablePanel
+              id="playground-away"
+              defaultSize="27%"
+              minSize="220px"
+            >
+              {awayPanel}
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        ) : (
+          <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.7fr)_minmax(0,1fr)]">
+            {homePanel}
+            {centerCard}
+            {awayPanel}
+          </div>
+        )}
 
         {state.result && <ResultCard result={state.result} />}
-
-        {standings && standings.results.length > 0 && (
-          <StandingsView
-            standings={standings.standings}
-            resultCount={standings.results.length}
-          />
-        )}
       </div>
     </div>
   );
@@ -729,7 +846,7 @@ function Scoreboard({
               aria-label={lineupsOpen ? "Hide lineups" : "Show lineups"}
             >
               <Users className="size-3.5" />
-              XI
+              Line up
               {lineupsOpen ? (
                 <ChevronUp className="size-3.5" />
               ) : (
@@ -1043,7 +1160,11 @@ function Controls({
                 }}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue />
+                  <SelectValue>
+                    {selectedFixture
+                      ? fixtureLabel(selectedFixture)
+                      : `Match ${matchNumber}`}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {fixtures.map((m) => (
@@ -1165,9 +1286,7 @@ function buildFeed(
     emphasis: "bg-muted/60 font-medium",
   });
   for (const m of minutes) {
-    if (m.outcome.event !== "none") {
-      items.push({ kind: "minute", minute: m.minute, outcome: m.outcome });
-    }
+    items.push({ kind: "minute", minute: m.minute, outcome: m.outcome });
   }
   for (const r of referee) {
     items.push({ kind: "referee", minute: r.minute, verdict: r.verdict });
@@ -1210,9 +1329,11 @@ function Commentary({
   home,
   away,
   running,
+  playbackStopped,
   started,
   canKick,
   onKickoff,
+  onTogglePlayback,
 }: {
   scrollRef: React.RefObject<HTMLDivElement | null>;
   minutes: MinuteRow[];
@@ -1222,9 +1343,11 @@ function Commentary({
   home: Team;
   away: Team;
   running: boolean;
+  playbackStopped: boolean;
   started: boolean;
   canKick: boolean;
   onKickoff: () => void;
+  onTogglePlayback: () => void;
 }) {
   const items = buildFeed(minutes, referee, finished, abandoned, home, away);
   const empty = minutes.length === 0 && referee.length === 0;
@@ -1232,39 +1355,103 @@ function Commentary({
   return (
     <ScrollArea
       ref={scrollRef}
-      className="bg-background/40 h-[22rem] rounded-xl border sm:h-[26rem]"
+      className="bg-background/40 h-[22rem] rounded-xl border sm:h-[26rem] lg:h-0 lg:min-h-0 lg:flex-1"
     >
-      <div className="flex flex-col gap-1.5 p-3">
+      <div className="flex min-h-full flex-col gap-1.5 p-3">
         {empty ? (
           <div className="flex flex-col items-center justify-center gap-5 py-20 text-center sm:py-28">
             <p className="text-muted-foreground text-sm">
-              Pick a fixture and hit{" "}
-              <span className="text-foreground font-semibold">Kick Off</span>{" "}
-              to watch the agents play.
+              {running
+                ? playbackStopped
+                  ? "Match events are stopped until you resume."
+                  : "Waiting for the first match event."
+                : "Pick a fixture and hit "}
+              {!running && (
+                <>
+                  <span className="text-foreground font-semibold">
+                    Kick Off
+                  </span>{" "}
+                  to watch the agents play.
+                </>
+              )}
             </p>
             <Button
               size="lg"
-              onClick={onKickoff}
-              disabled={running || !canKick}
+              onClick={running ? onTogglePlayback : onKickoff}
+              disabled={!running && !canKick}
+              aria-pressed={running ? playbackStopped : undefined}
+              variant={running && !playbackStopped ? "outline" : "default"}
               className="h-12 min-w-48 px-8 text-base font-semibold"
             >
-              {started ? (
+              {playbackStopped ? (
+                <Play className="size-5" />
+              ) : running ? (
+                <CircleStop className="size-5" />
+              ) : started ? (
                 <RotateCcw className="size-5" />
               ) : (
                 <Play className="size-5" />
               )}
-              {running ? "Playing…" : started ? "Replay" : "Kick Off"}
+              {playbackStopped
+                ? "Resume"
+                : running
+                  ? "Stop"
+                  : started
+                    ? "Replay"
+                    : "Kick Off"}
             </Button>
           </div>
         ) : (
-          items.map((item, i) => <FeedLine key={i} item={item} />)
+          <>
+            <div className="bg-background/95 sticky top-3 z-10 mb-1 flex items-center justify-between gap-3 rounded-lg border px-3 py-2 shadow-sm backdrop-blur">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold">
+                  {playbackStopped ? "Stopped" : running ? "Playing" : "Replay"}
+                </p>
+                <p className="text-muted-foreground truncate text-xs">
+                  {playbackStopped
+                    ? "New events are held until resume."
+                    : finished
+                      ? "Match complete."
+                      : "Live event feed"}
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant={playbackStopped ? "default" : "outline"}
+                size="sm"
+                onClick={onTogglePlayback}
+                disabled={!running || finished}
+                aria-pressed={playbackStopped}
+                className="min-w-24 font-semibold"
+              >
+                {playbackStopped ? (
+                  <Play className="size-4" />
+                ) : (
+                  <CircleStop className="size-4" />
+                )}
+                {playbackStopped ? "Resume" : "Stop"}
+              </Button>
+            </div>
+            {items.map((item, i) => (
+              <FeedLine key={i} item={item} home={home} away={away} />
+            ))}
+          </>
         )}
       </div>
     </ScrollArea>
   );
 }
 
-function FeedLine({ item }: { item: FeedItem }) {
+function FeedLine({
+  item,
+  home,
+  away,
+}: {
+  item: FeedItem;
+  home: Team;
+  away: Team;
+}) {
   let icon: React.ReactNode;
   let text: string;
   let emphasis: string;
@@ -1273,37 +1460,160 @@ function FeedLine({ item }: { item: FeedItem }) {
     icon = item.icon;
     text = item.text;
     emphasis = item.emphasis;
-  } else if (item.kind === "referee") {
+    return (
+      <div
+        className={`flex items-start gap-3 rounded-lg px-2.5 py-2 text-sm transition-colors ${emphasis}`}
+      >
+        <MinuteStamp minute={item.minute} />
+        <span className="mt-0.5 shrink-0">{icon}</span>
+        <span className="leading-snug">{text}</span>
+      </div>
+    );
+  }
+
+  if (item.kind === "referee") {
     const stop = item.verdict.decision === "stop";
     icon = stop ? (
       <CircleStop className="text-destructive size-4" />
     ) : (
       <ShieldCheck className="size-4 text-emerald-500" />
     );
-    text = `Referee — ${item.verdict.reason}`;
+    text = item.verdict.reason;
     emphasis = stop
       ? "bg-destructive/10 ring-1 ring-destructive/30"
-      : "text-muted-foreground hover:bg-muted/40";
-  } else {
-    icon = EVENT_ICON[item.outcome.event];
-    text = item.outcome.text;
-    emphasis =
-      item.outcome.event === "goal"
-        ? "bg-primary/15 ring-1 ring-primary/30 font-semibold"
-        : "hover:bg-muted/40";
+      : "border-emerald-500/25 bg-emerald-500/10";
+
+    return (
+      <div className="grid grid-cols-[1.75rem_minmax(0,1fr)] items-start gap-3">
+        <MinuteStamp minute={item.minute} />
+        <div
+          className={`rounded-xl border px-3 py-3 text-sm shadow-sm transition-colors ${emphasis}`}
+        >
+          <div className="mb-1.5 flex items-center gap-2">
+            <span className="bg-background/75 flex size-7 shrink-0 items-center justify-center rounded-lg ring-1 ring-border/70">
+              {icon}
+            </span>
+            <span className="text-xs font-bold tracking-wide uppercase">
+              Referee check
+            </span>
+            <Badge
+              variant="outline"
+              className="ml-auto h-5 rounded-md px-1.5 text-[10px] uppercase"
+            >
+              {item.verdict.decision}
+            </Badge>
+          </div>
+          <p className="text-foreground/90 text-sm leading-relaxed">{text}</p>
+        </div>
+      </div>
+    );
   }
 
+  const tone = eventTone(item.outcome.event);
+  const sideTeam =
+    item.outcome.side === "home"
+      ? home
+      : item.outcome.side === "away"
+        ? away
+        : null;
+  const sideLabel = sideTeam
+    ? `${sideTeam.flag} ${sideTeam.name}`
+    : "Match thread";
+  text = item.outcome.text || "Play continues without a clear chance.";
+
   return (
-    <div
-      className={`flex items-start gap-3 rounded-lg px-2.5 py-2 text-sm transition-colors ${emphasis}`}
-    >
-      <span className="text-muted-foreground w-7 shrink-0 pt-0.5 text-right text-xs font-medium tabular-nums">
-        {item.minute > 90 ? "" : `${item.minute}'`}
-      </span>
-      <span className="mt-0.5 shrink-0">{icon}</span>
-      <span className="leading-snug">{text}</span>
+    <div className="grid grid-cols-[1.75rem_minmax(0,1fr)] items-start gap-3">
+      <MinuteStamp minute={item.minute} />
+      <div
+        className={`rounded-xl border px-3 py-3 text-sm shadow-sm transition-colors ${tone.card}`}
+      >
+        <div className="mb-2 flex flex-wrap items-center gap-2">
+          <span
+            className={`flex size-7 shrink-0 items-center justify-center rounded-lg ring-1 ${tone.icon}`}
+          >
+            {EVENT_ICON[item.outcome.event]}
+          </span>
+          <span className={`rounded-md px-2 py-0.5 text-xs font-bold ${tone.badge}`}>
+            {tone.label}
+          </span>
+          <span className="text-muted-foreground min-w-0 truncate text-xs font-medium">
+            {sideLabel}
+          </span>
+        </div>
+        <p className={`text-sm leading-relaxed ${tone.copy}`}>{text}</p>
+      </div>
     </div>
   );
+}
+
+function MinuteStamp({ minute }: { minute: number }) {
+  return (
+    <span className="bg-muted text-muted-foreground mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold tabular-nums ring-1 ring-border">
+      {minute > 90 ? "" : `${minute}'`}
+    </span>
+  );
+}
+
+function eventTone(event: MinuteOutcome["event"]) {
+  switch (event) {
+    case "goal":
+      return {
+        label: "Goal",
+        card: "border-primary/35 bg-primary/10 ring-1 ring-primary/20",
+        badge: "bg-primary text-primary-foreground",
+        icon: "bg-primary/15 text-primary ring-primary/30",
+        copy: "text-foreground font-medium",
+      };
+    case "save":
+      return {
+        label: "Save",
+        card: "border-sky-400/30 bg-sky-500/10",
+        badge: "bg-sky-500/15 text-sky-700 dark:text-sky-300",
+        icon: "bg-sky-500/15 text-sky-600 ring-sky-400/30",
+        copy: "text-foreground/90",
+      };
+    case "miss":
+      return {
+        label: "Chance",
+        card: "border-orange-400/25 bg-orange-500/10",
+        badge: "bg-orange-500/15 text-orange-700 dark:text-orange-300",
+        icon: "bg-orange-500/15 text-orange-600 ring-orange-400/30",
+        copy: "text-foreground/90",
+      };
+    case "foul":
+      return {
+        label: "Foul",
+        card: "border-amber-400/30 bg-amber-500/10",
+        badge: "bg-amber-500/15 text-amber-800 dark:text-amber-300",
+        icon: "bg-amber-500/15 text-amber-600 ring-amber-400/30",
+        copy: "text-foreground/90",
+      };
+    case "yellow":
+      return {
+        label: "Booking",
+        card: "border-yellow-400/35 bg-yellow-400/10",
+        badge: "bg-yellow-400/25 text-yellow-800 dark:text-yellow-200",
+        icon: "bg-yellow-400/15 text-yellow-700 ring-yellow-400/30",
+        copy: "text-foreground/90",
+      };
+    case "red":
+      return {
+        label: "Red card",
+        card: "border-red-500/35 bg-red-500/10 ring-1 ring-red-500/15",
+        badge: "bg-red-500/15 text-red-700 dark:text-red-300",
+        icon: "bg-red-500/15 text-red-600 ring-red-500/30",
+        copy: "text-foreground font-medium",
+      };
+    case "none":
+    default:
+      return {
+        label: "Open play",
+        card: "border-border/70 bg-card/80 hover:bg-muted/30",
+        badge: "bg-muted text-muted-foreground",
+        icon: "bg-muted/70 text-muted-foreground ring-border/70",
+        copy: "text-muted-foreground",
+      };
+  }
 }
 
 // --- side columns: manager panels -------------------------------------------
@@ -1365,7 +1675,7 @@ function ManagerPanel({
   }, [chatSignal, lineup, running]);
 
   return (
-    <Card className="overflow-hidden pt-0">
+    <Card className="h-full overflow-hidden pt-0 lg:h-[calc(100vh-12rem)] lg:min-h-[44rem]">
       <div
         className="h-1.5 w-full"
         style={{ backgroundColor: team.colors.primary }}
@@ -1411,11 +1721,15 @@ function ManagerPanel({
         </div>
       </CardHeader>
 
-      <CardContent>
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <CardContent className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="flex min-h-0 flex-1 flex-col"
+        >
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h3 className="text-muted-foreground flex items-center gap-2 text-xs font-semibold tracking-wide uppercase">
-              Starting XI
+              Line up
               {lineup && (
                 <span className="text-primary font-medium normal-case">
                   ★ {lineup.keyPlayer}
@@ -1433,7 +1747,10 @@ function ManagerPanel({
           </div>
           <Separator className="my-3" />
 
-          <TabsContent value="lineup" className="m-0">
+          <TabsContent
+            value="lineup"
+            className="m-0 min-h-0 flex-1 overflow-y-auto"
+          >
               {!lineup ? (
                 <div className="flex flex-col items-center gap-3 py-6 text-center">
                   <Button
@@ -1447,7 +1764,7 @@ function ManagerPanel({
                   </Button>
                   <p className="text-muted-foreground max-w-56 text-sm">
                     Set the lineup to let the manager choose formation,
-                    strategy, and the starting XI.
+                    strategy, and the line up.
                   </p>
                 </div>
               ) : (
@@ -1527,7 +1844,7 @@ function ManagerPanel({
               )}
           </TabsContent>
 
-          <TabsContent value="agent" className="m-0">
+          <TabsContent value="agent" className="m-0 flex min-h-0 flex-1">
             <AgentThread turns={agentTurns} scrollSignal={chatSignal} />
           </TabsContent>
           {stat.promptTokens > 0 && (
@@ -1730,14 +2047,14 @@ function AgentThread({
 
   if (turns.length === 0) {
     return (
-      <div className="text-muted-foreground rounded-lg border border-dashed px-3 py-8 text-center text-sm">
+      <div className="text-muted-foreground w-full rounded-lg border border-dashed px-3 py-8 text-center text-sm">
         Set the lineup to see the manager&apos;s sim-agent thread.
       </div>
     );
   }
 
   return (
-    <ScrollArea ref={threadScrollRef} className="h-[24rem]">
+    <ScrollArea ref={threadScrollRef} className="h-full min-h-[24rem] w-full">
       <div className="flex flex-col gap-4">
         {turns.map((turn, index) => (
           <div key={index} className="flex min-w-0 flex-col gap-3">
@@ -2201,24 +2518,10 @@ function AssistantResultList({
   );
 }
 
-function StandingsView({
-  standings,
-  resultCount,
-}: {
-  standings: GroupStanding[];
-  resultCount: number;
-}) {
+function StandingsView({ standings }: { standings: GroupStanding[] }) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">
-          Standings{" "}
-          <span className="text-muted-foreground">
-            ({resultCount} matches played)
-          </span>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="grid gap-6 md:grid-cols-2">
+    <ScrollArea className="max-h-[70vh]">
+      <div className="grid gap-6 md:grid-cols-2">
         {standings.map((g) => (
           <div key={g.group}>
             <h3 className="mb-2 text-sm font-semibold">{g.group}</h3>
@@ -2269,7 +2572,7 @@ function StandingsView({
             </div>
           </div>
         ))}
-      </CardContent>
-    </Card>
+      </div>
+    </ScrollArea>
   );
 }

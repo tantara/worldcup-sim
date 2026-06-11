@@ -1,6 +1,7 @@
 import type { AgentEvent, Message } from "@worldcupsim/sim-agent";
 import { z } from "zod";
 import { createSimAgent } from "~/server/agent/sim-agent";
+import { createSseResponse } from "~/server/http/sse";
 
 /**
  * Streaming chat endpoint for the sim-agent.
@@ -43,32 +44,15 @@ export async function POST(req: Request): Promise<Response> {
     agent.loadHistory(parsed.history as Message[]);
   }
 
-  const encoder = new TextEncoder();
-  const stream = new ReadableStream<Uint8Array>({
-    async start(controller) {
-      const send = (frame: Frame) =>
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify(frame)}\n\n`));
-      try {
-        for await (const event of agent.run(parsed.message, {
-          signal: req.signal,
-        })) {
-          send(event);
-        }
-        send({ type: "history", messages: agent.messages });
-      } catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        send({ type: "error", message });
-      } finally {
-        controller.close();
+  return createSseResponse<Frame>(
+    async (send) => {
+      for await (const event of agent.run(parsed.message, {
+        signal: req.signal,
+      })) {
+        send(event);
       }
+      send({ type: "history", messages: agent.messages });
     },
-  });
-
-  return new Response(stream, {
-    headers: {
-      "content-type": "text/event-stream; charset=utf-8",
-      "cache-control": "no-cache, no-transform",
-      connection: "keep-alive",
-    },
-  });
+    (message) => ({ type: "error", message }),
+  );
 }

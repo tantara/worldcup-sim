@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { QualificationCampaign } from "@worldcupsim/wc26-data";
 import {
   ArrowLeft,
   CalendarDays,
   Layers,
+  ListChecks,
   MapPin,
   TrendingUp,
   Users,
@@ -154,49 +156,156 @@ export default async function TeamPage({
             </CardContent>
           </Card>
 
-          {/* Group fixtures */}
-          <Card className="h-fit">
-            <CardHeader>
-              <CardTitle className="text-lg">
-                Group {team.group} fixtures
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-2">
-              {fixtures.map((m) => {
-                const { home, away } = resolveMatch(m);
-                const opponent = m.home === team.name ? away : home;
-                const homeAway = m.home === team.name ? "H" : "A";
-                return (
-                  <Link
-                    key={m.match}
-                    href={`/match/${matchId(m)}`}
-                    className="group hover:border-primary/50 hover:bg-accent/40 flex min-w-0 items-center gap-3 rounded-lg border p-3 text-sm transition-colors"
-                  >
-                    <span className="bg-muted flex size-6 shrink-0 items-center justify-center rounded-md text-xs font-semibold">
-                      {homeAway}
-                    </span>
-                    <span className="text-xl">{opponent?.flag ?? "🏟️"}</span>
-                    <span className="flex-1 truncate font-medium">
-                      {opponent?.name ?? "TBD"}
-                    </span>
-                    {opponent ? (
-                      <span className="text-muted-foreground shrink-0 text-[10px] font-semibold tabular-nums">
-                        #{opponent.fifaRanking}
+          <aside className="flex flex-col gap-6">
+            {/* Group fixtures */}
+            <Card className="h-fit">
+              <CardHeader>
+                <CardTitle className="text-lg">
+                  Group {team.group} fixtures
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-2">
+                {fixtures.map((m) => {
+                  const { home, away } = resolveMatch(m);
+                  const opponent = m.home === team.name ? away : home;
+                  const homeAway = m.home === team.name ? "H" : "A";
+                  return (
+                    <Link
+                      key={m.match}
+                      href={`/match/${matchId(m)}`}
+                      className="group hover:border-primary/50 hover:bg-accent/40 flex min-w-0 items-center gap-3 rounded-lg border p-3 text-sm transition-colors"
+                    >
+                      <span className="bg-muted flex size-6 shrink-0 items-center justify-center rounded-md text-xs font-semibold">
+                        {homeAway}
                       </span>
-                    ) : null}
-                    <span className="text-muted-foreground flex shrink-0 items-center gap-1 text-xs">
-                      <CalendarDays className="size-3.5" />
-                      {m.date.slice(5)}
-                    </span>
-                  </Link>
-                );
-              })}
-            </CardContent>
-          </Card>
+                      <span className="text-xl">{opponent?.flag ?? "🏟️"}</span>
+                      <span className="flex-1 truncate font-medium">
+                        {opponent?.name ?? "TBD"}
+                      </span>
+                      {opponent ? (
+                        <span className="text-muted-foreground shrink-0 text-[10px] font-semibold tabular-nums">
+                          #{opponent.fifaRanking}
+                        </span>
+                      ) : null}
+                      <span className="text-muted-foreground flex shrink-0 items-center gap-1 text-xs">
+                        <CalendarDays className="size-3.5" />
+                        {m.date.slice(5)}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </CardContent>
+            </Card>
+
+            <QualificationCard campaign={team.qualification} />
+          </aside>
         </div>
       </div>
     </main>
   );
+}
+
+function QualificationCard({
+  campaign,
+}: {
+  campaign: QualificationCampaign | null;
+}) {
+  if (!campaign) return null;
+
+  const { record } = campaign;
+  const goalDifference = record.goalsFor - record.goalsAgainst;
+  const formattedGoalDifference =
+    goalDifference > 0 ? `+${goalDifference}` : String(goalDifference);
+
+  return (
+    <Card className="h-fit">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <ListChecks className="size-5" />
+          Qualification
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
+          <Badge variant="secondary" className="w-fit">
+            {campaign.method}
+          </Badge>
+          <div className="grid grid-cols-3 gap-2">
+            <QualificationStat
+              label="Record"
+              value={`${record.wins}W-${record.draws}D-${record.losses}L`}
+            />
+            <QualificationStat
+              label="Goals"
+              value={`${record.goalsFor}GF-${record.goalsAgainst}GA`}
+            />
+            <QualificationStat label="GD" value={formattedGoalDifference} />
+          </div>
+        </div>
+
+        {campaign.results.length > 0 ? (
+          <ol className="flex flex-col gap-2">
+            {campaign.results.map((result, index) => (
+              <li
+                key={`${result.stage}-${result.opponent}-${index}`}
+                className="flex min-w-0 items-start gap-2 rounded-lg border p-2.5 text-sm"
+              >
+                <span
+                  className={`flex size-6 shrink-0 items-center justify-center rounded-md text-xs font-black ${resultClassName(
+                    result.result,
+                  )}`}
+                >
+                  {result.result}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span className="flex-1 truncate font-medium">
+                      {result.venue === "home" ? "vs" : "at"}{" "}
+                      {result.opponent}
+                    </span>
+                    <span className="shrink-0 font-bold tabular-nums">
+                      {result.goalsFor}-{result.goalsAgainst}
+                    </span>
+                  </div>
+                  <p className="text-muted-foreground mt-0.5 truncate text-xs">
+                    {result.stage}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p className="text-muted-foreground rounded-lg border p-3 text-sm leading-6">
+            Qualified automatically as a host nation, so there are no
+            qualification match results.
+          </p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function QualificationStat({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-lg border bg-muted/30 p-2">
+      <div className="text-muted-foreground text-[10px] font-semibold tracking-wide uppercase">
+        {label}
+      </div>
+      <div className="mt-1 text-base font-black tabular-nums">{value}</div>
+    </div>
+  );
+}
+
+function resultClassName(result: "W" | "D" | "L"): string {
+  if (result === "W") return "bg-emerald-500/15 text-emerald-600";
+  if (result === "D") return "bg-muted text-muted-foreground";
+  return "bg-red-500/15 text-red-600";
 }
 
 function RosterRow({ player }: { player: RosterPlayer }) {

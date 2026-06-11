@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { OrchestratorEvent } from "~/lib/playground-types";
 import { runLineup, runMatch } from "~/server/agent/match-orchestrator";
 import { computeStandings, listResults } from "~/server/agent/results-store";
+import { createSseResponse } from "~/server/http/sse";
 
 /**
  * Playground transport.
@@ -19,20 +20,24 @@ const lineupSchema = z.object({
   keyPlayer: z.string().min(1),
   reason: z.string().optional(),
   strategy: z.string().optional(),
-  substitutions: z.array(
-    z.object({
-      off: z.string().min(1),
-      on: z.string().min(1),
-      reason: z.string().min(1),
-    }),
-  ).optional(),
-  lineup: z.array(
-    z.object({
-      number: z.number().int(),
-      name: z.string().min(1),
-      position: z.enum(["GK", "DF", "MF", "FW"]),
-    }),
-  ).min(1),
+  substitutions: z
+    .array(
+      z.object({
+        off: z.string().min(1),
+        on: z.string().min(1),
+        reason: z.string().min(1),
+      }),
+    )
+    .optional(),
+  lineup: z
+    .array(
+      z.object({
+        number: z.number().int(),
+        name: z.string().min(1),
+        position: z.enum(["GK", "DF", "MF", "FW"]),
+      }),
+    )
+    .min(1),
 });
 
 const matchBodySchema = z.object({
@@ -60,9 +65,7 @@ const lineupBodySchema = z.object({
 });
 
 export async function POST(req: Request): Promise<Response> {
-  let body:
-    | z.infer<typeof matchBodySchema>
-    | z.infer<typeof lineupBodySchema>;
+  let body: z.infer<typeof matchBodySchema> | z.infer<typeof lineupBodySchema>;
   try {
     const raw: unknown = await req.json();
     body =
@@ -77,35 +80,21 @@ export async function POST(req: Request): Promise<Response> {
     return Response.json({ error: message }, { status: 400 });
   }
   if ("homeId" in body && body.homeId === body.awayId) {
-    return Response.json({ error: "Pick two different teams." }, { status: 400 });
+    return Response.json(
+      { error: "Pick two different teams." },
+      { status: 400 },
+    );
   }
 
-  const encoder = new TextEncoder();
-  const stream = new ReadableStream<Uint8Array>({
-    async start(controller) {
-      const send = (event: OrchestratorEvent) =>
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify(event)}\n\n`));
-      try {
-        const events = "teamId" in body ? runLineup(body) : runMatch(body);
-        for await (const event of events) {
-          send(event);
-        }
-      } catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        send({ type: "error", message });
-      } finally {
-        controller.close();
+  return createSseResponse<OrchestratorEvent>(
+    async (send) => {
+      const events = "teamId" in body ? runLineup(body) : runMatch(body);
+      for await (const event of events) {
+        send(event);
       }
     },
-  });
-
-  return new Response(stream, {
-    headers: {
-      "content-type": "text/event-stream; charset=utf-8",
-      "cache-control": "no-cache, no-transform",
-      connection: "keep-alive",
-    },
-  });
+    (message) => ({ type: "error", message }),
+  );
 }
 
 export function GET(): Response {

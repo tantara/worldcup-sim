@@ -1,59 +1,58 @@
 import type { MatchResult, OrchestratorEvent } from "~/lib/playground-types";
 import { auth } from "~/server/auth";
 import { runMatch } from "~/server/agent/match-orchestrator";
+import { createSseResponse } from "~/server/http/sse";
 import { archiveSimulationPayload } from "~/server/simulations/archive";
-import { buildSimulationArchive, nextSimulationSeq } from "~/server/simulations/model";
+import {
+  buildSimulationArchive,
+  nextSimulationSeq,
+} from "~/server/simulations/model";
 import {
   appendSimulationEvent,
   completeSimulation,
   failSimulation,
   getSimulationEvents,
-  getSimulationForUser,
+  getSimulation,
   markSimulationStatus,
 } from "~/server/simulations/store";
 
-function sseResponse(
+function simulationSseResponse(
   producer: (send: (event: OrchestratorEvent) => void) => Promise<void>,
 ) {
-  const encoder = new TextEncoder();
-  const stream = new ReadableStream<Uint8Array>({
-    async start(controller) {
-      const send = (event: OrchestratorEvent) => {
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify(event)}\n\n`));
-      };
-
-      try {
-        await producer(send);
-      } catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        send({ type: "error", message });
-      } finally {
-        controller.close();
-      }
-    },
-  });
-
-  return new Response(stream, {
-    headers: {
-      "content-type": "text/event-stream; charset=utf-8",
-      "cache-control": "no-cache, no-transform",
-      connection: "keep-alive",
-    },
-  });
+  return createSseResponse<OrchestratorEvent>(producer, (message) => ({
+    type: "error",
+    message,
+  }));
 }
 
 export async function POST(
   _req: Request,
   { params }: { params: Promise<{ simulationid: string }> },
 ): Promise<Response> {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return Response.json({ error: "Sign in to run this simulation." }, { status: 401 });
+  const { simulationid } = await params;
+  const simulation = await getSimulation(simulationid);
+  if (!simulation) {
+    return Response.json({ error: "Simulation not found." }, { status: 404 });
   }
 
-  const { simulationid } = await params;
-  const simulation = await getSimulationForUser(simulationid, session.user.id);
-  if (!simulation) {
+  const storedEvents = await getSimulationEvents(simulation.id);
+  if (simulation.status === "completed") {
+    return simulationSseResponse(async (send) => {
+      for (const event of storedEvents) {
+        send(event.payload);
+      }
+    });
+  }
+
+  const session = await auth();
+  if (!session?.user?.id) {
+    return Response.json(
+      { error: "Sign in to run this simulation." },
+      { status: 401 },
+    );
+  }
+
+  if (simulation.userId !== session.user.id) {
     return Response.json({ error: "Simulation not found." }, { status: 404 });
   }
 
@@ -64,16 +63,15 @@ export async function POST(
     );
   }
 
-  const storedEvents = await getSimulationEvents(simulation.id);
-  if (simulation.status === "completed" || storedEvents.length > 0) {
-    return sseResponse(async (send) => {
+  if (storedEvents.length > 0) {
+    return simulationSseResponse(async (send) => {
       for (const event of storedEvents) {
         send(event.payload);
       }
     });
   }
 
-  return sseResponse(async (send) => {
+  return simulationSseResponse(async (send) => {
     await markSimulationStatus(simulation.id, "running");
 
     let seq = nextSimulationSeq([]);

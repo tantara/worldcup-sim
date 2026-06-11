@@ -9,7 +9,9 @@
 import squadsJson from "./data/squads.json";
 import scheduleJson from "./data/schedule.json";
 import qualificationJson from "./data/qualification.json";
+import colorsJson from "./data/colors.json";
 import type {
+  ColorsFile,
   GroupLetter,
   GroupTier,
   Match,
@@ -18,13 +20,16 @@ import type {
   ScheduleFile,
   SquadsFile,
   Team,
+  TeamColors,
   TeamGroupTier,
+  TeamKit,
   Venue,
 } from "./types";
 
 export const squads = squadsJson as SquadsFile;
 export const schedule = scheduleJson as ScheduleFile;
 export const qualification = qualificationJson as QualificationFile;
+export const colors = colorsJson as ColorsFile;
 
 /** All 48 teams with managers and full squads. */
 export const teams: Team[] = squads.teams;
@@ -38,6 +43,9 @@ export const venues: Venue[] = schedule.venues;
 /** Qualification campaigns for the 48 finalists, in squad dataset order. */
 export const qualificationCampaigns: QualificationCampaign[] =
   qualification.campaigns;
+
+/** Theme colors (primary/secondary) for all 48 teams. */
+export const teamColors: TeamColors[] = colors.teams;
 
 type VenueLocation = Venue | Match;
 
@@ -94,6 +102,11 @@ export function getTeamGroupTier(country: string): TeamGroupTier | undefined {
   return getGroupTierInfo(team.group).find((entry) => entry.country === country);
 }
 
+/** Look up a team's theme colors by country name (exact match). */
+export function getTeamColors(country: string): TeamColors | undefined {
+  return teamColors.find((c) => c.country === country);
+}
+
 /** Look up a finalist's qualification campaign by country name (exact match). */
 export function getQualificationCampaign(
   country: string,
@@ -138,6 +151,7 @@ export function getMatchesByGroup(group: GroupLetter): Match[] {
 }
 
 export type {
+  ColorsFile,
   Confederation,
   GroupLetter,
   GroupTier,
@@ -155,6 +169,8 @@ export type {
   ScheduleFile,
   SquadsFile,
   Team,
+  TeamColors,
   TeamGroupTier,
+  TeamKit,
   Venue,
 } from "./types";

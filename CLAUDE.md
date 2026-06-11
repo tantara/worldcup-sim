@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 The application lives in `client/` (a [T3 Stack](https://create.t3.gg/) app). All commands below must be run from `client/`, and the package manager is **pnpm** (`packageManager: pnpm@11.2.2`). The repo root currently holds only `client/`.
 
-Exclude `DeepSeek-Reasonix/` from git.
+Exclude `DeepSeek-Reasonix/` and `supertonic/` from git.
 
 ## Commands
 

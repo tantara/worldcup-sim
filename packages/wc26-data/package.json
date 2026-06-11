@@ -11,7 +11,8 @@
     },
     "./squads.json": "./src/data/squads.json",
     "./schedule.json": "./src/data/schedule.json",
-    "./qualification.json": "./src/data/qualification.json"
+    "./qualification.json": "./src/data/qualification.json",
+    "./colors.json": "./src/data/colors.json"
   },
   "scripts": {
     "check": "tsc --noEmit",
