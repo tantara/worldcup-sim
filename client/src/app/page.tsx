@@ -13,6 +13,8 @@ import { Bracket } from "~/app/_components/bracket";
 import { Badge } from "~/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { getServerTranslations } from "~/lib/i18n/server";
+import type { MessageKey } from "~/lib/i18n/messages";
 import { GROUP_LETTERS, teamsInGroup, type Team } from "~/lib/teams";
 import {
   groupStageSchedule,
@@ -25,8 +27,13 @@ import {
 } from "~/lib/tournament";
 
 type MatchDayHighlight = "today" | "tomorrow" | null;
+type Translate = (
+  key: MessageKey,
+  values?: Record<string, string | number>,
+) => string;
 
-export default function Home() {
+export default async function Home() {
+  const { t } = await getServerTranslations();
   const groupSections = groupStageSchedule();
   const knockoutSections = knockoutSchedule();
   const groupFixtureCount = groupSections.reduce(
@@ -54,11 +61,10 @@ export default function Home() {
                   <Trophy className="size-7" />
                 </div>
                 <h1 className="max-w-full text-3xl leading-tight font-black tracking-tight break-words text-white sm:text-5xl sm:leading-tight lg:text-6xl">
-                  World Cup simulation, built like a matchday command center.
+                  {t("home.heroTitle")}
                 </h1>
                 <p className="mt-4 max-w-2xl text-sm leading-6 break-words text-white/78 sm:text-base">
-                  Explore every 2026 group, venue, fixture, and knockout path,
-                  then run unofficial simulations minute by minute.
+                  {t("home.heroDescription")}
                 </p>
               </div>
               <div className="relative mt-8 flex flex-col gap-3 sm:mt-10 sm:flex-row sm:items-center">
@@ -68,14 +74,14 @@ export default function Home() {
                     className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-bold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 sm:w-fit"
                   >
                     <CirclePlay className="size-4" />
-                    Simulate opener
+                    {t("home.simulateOpener")}
                   </Link>
                 )}
                 <Link
                   href="/simulator"
                   className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-md border border-white/20 bg-background/45 px-4 text-sm font-semibold text-white transition-colors hover:bg-background/65 sm:w-fit"
                 >
-                  Open simulator
+                  {t("home.openSimulator")}
                   <ChevronRight className="size-4" />
                 </Link>
               </div>
@@ -83,35 +89,34 @@ export default function Home() {
             <div className="grid min-w-0 content-between gap-4 border-t bg-background/75 p-5 sm:p-6 lg:border-t-0 lg:border-l">
               <div className="min-w-0">
                 <p className="text-xs font-bold tracking-wide text-muted-foreground uppercase">
-                  2026 tournament map
+                  {t("home.tournamentMap")}
                 </p>
                 <h2 className="mt-2 text-2xl font-black tracking-tight break-words">
                   {HOSTS.join(" · ")}
                 </h2>
                 <p className="mt-2 text-sm leading-6 break-words text-muted-foreground">
-                  Group browser, schedule, bracket, venue links, and simulated
-                  match engines are tied to one tournament data model.
+                  {t("home.tournamentMapDescription")}
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <MetricPill
                   icon={<Globe2 className="size-4" />}
-                  label="Nations"
+                  label={t("home.metric.nations")}
                   value="48"
                 />
                 <MetricPill
                   icon={<Trophy className="size-4" />}
-                  label="Groups"
+                  label={t("home.metric.groups")}
                   value={String(GROUP_LETTERS.length)}
                 />
                 <MetricPill
                   icon={<CalendarDays className="size-4" />}
-                  label="Group fixtures"
+                  label={t("home.metric.groupFixtures")}
                   value={String(groupFixtureCount)}
                 />
                 <MetricPill
                   icon={<ChevronRight className="size-4" />}
-                  label="Knockout"
+                  label={t("home.metric.knockout")}
                   value={String(knockoutFixtureCount)}
                 />
               </div>
@@ -125,19 +130,19 @@ export default function Home() {
               value="groups"
               className="h-8 data-active:bg-primary data-active:text-primary-foreground data-active:ring-1 data-active:ring-primary/35"
             >
-              Groups
+              {t("home.tab.groups")}
             </TabsTrigger>
             <TabsTrigger
               value="schedule"
               className="h-8 data-active:bg-primary data-active:text-primary-foreground data-active:ring-1 data-active:ring-primary/35"
             >
-              Schedule
+              {t("home.tab.schedule")}
             </TabsTrigger>
             <TabsTrigger
               value="tournament"
               className="h-8 data-active:bg-primary data-active:text-primary-foreground data-active:ring-1 data-active:ring-primary/35"
             >
-              Tournament
+              {t("home.tab.tournament")}
             </TabsTrigger>
           </TabsList>
 
@@ -148,6 +153,7 @@ export default function Home() {
                   key={letter}
                   letter={letter}
                   teams={teamsInGroup(letter)}
+                  t={t}
                 />
               ))}
             </div>
@@ -157,10 +163,11 @@ export default function Home() {
             {groupSections.map(({ group, matches }) => (
               <ScheduleSection
                 key={group}
-                title={`Group ${group}`}
+                title={`${t("common.group")} ${group}`}
                 matches={matches}
                 todayDateKey={todayDateKey}
                 tomorrowDateKey={tomorrowDateKey}
+                t={t}
               />
             ))}
             {knockoutSections.map(({ round, matches }) => (
@@ -170,6 +177,7 @@ export default function Home() {
                 matches={matches}
                 todayDateKey={todayDateKey}
                 tomorrowDateKey={tomorrowDateKey}
+                t={t}
               />
             ))}
           </TabsContent>
@@ -229,7 +237,15 @@ function MetricPill({
   );
 }
 
-function GroupCard({ letter, teams }: { letter: string; teams: Team[] }) {
+function GroupCard({
+  letter,
+  teams,
+  t,
+}: {
+  letter: string;
+  teams: Team[];
+  t: Translate;
+}) {
   return (
     <Card className="gap-0 border-primary/10 bg-card/90 shadow-sm backdrop-blur">
       <CardHeader className="pb-3">
@@ -237,35 +253,35 @@ function GroupCard({ letter, teams }: { letter: string; teams: Team[] }) {
           <span className="flex size-7 items-center justify-center rounded-md bg-primary/15 text-sm font-black text-primary ring-1 ring-primary/25">
             {letter}
           </span>
-          Group {letter}
+          {t("common.group")} {letter}
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col">
-        {teams.map((t) => (
+        {teams.map((team) => (
           <Link
-            key={t.id}
-            href={`/team/${t.id}`}
+            key={team.id}
+            href={`/team/${team.id}`}
             className="group border-border/60 hover:bg-accent/40 -mx-2 flex items-center gap-2.5 rounded-md border-t px-2 py-2 text-sm transition-colors first:border-t-0"
           >
-            <span className="text-xl">{t.flag}</span>
+            <span className="text-xl">{team.flag}</span>
             <span className="group-hover:text-primary flex-1 truncate font-medium">
-              {t.name}
+              {team.name}
             </span>
             <Badge
               variant="outline"
               className="h-5 shrink-0 px-1.5 text-[10px] font-bold"
-              title={`${t.groupTier.label} in Group ${t.group} by FIFA ranking`}
+              title={`${team.groupTier.label} ${t("common.group")} ${team.group}`}
             >
-              T{t.groupTier.tier}
+              T{team.groupTier.tier}
             </Badge>
             <span
               className="text-muted-foreground shrink-0 text-xs font-semibold tabular-nums"
-              title="FIFA world ranking"
+              title={t("team.fifaRank")}
             >
-              #{t.fifaRanking}
+              #{team.fifaRanking}
             </span>
             <span className="text-muted-foreground hidden text-xs sm:inline">
-              {t.confederation}
+              {team.confederation}
             </span>
             <ChevronRight className="text-muted-foreground/50 group-hover:text-primary size-4 transition-transform group-hover:translate-x-0.5" />
           </Link>
@@ -280,11 +296,13 @@ function ScheduleSection({
   matches,
   todayDateKey,
   tomorrowDateKey,
+  t,
 }: {
   title: string;
   matches: Match[];
   todayDateKey: string;
   tomorrowDateKey: string;
+  t: Translate;
 }) {
   return (
     <section className="flex flex-col gap-3">
@@ -300,6 +318,7 @@ function ScheduleSection({
             key={m.match}
             match={m}
             highlight={matchDayHighlight(m, todayDateKey, tomorrowDateKey)}
+            t={t}
           />
         ))}
       </div>
@@ -310,17 +329,19 @@ function ScheduleSection({
 function MatchCard({
   match,
   highlight,
+  t,
 }: {
   match: Match;
   highlight: MatchDayHighlight;
+  t: Translate;
 }) {
   const { home, away, playable } = resolveMatch(match);
   const venueUrl = venueGoogleMapsUrl(match);
   const highlightLabel =
     highlight === "today"
-      ? "Today"
+      ? t("common.today")
       : highlight === "tomorrow"
-        ? "Tomorrow"
+        ? t("common.tomorrow")
         : null;
 
   const body = (
@@ -336,7 +357,7 @@ function MatchCard({
         <Link
           href={`/match/${matchId(match)}`}
           className="absolute inset-0 z-10 rounded-xl"
-          aria-label={`Open match ${match.match}`}
+          aria-label={`${t("common.match")} ${match.match}`}
         />
       )}
       <div className="text-muted-foreground mb-3 flex items-start justify-between gap-2 text-xs">
@@ -360,7 +381,7 @@ function MatchCard({
           <ChevronRight className="group-hover:text-primary size-4 transition-transform group-hover:translate-x-0.5" />
         ) : (
           <span className="text-[10px] font-semibold tracking-wide uppercase">
-            TBD
+            {t("common.tbd")}
           </span>
         )}
       </div>
@@ -371,7 +392,7 @@ function MatchCard({
           <span className="truncate font-semibold">{match.home}</span>
         </div>
         <span className="text-muted-foreground shrink-0 text-xs font-bold">
-          VS
+          {t("common.vs").toUpperCase()}
         </span>
         <div className="flex flex-1 items-center justify-end gap-2">
           <span className="truncate text-right font-semibold">

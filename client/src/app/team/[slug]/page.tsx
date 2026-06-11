@@ -13,6 +13,8 @@ import {
 
 import { Badge } from "~/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import type { MessageKey } from "~/lib/i18n/messages";
+import { getServerTranslations } from "~/lib/i18n/server";
 import {
   findTeam,
   getRoster,
@@ -21,6 +23,11 @@ import {
   type RosterPlayer,
 } from "~/lib/teams";
 import { matchId, resolveMatch, teamFixtures } from "~/lib/tournament";
+
+type Translate = (
+  key: MessageKey,
+  values?: Record<string, string | number>,
+) => string;
 
 export function generateStaticParams() {
   return TEAMS.map((t) => ({ slug: t.id }));
@@ -32,19 +39,20 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  const { t } = await getServerTranslations();
   const team = findTeam(slug);
   return {
     title: team
       ? `${team.name} (FIFA #${team.fifaRanking}) · World Cup Simulator`
-      : "Team not found",
+      : t("common.notFound.team"),
   };
 }
 
-const POSITION_GROUPS: { label: string; pos: Player["position"] }[] = [
-  { label: "Goalkeepers", pos: "GK" },
-  { label: "Defenders", pos: "DF" },
-  { label: "Midfielders", pos: "MF" },
-  { label: "Forwards", pos: "FW" },
+const POSITION_GROUPS: { label: MessageKey; pos: Player["position"] }[] = [
+  { label: "team.goalkeepers", pos: "GK" },
+  { label: "team.defenders", pos: "DF" },
+  { label: "team.midfielders", pos: "MF" },
+  { label: "team.forwards", pos: "FW" },
 ];
 
 export default async function TeamPage({
@@ -53,6 +61,7 @@ export default async function TeamPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  const { t } = await getServerTranslations();
   const team = findTeam(slug);
   if (!team) notFound();
 
@@ -67,7 +76,7 @@ export default async function TeamPage({
           className="text-muted-foreground hover:text-foreground flex w-fit items-center gap-1.5 text-sm transition-colors"
         >
           <ArrowLeft className="size-4" />
-          All teams
+          {t("common.allTeams")}
         </Link>
 
         {/* Header */}
@@ -86,7 +95,7 @@ export default async function TeamPage({
                   {team.name}
                 </CardTitle>
                 <p className="text-muted-foreground mt-1 text-sm">
-                  Manager: {team.manager}
+                  {t("team.manager")}: {team.manager}
                 </p>
               </div>
 
@@ -94,7 +103,7 @@ export default async function TeamPage({
               <div className="bg-primary/10 ring-primary/25 flex flex-1 flex-col items-center rounded-xl px-4 py-2 text-center ring-1 sm:flex-none">
                 <span className="text-muted-foreground flex items-center gap-1 text-[10px] font-semibold tracking-wide uppercase">
                   <TrendingUp className="size-3" />
-                  FIFA Rank
+                  {t("team.fifaRank")}
                 </span>
                 <span className="text-primary text-2xl font-extrabold tabular-nums">
                   #{team.fifaRanking}
@@ -104,7 +113,7 @@ export default async function TeamPage({
               <div className="bg-secondary/70 ring-border flex flex-1 flex-col items-center rounded-xl px-4 py-2 text-center ring-1 sm:flex-none">
                 <span className="text-muted-foreground flex items-center gap-1 text-[10px] font-semibold tracking-wide uppercase">
                   <Layers className="size-3" />
-                  Group Tier
+                  {t("team.groupTier")}
                 </span>
                 <span className="text-foreground text-2xl font-extrabold tabular-nums">
                   T{team.groupTier.tier}
@@ -112,12 +121,16 @@ export default async function TeamPage({
               </div>
 
               <div className="flex w-full flex-wrap gap-2 sm:w-auto">
-                <Badge>Group {team.group}</Badge>
+                <Badge>
+                  {t("common.group")} {team.group}
+                </Badge>
                 <Badge variant="secondary">
-                  {team.groupTier.label} in Group {team.group}
+                  {team.groupTier.label} {t("common.group")} {team.group}
                 </Badge>
                 <Badge variant="secondary">{team.confederation}</Badge>
-                <Badge variant="outline">Rating {team.rating}</Badge>
+                <Badge variant="outline">
+                  {t("team.rating")} {team.rating}
+                </Badge>
                 <Badge variant="outline">{team.formation}</Badge>
               </div>
             </div>
@@ -130,7 +143,7 @@ export default async function TeamPage({
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
                 <Users className="size-5" />
-                Squad
+                {t("team.squad")}
                 <span className="text-muted-foreground text-sm font-normal">
                   ({roster.length})
                 </span>
@@ -143,11 +156,11 @@ export default async function TeamPage({
                 return (
                   <div key={pos}>
                     <h3 className="text-muted-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
-                      {label}
+                      {t(label)}
                     </h3>
                     <ul className="flex flex-col">
                       {players.map((p, i) => (
-                        <RosterRow key={`${pos}-${i}`} player={p} />
+                        <RosterRow key={`${pos}-${i}`} player={p} t={t} />
                       ))}
                     </ul>
                   </div>
@@ -161,14 +174,15 @@ export default async function TeamPage({
             <Card className="h-fit">
               <CardHeader>
                 <CardTitle className="text-lg">
-                  Group {team.group} fixtures
+                  {t("team.fixtures", { group: team.group })}
                 </CardTitle>
               </CardHeader>
               <CardContent className="flex flex-col gap-2">
                 {fixtures.map((m) => {
                   const { home, away } = resolveMatch(m);
                   const opponent = m.home === team.name ? away : home;
-                  const homeAway = m.home === team.name ? "H" : "A";
+                  const homeAway =
+                    m.home === team.name ? t("team.home") : t("team.away");
                   return (
                     <Link
                       key={m.match}
@@ -180,7 +194,7 @@ export default async function TeamPage({
                       </span>
                       <span className="text-xl">{opponent?.flag ?? "🏟️"}</span>
                       <span className="flex-1 truncate font-medium">
-                        {opponent?.name ?? "TBD"}
+                        {opponent?.name ?? t("common.tbd")}
                       </span>
                       {opponent ? (
                         <span className="text-muted-foreground shrink-0 text-[10px] font-semibold tabular-nums">
@@ -197,7 +211,7 @@ export default async function TeamPage({
               </CardContent>
             </Card>
 
-            <QualificationCard campaign={team.qualification} />
+            <QualificationCard campaign={team.qualification} t={t} />
           </aside>
         </div>
       </div>
@@ -207,8 +221,10 @@ export default async function TeamPage({
 
 function QualificationCard({
   campaign,
+  t,
 }: {
   campaign: QualificationCampaign | null;
+  t: Translate;
 }) {
   if (!campaign) return null;
 
@@ -222,7 +238,7 @@ function QualificationCard({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
           <ListChecks className="size-5" />
-          Qualification
+          {t("team.qualification")}
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
@@ -232,14 +248,17 @@ function QualificationCard({
           </Badge>
           <div className="grid grid-cols-3 gap-2">
             <QualificationStat
-              label="Record"
+              label={t("team.record")}
               value={`${record.wins}W-${record.draws}D-${record.losses}L`}
             />
             <QualificationStat
-              label="Goals"
+              label={t("team.goals")}
               value={`${record.goalsFor}-${record.goalsAgainst}`}
             />
-            <QualificationStat label="GD" value={formattedGoalDifference} />
+            <QualificationStat
+              label={t("team.gd")}
+              value={formattedGoalDifference}
+            />
           </div>
         </div>
 
@@ -260,7 +279,7 @@ function QualificationCard({
                 <div className="min-w-0 flex-1">
                   <div className="flex min-w-0 items-center gap-2">
                     <span className="flex-1 truncate font-medium">
-                      {result.venue === "home" ? "vs" : "at"}{" "}
+                      {result.venue === "home" ? t("team.vs") : t("team.at")}{" "}
                       {result.opponent}
                     </span>
                     <span className="shrink-0 font-bold tabular-nums">
@@ -276,8 +295,7 @@ function QualificationCard({
           </ol>
         ) : (
           <p className="text-muted-foreground rounded-lg border p-3 text-sm leading-6">
-            Qualified automatically as a host nation, so there are no
-            qualification match results.
+            {t("team.autoQualified")}
           </p>
         )}
       </CardContent>
@@ -308,7 +326,7 @@ function resultClassName(result: "W" | "D" | "L"): string {
   return "bg-red-500/15 text-red-600";
 }
 
-function RosterRow({ player }: { player: RosterPlayer }) {
+function RosterRow({ player, t }: { player: RosterPlayer; t: Translate }) {
   return (
     <li className="hover:bg-muted/50 flex items-center gap-3 rounded-md px-1.5 py-1.5 text-sm">
       <span className="text-muted-foreground w-6 shrink-0 text-right text-xs font-semibold tabular-nums">
@@ -320,10 +338,11 @@ function RosterRow({ player }: { player: RosterPlayer }) {
         {player.club ?? "—"}
       </span>
       <span className="text-muted-foreground hidden w-14 shrink-0 text-right text-xs min-[420px]:inline">
-        {player.caps ?? "–"} caps
+        {player.caps ?? "–"} {t("team.caps")}
       </span>
       <span className="text-muted-foreground hidden w-10 shrink-0 text-right text-xs min-[420px]:inline">
-        {player.age ?? "–"}y
+        {player.age ?? "–"}
+        {t("team.yearsShort")}
       </span>
     </li>
   );

@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import { ReplayCard } from "~/app/match/[matchid]/replays";
 import { Card, CardContent } from "~/components/ui/card";
 import { ScrollArea } from "~/components/ui/scroll-area";
+import { getServerTranslations } from "~/lib/i18n/server";
 import { getMatch, matchId, MATCHES, resolveMatch } from "~/lib/tournament";
 import { listCompletedSimulationsForMatch } from "~/server/simulations/store";
 
@@ -18,10 +19,11 @@ export async function generateMetadata({
   params: Promise<{ matchid: string }>;
 }) {
   const { matchid } = await params;
+  const { t } = await getServerTranslations();
   const match = getMatch(matchid);
-  if (!match) return { title: "Match not found" };
+  if (!match) return { title: t("common.notFound.match") };
   return {
-    title: `${match.home} vs ${match.away} · Simulation history`,
+    title: `${match.home} vs ${match.away} · ${t("match.historyTitle")}`,
   };
 }
 
@@ -31,6 +33,7 @@ export default async function MatchHistoryPage({
   params: Promise<{ matchid: string }>;
 }) {
   const { matchid } = await params;
+  const { locale, t } = await getServerTranslations();
   const match = getMatch(matchid);
   if (!match) notFound();
   const canonicalId = matchId(match);
@@ -53,16 +56,18 @@ export default async function MatchHistoryPage({
             className="text-muted-foreground hover:text-foreground flex w-fit items-center gap-1.5 text-sm transition-colors"
           >
             <ArrowLeft className="size-4" />
-            Back to match
+            {t("common.backToMatch")}
           </Link>
           <div>
             <h1 className="text-2xl font-extrabold tracking-tight">
-              Simulation history
+              {t("match.historyTitle")}
             </h1>
             <p className="text-muted-foreground mt-1 text-sm">
               {homeName} <span className="text-primary">vs</span> {awayName} ·{" "}
               {simulations.length}{" "}
-              {simulations.length === 1 ? "replay" : "replays"}
+              {simulations.length === 1
+                ? t("common.replay")
+                : t("common.replays")}
             </p>
           </div>
         </div>
@@ -70,7 +75,7 @@ export default async function MatchHistoryPage({
         {simulations.length === 0 ? (
           <Card>
             <CardContent className="text-muted-foreground py-16 text-center text-sm">
-              No public replays for this fixture yet.
+              {t("match.noReplays")}
             </CardContent>
           </Card>
         ) : (
@@ -81,6 +86,8 @@ export default async function MatchHistoryPage({
                   key={simulation.id}
                   simulation={simulation}
                   canonicalId={canonicalId}
+                  locale={locale}
+                  completedLabel={t("common.completed")}
                 />
               ))}
             </div>

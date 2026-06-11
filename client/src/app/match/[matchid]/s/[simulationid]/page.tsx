@@ -4,6 +4,7 @@ import { ArrowLeftIcon } from "lucide-react";
 
 import { SimulatorExperience } from "~/app/simulator/simulator-experience";
 import { Badge } from "~/components/ui/badge";
+import { getServerTranslations } from "~/lib/i18n/server";
 import { getMatch, matchId, resolveMatch } from "~/lib/tournament";
 import { getSimulation } from "~/server/simulations/store";
 
@@ -13,6 +14,7 @@ export default async function SimulationPage({
   params: Promise<{ matchid: string; simulationid: string }>;
 }) {
   const { matchid, simulationid } = await params;
+  const { t } = await getServerTranslations();
   const match = getMatch(matchid);
   if (!match) notFound();
 
@@ -50,10 +52,12 @@ export default async function SimulationPage({
               className="text-muted-foreground hover:text-foreground flex w-fit items-center gap-1.5 text-sm transition-colors"
             >
               <ArrowLeftIcon className="size-4" />
-              Match {match.match}
+              {t("common.match")} {match.match}
             </Link>
             <div className="text-muted-foreground flex items-center gap-2 text-sm">
-              <span className="font-mono text-xs">Simulation {simulation.id}</span>
+              <span className="font-mono text-xs">
+                {t("match.simulation")} {simulation.id}
+              </span>
               <Badge variant="secondary">{simulation.status}</Badge>
             </div>
           </div>

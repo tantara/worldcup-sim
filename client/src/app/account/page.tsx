@@ -19,6 +19,8 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
+import type { Locale } from "~/lib/i18n/config";
+import { getServerTranslations } from "~/lib/i18n/server";
 import { getTeam } from "~/lib/teams";
 import { getMatch, matchId } from "~/lib/tournament";
 import { auth } from "~/server/auth";
@@ -26,7 +28,10 @@ import { db } from "~/server/db";
 import { accounts } from "~/server/db/schema";
 import { listSimulationsForUser } from "~/server/simulations/store";
 
-export const metadata: Metadata = { title: "Account" };
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getServerTranslations();
+  return { title: t("account.title") };
+}
 
 type Simulation = Awaited<ReturnType<typeof listSimulationsForUser>>[number];
 
@@ -50,6 +55,7 @@ const STATUS_VARIANT: Record<
 };
 
 export default async function AccountPage() {
+  const { locale, t } = await getServerTranslations();
   const session = await auth();
   if (!session?.user?.id) {
     // Nothing to show without an identity; the navbar offers sign-in on "/".
@@ -67,7 +73,7 @@ export default async function AccountPage() {
 
   const providers = [...new Set(linkedAccounts.map((a) => a.provider))];
   const completed = simulations.filter((s) => s.status === "completed").length;
-  const label = user.name ?? user.email ?? "Your account";
+  const label = user.name ?? user.email ?? t("account.yourAccount");
 
   return (
     <main className="flex-1">
@@ -110,14 +116,16 @@ export default async function AccountPage() {
                   {simulations.length}
                 </div>
                 <div className="text-muted-foreground text-xs">
-                  Simulations
+                  {t("account.simulations")}
                 </div>
               </div>
               <div>
                 <div className="text-2xl font-bold tabular-nums">
                   {completed}
                 </div>
-                <div className="text-muted-foreground text-xs">Completed</div>
+                <div className="text-muted-foreground text-xs">
+                  {t("account.completed")}
+                </div>
               </div>
             </div>
           </CardContent>
@@ -126,18 +134,18 @@ export default async function AccountPage() {
         {/* Simulations the user has kicked off */}
         <Card size="sm">
           <CardHeader>
-            <CardTitle>Your simulations</CardTitle>
+            <CardTitle>{t("account.yourSimulations")}</CardTitle>
           </CardHeader>
           <CardContent>
             {simulations.length === 0 ? (
               <div className="text-muted-foreground flex flex-col items-center gap-2 py-12 text-center text-sm">
                 <Trophy className="size-6 opacity-60" />
-                <p>You haven&apos;t simulated any matches yet.</p>
+                <p>{t("account.empty")}</p>
                 <Link
                   href="/"
                   className="text-primary inline-flex items-center gap-1 font-medium hover:underline"
                 >
-                  Pick a fixture
+                  {t("account.pickFixture")}
                   <ArrowRight className="size-3.5" />
                 </Link>
               </div>
@@ -147,6 +155,8 @@ export default async function AccountPage() {
                   <SimulationCard
                     key={simulation.id}
                     simulation={simulation}
+                    locale={locale}
+                    completedLabel={t("common.completed")}
                   />
                 ))}
               </div>
@@ -158,7 +168,15 @@ export default async function AccountPage() {
   );
 }
 
-function SimulationCard({ simulation }: { simulation: Simulation }) {
+function SimulationCard({
+  simulation,
+  locale,
+  completedLabel,
+}: {
+  simulation: Simulation;
+  locale: Locale;
+  completedLabel: string;
+}) {
   const home = safeTeam(simulation.homeId);
   const away = safeTeam(simulation.awayId);
   const scoreline = simulation.result
@@ -191,7 +209,11 @@ function SimulationCard({ simulation }: { simulation: Simulation }) {
       <div className="text-muted-foreground flex items-center justify-between text-xs">
         <span className="uppercase">{simulation.mode}</span>
         <span>
-          {formatReplayDate(simulation.completedAt ?? simulation.createdAt)}
+          {formatReplayDate(
+            simulation.completedAt ?? simulation.createdAt,
+            locale,
+            completedLabel,
+          )}
         </span>
       </div>
     </Link>

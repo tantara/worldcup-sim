@@ -7,6 +7,8 @@ import { auth } from "~/server/auth";
 import { Badge } from "~/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { ReplayCard, type Replay } from "~/app/match/[matchid]/replays";
+import type { MessageKey } from "~/lib/i18n/messages";
+import { getServerTranslations } from "~/lib/i18n/server";
 import {
   getMatch,
   matchId,
@@ -19,6 +21,12 @@ import {
   listCompletedSimulationsForMatch,
 } from "~/server/simulations/store";
 
+type ServerI18n = Awaited<ReturnType<typeof getServerTranslations>>;
+type Translate = (
+  key: MessageKey,
+  values?: Record<string, string | number>,
+) => string;
+
 export function generateStaticParams() {
   return MATCHES.map((m) => ({ matchid: matchId(m) }));
 }
@@ -29,8 +37,9 @@ export async function generateMetadata({
   params: Promise<{ matchid: string }>;
 }) {
   const { matchid } = await params;
+  const { t } = await getServerTranslations();
   const match = getMatch(matchid);
-  if (!match) return { title: "Match not found" };
+  if (!match) return { title: t("common.notFound.match") };
   return { title: `${match.home} vs ${match.away} · World Cup Simulator` };
 }
 
@@ -40,6 +49,7 @@ export default async function MatchPage({
   params: Promise<{ matchid: string }>;
 }) {
   const { matchid } = await params;
+  const { locale, t } = await getServerTranslations();
   const match = getMatch(matchid);
   if (!match) notFound();
   const canonicalId = matchId(match);
@@ -62,13 +72,15 @@ export default async function MatchPage({
         className="text-muted-foreground hover:text-foreground flex w-fit items-center gap-1.5 text-sm transition-colors"
       >
         <ArrowLeft className="size-4" />
-        All fixtures
+        {t("common.allFixtures")}
       </Link>
       <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
         <Badge variant="secondary">
-          {match.group ? `Group ${match.group}` : match.round}
+          {match.group ? `${t("common.group")} ${match.group}` : match.round}
         </Badge>
-        <Badge variant="outline">Match {match.match}</Badge>
+        <Badge variant="outline">
+          {t("common.match")} {match.match}
+        </Badge>
         <span className="flex items-center gap-1.5">
           <CalendarDays className="size-3.5" />
           {match.date}
@@ -106,10 +118,13 @@ export default async function MatchPage({
           afterHeader={
             previousSimulations.length > 0 ? (
               <PreviousSimulations
-                simulations={previousSimulations}
-                canonicalId={canonicalId}
-                total={totalSimulations}
-              />
+              simulations={previousSimulations}
+              canonicalId={canonicalId}
+              total={totalSimulations}
+              locale={locale}
+              completedLabel={t("common.completed")}
+              t={t}
+            />
             ) : undefined
           }
           title={
@@ -133,15 +148,13 @@ export default async function MatchPage({
               {match.away}
             </div>
             <p className="text-muted-foreground max-w-md text-sm">
-              This {match.round} fixture isn&apos;t playable yet — the
-              qualifying teams are decided once the earlier rounds are
-              simulated.
+              {t("match.notPlayable", { round: match.round })}
             </p>
             <Link
               href="/"
               className="text-primary text-sm font-medium hover:underline"
             >
-              Back to fixtures
+              {t("common.backToFixtures")}
             </Link>
           </CardContent>
         </Card>
@@ -154,22 +167,28 @@ function PreviousSimulations({
   simulations,
   canonicalId,
   total,
+  locale,
+  completedLabel,
+  t,
 }: {
   simulations: Replay[];
   canonicalId: string;
   total: number;
+  locale: ServerI18n["locale"];
+  completedLabel: string;
+  t: Translate;
 }) {
   const hasMore = total > simulations.length;
   return (
     <Card size="sm">
       <CardHeader className="flex flex-row items-center justify-between gap-2">
-        <CardTitle>Previous simulations</CardTitle>
+        <CardTitle>{t("match.previousSimulations")}</CardTitle>
         {hasMore && (
           <Link
             href={`/match/${canonicalId}/history`}
             className="text-primary inline-flex items-center gap-1 text-sm font-medium hover:underline"
           >
-            View all {total}
+            {t("match.viewAll", { count: total })}
             <ArrowRight className="size-3.5" />
           </Link>
         )}
@@ -181,6 +200,8 @@ function PreviousSimulations({
               key={simulation.id}
               simulation={simulation}
               canonicalId={canonicalId}
+              locale={locale}
+              completedLabel={completedLabel}
             />
           ))}
         </div>

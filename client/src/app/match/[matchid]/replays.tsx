@@ -1,6 +1,8 @@
 import Link from "next/link";
 
 import { Badge } from "~/components/ui/badge";
+import { DEFAULT_LOCALE, type Locale } from "~/lib/i18n/config";
+import { formatReplayDate as formatLocaleReplayDate } from "~/lib/i18n/format";
 import type { MatchResult } from "~/lib/simulator-types";
 import type { listCompletedSimulationsForMatch } from "~/server/simulations/store";
 
@@ -11,9 +13,13 @@ export type Replay = Awaited<
 export function ReplayCard({
   simulation,
   canonicalId,
+  locale = DEFAULT_LOCALE,
+  completedLabel = "Completed",
 }: {
   simulation: Replay;
   canonicalId: string;
+  locale?: Locale;
+  completedLabel?: string;
 }) {
   return (
     <Link
@@ -28,7 +34,11 @@ export function ReplayCard({
               : `${simulation.scoreHome}-${simulation.scoreAway}`}
           </div>
           <div className="text-muted-foreground mt-1 truncate text-xs">
-            {formatReplayDate(simulation.completedAt ?? simulation.createdAt)}
+            {formatReplayDate(
+              simulation.completedAt ?? simulation.createdAt,
+              locale,
+              completedLabel,
+            )}
           </div>
         </div>
         <Badge variant="outline">Replay</Badge>
@@ -41,12 +51,10 @@ export function replayScore(result: MatchResult): string {
   return `${result.homeName} ${result.score.home}-${result.score.away} ${result.awayName}`;
 }
 
-export function formatReplayDate(value: Date | null): string {
-  if (!value) return "Completed";
-  return new Intl.DateTimeFormat("en", {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(value);
+export function formatReplayDate(
+  value: Date | null,
+  locale: Locale = DEFAULT_LOCALE,
+  completedLabel = "Completed",
+): string {
+  return value ? formatLocaleReplayDate(value, locale) : completedLabel;
 }

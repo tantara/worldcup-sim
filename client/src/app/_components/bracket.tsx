@@ -1,28 +1,45 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
 
+import { getServerTranslations } from "~/lib/i18n/server";
+import type { MessageKey } from "~/lib/i18n/messages";
 import { bracket, matchId, type Match } from "~/lib/tournament";
 
-const ROUND_LABEL: Record<string, string> = {
-  "Round of 32": "Round of 32",
-  "Round of 16": "Round of 16",
-  "Quarter-final": "Quarter-finals",
-  "Semi-final": "Semi-finals",
-  Final: "Final",
+const ROUND_LABEL: Record<string, MessageKey> = {
+  "Round of 32": "bracket.round32",
+  "Round of 16": "bracket.round16",
+  "Quarter-final": "bracket.quarter",
+  "Semi-final": "bracket.semi",
+  Final: "bracket.final",
 };
 
+type Translate = (
+  key: MessageKey,
+  values?: Record<string, string | number>,
+) => string;
+
 // Compact label for a bracket slot placeholder.
-function slotLabel(slot: string): string {
+function slotLabel(slot: string, t: Translate): string {
   let m;
-  if ((m = /^Winner Group ([A-L])$/.exec(slot))) return `Winner Grp ${m[1]}`;
-  if ((m = /^Runner-up Group ([A-L])$/.exec(slot))) return `2nd Grp ${m[1]}`;
-  if ((m = /^3rd Group (.+)$/.exec(slot))) return `3rd: ${m[1]}`;
-  if ((m = /^Winner Match (\d+)$/.exec(slot))) return `Winner #${m[1]}`;
-  if ((m = /^Loser Match (\d+)$/.exec(slot))) return `Loser #${m[1]}`;
+  if ((m = /^Winner Group ([A-L])$/.exec(slot))) {
+    return t("bracket.winnerGroup", { group: m[1] ?? "" });
+  }
+  if ((m = /^Runner-up Group ([A-L])$/.exec(slot))) {
+    return t("bracket.runnerUpGroup", { group: m[1] ?? "" });
+  }
+  if ((m = /^3rd Group (.+)$/.exec(slot))) {
+    return t("bracket.thirdGroup", { group: m[1] ?? "" });
+  }
+  if ((m = /^Winner Match (\d+)$/.exec(slot))) {
+    return t("bracket.winnerMatch", { match: m[1] ?? "" });
+  }
+  if ((m = /^Loser Match (\d+)$/.exec(slot))) {
+    return t("bracket.loserMatch", { match: m[1] ?? "" });
+  }
   return slot;
 }
 
-function BracketMatch({ match }: { match: Match }) {
+function BracketMatch({ match, t }: { match: Match; t: Translate }) {
   return (
     <Link
       href={`/match/${matchId(match)}`}
@@ -33,23 +50,24 @@ function BracketMatch({ match }: { match: Match }) {
         <span>{match.date.slice(5)}</span>
       </div>
       <div className="flex flex-col gap-1">
-        <Slot text={match.home} />
+        <Slot text={match.home} t={t} />
         <div className="bg-border h-px" />
-        <Slot text={match.away} />
+        <Slot text={match.away} t={t} />
       </div>
     </Link>
   );
 }
 
-function Slot({ text }: { text: string }) {
+function Slot({ text, t }: { text: string; t: Translate }) {
   return (
     <span className="truncate text-xs font-medium" title={text}>
-      {slotLabel(text)}
+      {slotLabel(text, t)}
     </span>
   );
 }
 
-export function Bracket() {
+export async function Bracket() {
+  const { t } = await getServerTranslations();
   const { columns, thirdPlace } = bracket();
   const baseCount = columns[0]?.matches.length ?? 1;
 
@@ -61,8 +79,9 @@ export function Bracket() {
             <div key={col.round} className="flex items-start">
               <BracketColumn
                 baseCount={baseCount}
-                label={ROUND_LABEL[col.round] ?? col.round}
+                label={roundLabel(col.round, t)}
                 matches={col.matches}
+                t={t}
               />
               {colIndex < columns.length - 1 && (
                 <BracketConnectorLane
@@ -78,10 +97,10 @@ export function Bracket() {
       {thirdPlace && (
         <div className="flex flex-col gap-2">
           <h3 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
-            Third-place play-off
+            {t("bracket.thirdPlace")}
           </h3>
           <div className="w-full sm:w-44">
-            <BracketMatch match={thirdPlace} />
+            <BracketMatch match={thirdPlace} t={t} />
           </div>
         </div>
       )}
@@ -89,14 +108,21 @@ export function Bracket() {
   );
 }
 
+function roundLabel(round: string, t: Translate): string {
+  const key = ROUND_LABEL[round];
+  return key ? t(key) : round;
+}
+
 function BracketColumn({
   baseCount,
   label,
   matches,
+  t,
 }: {
   baseCount: number;
   label: string;
   matches: Match[];
+  t: Translate;
 }) {
   const span = Math.max(1, baseCount / matches.length);
 
@@ -120,7 +146,7 @@ function BracketColumn({
             className="flex items-center"
             style={{ gridRow: `${Math.floor(index * span) + 1} / span ${span}` }}
           >
-            <BracketMatch match={match} />
+            <BracketMatch match={match} t={t} />
           </div>
         ))}
       </div>

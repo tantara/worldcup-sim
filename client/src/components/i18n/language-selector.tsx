@@ -51,7 +51,9 @@ export function LanguageSelector() {
             <span className="text-muted-foreground text-xs uppercase">
               {option}
             </span>
-            {option === locale && <span className="sr-only">selected</span>}
+            {option === locale && (
+              <span className="sr-only">{t("common.selected")}</span>
+            )}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
