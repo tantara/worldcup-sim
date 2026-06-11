@@ -22,6 +22,7 @@ import {
 } from "react";
 
 import { DEFAULT_LANG, DEFAULT_VOICE_ID } from "~/lib/supertonic/voices";
+import type { Locale } from "~/lib/i18n/config";
 
 type EngineStatus = "idle" | "loading" | "ready" | "error";
 
@@ -76,12 +77,14 @@ interface RequestMeta {
 
 export function SupertonicProvider({
   children,
+  locale = DEFAULT_LANG,
 }: {
   children: React.ReactNode;
+  locale?: Locale;
 }) {
   const [supported, setSupported] = useState<boolean | null>(null);
   const [voiceId, setVoiceId] = useState(DEFAULT_VOICE_ID);
-  const [lang, setLang] = useState(DEFAULT_LANG);
+  const [lang, setLangState] = useState<string>(locale);
   const [engineStatus, setEngineStatus] = useState<EngineStatus>("idle");
   const [loadProgress, setLoadProgress] = useState<LoadProgress | null>(null);
   const [backend, setBackend] = useState<string | null>(null);
@@ -97,6 +100,16 @@ export function SupertonicProvider({
   const requestMetaRef = useRef<Map<number, RequestMeta>>(new Map());
   // Monotonic request counter; only the latest request controls playback.
   const seqRef = useRef(0);
+  const langTouchedRef = useRef(false);
+
+  const setLang = useCallback((code: string) => {
+    langTouchedRef.current = true;
+    setLangState(code);
+  }, []);
+
+  useEffect(() => {
+    if (!langTouchedRef.current) setLangState(locale);
+  }, [locale]);
 
   const playUrl = useCallback((url: string, bubbleId: string) => {
     const audio = audioRef.current;

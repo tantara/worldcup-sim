@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 
 import { LoginDialog } from "~/components/auth-nav";
+import { useI18n } from "~/components/i18n/locale-provider";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -61,6 +62,7 @@ import {
 import { Separator } from "~/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { useMediaQuery } from "~/hooks/use-media-query";
+import type { MessageKey } from "~/lib/i18n/messages";
 import type {
   AgentUsageSummary,
   GameSpeed,
@@ -99,11 +101,11 @@ import {
 // The simulator is driven by the real WC26 group-stage schedule.
 const DEFAULT_GROUP: GroupLetter = GROUP_LETTERS[0] ?? "A";
 const DEFAULT_MATCH = matchesByGroup(DEFAULT_GROUP)[0]?.match ?? 1;
-const GAME_SPEEDS: Record<GameSpeed, { label: string; detail: string }> = {
-  slow: { label: "Slow", detail: "1 min, reasoning in live" },
-  normal: { label: "Normal", detail: "1 min, no reasoning in live" },
-  fast: { label: "Fast", detail: "3 min, no reasoning in live" },
-};
+
+type Translate = (
+  key: MessageKey,
+  values?: Record<string, string | number>,
+) => string;
 
 // --- live match state -------------------------------------------------------
 
@@ -338,11 +340,7 @@ export function SimulatorExperience({
   fixtureLocked = false,
   requireAuth = false,
   isAuthenticated = false,
-  title = (
-    <>
-      WorldCup <span className="text-primary">Simulator</span>
-    </>
-  ),
+  title,
   description = null,
   beforeHeader,
   afterHeader,
@@ -363,6 +361,7 @@ export function SimulatorExperience({
   // replay control, and the run auto-starts on mount.
   replay?: { simulationId: string };
 }) {
+  const { locale, t } = useI18n();
   const isReplay = Boolean(replay);
   const [group, setGroup] = useState<GroupLetter>(initialGroup);
   const [matchNumber, setMatchNumber] = useState<number>(
@@ -402,6 +401,11 @@ export function SimulatorExperience({
   const scrollRef = useRef<HTMLDivElement>(null);
   // Columns are draggable on lg+; below that they stack and resizing is moot.
   const isDesktop = useMediaQuery("(min-width: 1024px)");
+  const heading = title ?? (
+    <>
+      WorldCup <span className="text-primary">{t("nav.simulator")}</span>
+    </>
+  );
 
   // Auto-open the result dialog once per run when full time lands; reset when a
   // new run clears the result so the next match pops its own dialog.
@@ -529,6 +533,7 @@ export function SimulatorExperience({
             matchId: `${matchNumber}:${team.id}:${side}`,
             sessionId,
             managerContext,
+            locale,
           }),
           signal: controller.signal,
         });
@@ -551,6 +556,7 @@ export function SimulatorExperience({
       managerContext,
       matchNumber,
       mode,
+      locale,
       readEventStream,
       running,
       sessionId,
@@ -590,6 +596,7 @@ export function SimulatorExperience({
           matchId: String(matchNumber),
           sessionId,
           managerContext,
+          locale,
         }),
         signal: controller.signal,
       });
@@ -622,6 +629,7 @@ export function SimulatorExperience({
     maxMinutes,
     matchNumber,
     sessionId,
+    locale,
     setPlaybackStoppedState,
     readEventStream,
     loadStandings,
@@ -805,7 +813,7 @@ export function SimulatorExperience({
   );
 
   return (
-    <SupertonicProvider>
+    <SupertonicProvider locale={locale}>
       <div className="flex-1">
       <div className="flex w-full flex-col gap-6 px-3 py-6 sm:px-4 sm:py-8 lg:h-[calc(100vh-6rem-2px)] lg:overflow-hidden">
         {requireAuth && (
@@ -822,23 +830,29 @@ export function SimulatorExperience({
               <span className="bg-primary/15 text-primary ring-primary/30 flex size-9 items-center justify-center rounded-xl ring-1">
                 <FlaskConical className="size-5" />
               </span>
-              <h1 className="text-2xl font-extrabold tracking-tight">{title}</h1>
+              <h1 className="text-2xl font-extrabold tracking-tight">
+                {heading}
+              </h1>
               {standings && standings.results.length > 0 && (
                 <Dialog>
                   <DialogTrigger
                     render={
                       <Button variant="outline" size="sm" className="ml-1 gap-1.5">
                         <Trophy className="size-4" />
-                        Standings
+                        {t("sim.standings")}
                       </Button>
                     }
                   />
                   <DialogContent className="max-w-3xl">
                     <DialogHeader>
                       <DialogTitle>
-                        Standings{" "}
+                        {t("sim.standings")}{" "}
                         <span className="text-muted-foreground text-sm font-normal">
-                          ({standings.results.length} matches played)
+                          (
+                          {t("sim.matchesPlayed", {
+                            count: standings.results.length,
+                          })}
+                          )
                         </span>
                       </DialogTitle>
                     </DialogHeader>
@@ -854,7 +868,7 @@ export function SimulatorExperience({
                   onClick={() => setResultOpen(true)}
                 >
                   <Goal className="size-4" />
-                  Result
+                  {t("sim.result")}
                 </Button>
               )}
             </div>
@@ -936,7 +950,8 @@ export function SimulatorExperience({
               <DialogHeader>
                 <DialogTitle className="flex items-center justify-between gap-2 pr-8">
                   <span>
-                    Full time{state.result.abandoned ? " (abandoned)" : ""}
+                    {t("sim.fullTime")}
+                    {state.result.abandoned ? ` (${t("sim.abandoned")})` : ""}
                   </span>
                   <Badge variant="outline" className="capitalize">
                     {state.result.mode}
@@ -982,6 +997,7 @@ function Scoreboard({
   awayLineup: Lineup | null;
   minutes: MinuteRow[];
 }) {
+  const { t } = useI18n();
   const hasLineups = Boolean(homeLineup ?? awayLineup);
   const goals = minutes.filter((m) => m.outcome.event === "goal");
   const homeGoals = goals.filter((m) => m.outcome.side === "home");
@@ -1027,11 +1043,13 @@ function Scoreboard({
             type="button"
             onClick={() => setLineupsOpen((open) => !open)}
             aria-expanded={lineupsOpen}
-            aria-label={lineupsOpen ? "Hide lineups" : "Show lineups"}
+            aria-label={
+              lineupsOpen ? t("sim.hideLineups") : t("sim.showLineups")
+            }
             className="flex w-full items-center justify-center gap-1.5 rounded-md py-1 text-[11px] font-semibold tracking-wide text-white/75 uppercase transition-colors hover:bg-white/10 hover:text-white"
           >
             <Users className="size-3.5" />
-            Line up
+            {t("sim.lineupTitle")}
             {lineupsOpen ? (
               <ChevronUp className="size-3.5" />
             ) : (
@@ -1067,6 +1085,8 @@ function ScorerList({
   goals: MinuteRow[];
   align: "left" | "right";
 }) {
+  const { t } = useI18n();
+
   return (
     <ul
       className={`flex flex-col gap-0.5 ${
@@ -1094,6 +1114,8 @@ function ScoreboardLineup({
   lineup: Lineup | null;
   align: "left" | "right";
 }) {
+  const { t } = useI18n();
+
   return (
     <div className="rounded-md bg-black/25 p-2 text-white ring-1 ring-white/10">
       <div
@@ -1105,7 +1127,9 @@ function ScoreboardLineup({
         <div className="min-w-0">
           <div className="truncate text-xs font-semibold">{team.name}</div>
           <div className="text-[11px] text-white/70">
-            {lineup ? `${lineup.formation} · ${lineup.tactic}` : "XI pending"}
+            {lineup
+              ? `${lineup.formation} · ${lineup.tactic}`
+              : t("sim.xiPending")}
           </div>
         </div>
       </div>
@@ -1113,7 +1137,7 @@ function ScoreboardLineup({
         <FormationPitch team={team} kit={kit} lineup={lineup} align={align} />
       ) : (
         <div className="rounded bg-white/10 px-2 py-3 text-center text-xs text-white/65">
-          Waiting for manager decision
+          {t("sim.waitingManager")}
         </div>
       )}
     </div>
@@ -1278,10 +1302,11 @@ function ClockPill({
   finished: boolean;
   abandoned: boolean;
 }) {
+  const { t } = useI18n();
   const label = abandoned
-    ? "ABANDONED"
+    ? t("sim.abandoned").toUpperCase()
     : finished
-      ? "FULL TIME"
+      ? t("sim.fullTime").toUpperCase()
       : clock > 0
         ? `${clock}'`
         : "—";
@@ -1329,6 +1354,7 @@ function Controls({
   activeThread: "match" | "referee" | null;
   onThread: (thread: "match" | "referee") => void;
 }) {
+  const { t } = useI18n();
   const selectedFixture =
     fixtures.find((fixture) => fixture.match === matchNumber) ?? fixtures[0];
 
@@ -1343,7 +1369,7 @@ function Controls({
       >
         {fixtureLocked ? (
           <Field
-            label="Fixture"
+            label={t("sim.fixture")}
             className={
               interactive ? "col-span-2 min-w-0 md:col-span-2" : "min-w-0"
             }
@@ -1352,13 +1378,13 @@ function Controls({
               <span className="truncate">
                 {selectedFixture
                   ? fixtureLabel(selectedFixture)
-                  : `Match ${matchNumber}`}
+                  : `${t("common.match")} ${matchNumber}`}
               </span>
             </div>
           </Field>
         ) : (
           <>
-            <Field label="Group" className="min-w-0">
+            <Field label={t("common.group")} className="min-w-0">
               <Select
                 value={group}
                 disabled={running}
@@ -1372,7 +1398,7 @@ function Controls({
                 <SelectContent>
                   {GROUP_LETTERS.map((g) => (
                     <SelectItem key={g} value={g}>
-                      Group {g}
+                      {t("common.group")} {g}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -1380,7 +1406,7 @@ function Controls({
             </Field>
 
             <Field
-              label="Fixture"
+              label={t("sim.fixture")}
               className="col-span-2 min-w-0 md:col-span-1"
             >
               <Select
@@ -1394,7 +1420,7 @@ function Controls({
                   <SelectValue>
                     {selectedFixture
                       ? fixtureLabel(selectedFixture)
-                      : `Match ${matchNumber}`}
+                      : `${t("common.match")} ${matchNumber}`}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
@@ -1410,7 +1436,7 @@ function Controls({
         )}
 
         {interactive && (
-          <Field label="Minutes" className="min-w-0">
+          <Field label={t("sim.minutes")} className="min-w-0">
             <input
               type="number"
               min={1}
@@ -1429,15 +1455,17 @@ function Controls({
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-muted-foreground text-xs">AI agents:</span>
+        <span className="text-muted-foreground text-xs">
+          {t("sim.aiAgents")}
+        </span>
         <CacheBadge
-          label="match"
+          label={t("sim.matchAssistant")}
           stat={matchStat}
           active={activeThread === "match"}
           onClick={() => onThread("match")}
         />
         <CacheBadge
-          label="referee"
+          label={t("sim.refereeAssistant")}
           stat={refStat}
           active={activeThread === "referee"}
           onClick={() => onThread("referee")}
@@ -1456,14 +1484,17 @@ function fixtureLabel(m: Match): string {
 }
 
 function FixtureMeta({ match }: { match: Match }) {
+  const { t } = useI18n();
   const venueUrl = venueGoogleMapsUrl(match);
 
   return (
     <div className="text-muted-foreground flex flex-wrap items-center gap-2 text-xs">
       <Badge variant="secondary">
-        {match.group ? `Group ${match.group}` : match.round}
+        {match.group ? `${t("common.group")} ${match.group}` : match.round}
       </Badge>
-      <Badge variant="outline">Match {match.match}</Badge>
+      <Badge variant="outline">
+        {t("common.match")} {match.match}
+      </Badge>
       <span className="flex items-center gap-1">
         <CalendarDays className="size-3.5" />
         {match.date}
@@ -1509,12 +1540,16 @@ function buildFeed(
   abandoned: boolean,
   home: Team,
   away: Team,
+  t: Translate,
 ): FeedItem[] {
   const items: FeedItem[] = [];
   items.push({
     kind: "marker",
     minute: 0,
-    text: `Kick off — ${home.flag} ${home.name} vs ${away.name} ${away.flag}`,
+    text: t("sim.kickoffMarker", {
+      home: `${home.flag} ${home.name}`,
+      away: `${away.name} ${away.flag}`,
+    }),
     icon: <Flag className="text-muted-foreground size-4" />,
     emphasis: "bg-muted/60 font-medium",
   });
@@ -1531,7 +1566,7 @@ function buildFeed(
     items.push({
       kind: "marker",
       minute: 91,
-      text: abandoned ? "Match abandoned by the referee." : "Full time.",
+      text: abandoned ? t("sim.matchAbandoned") : t("sim.fullTimeMarker"),
       icon: abandoned ? (
         <CircleStop className="text-destructive size-4" />
       ) : (
@@ -1584,7 +1619,8 @@ function Commentary({
   onKickoff: () => void;
   onTogglePlayback: () => void;
 }) {
-  const items = buildFeed(minutes, referee, finished, abandoned, home, away);
+  const { t } = useI18n();
+  const items = buildFeed(minutes, referee, finished, abandoned, home, away, t);
   const empty = minutes.length === 0 && referee.length === 0;
 
   return (
@@ -1598,19 +1634,11 @@ function Commentary({
             <p className="text-muted-foreground text-sm">
               {running
                 ? playbackStopped
-                  ? "Match events are stopped until you resume."
-                  : "Waiting for the first match event."
+                  ? t("sim.eventsStopped")
+                  : t("sim.waitingFirstEvent")
                 : isReplay
-                  ? "Hit "
-                  : "Pick a fixture and hit "}
-              {!running && (
-                <>
-                  <span className="text-foreground font-semibold">
-                    {isReplay ? "Replay" : "Kick Off"}
-                  </span>{" "}
-                  to watch {isReplay ? "this simulation." : "the agents play."}
-                </>
-              )}
+                  ? t("sim.hitReplay")
+                  : t("sim.pickFixture")}
             </p>
             <Button
               size="lg"
@@ -1630,12 +1658,12 @@ function Commentary({
                 <Play className="size-5" />
               )}
               {playbackStopped
-                ? "Resume"
+                ? t("sim.resume")
                 : running
-                  ? "Stop"
+                  ? t("sim.stop")
                   : started || isReplay
-                    ? "Replay"
-                    : "Kick Off"}
+                    ? t("common.replay")
+                    : t("sim.kickOff")}
             </Button>
           </div>
         ) : (
@@ -1643,14 +1671,18 @@ function Commentary({
             <div className="bg-background/95 sticky top-3 z-10 mb-1 flex items-center justify-between gap-3 rounded-lg border px-3 py-2 shadow-sm backdrop-blur">
               <div className="min-w-0">
                 <p className="text-sm font-semibold">
-                  {playbackStopped ? "Stopped" : running ? "Playing" : "Replay"}
+                  {playbackStopped
+                    ? t("sim.stopped")
+                    : running
+                      ? t("sim.playing")
+                      : t("common.replay")}
                 </p>
                 <p className="text-muted-foreground truncate text-xs">
                   {playbackStopped
-                    ? "New events are held until resume."
+                    ? t("sim.eventsHeld")
                     : finished
-                      ? "Match complete."
-                      : "Live event feed"}
+                      ? t("sim.matchComplete")
+                      : t("sim.liveFeed")}
                 </p>
               </div>
               <Button
@@ -1667,7 +1699,7 @@ function Commentary({
                 ) : (
                   <CircleStop className="size-4" />
                 )}
-                {playbackStopped ? "Resume" : "Stop"}
+                {playbackStopped ? t("sim.resume") : t("sim.stop")}
               </Button>
             </div>
             {items.map((item, i) => (
@@ -1691,6 +1723,7 @@ function FeedLine({
   home: Team;
   away: Team;
 }) {
+  const { t } = useI18n();
   let icon: React.ReactNode;
   let text: string;
   let emphasis: string;
@@ -1733,7 +1766,7 @@ function FeedLine({
               {icon}
             </span>
             <span className="text-xs font-bold tracking-wide uppercase">
-              Referee check
+              {t("sim.refereeCheck")}
             </span>
             <Badge
               variant="outline"
@@ -1751,7 +1784,7 @@ function FeedLine({
     );
   }
 
-  const tone = eventTone(item.outcome.event);
+  const tone = eventTone(item.outcome.event, t);
   const sideTeam =
     item.outcome.side === "home"
       ? home
@@ -1759,7 +1792,7 @@ function FeedLine({
         ? away
         : null;
   const sideLabel = sideTeam ? `${sideTeam.flag} ${sideTeam.name}` : null;
-  text = item.outcome.text || "Play continues without a clear chance.";
+  text = item.outcome.text || t("sim.playContinues");
 
   return (
     <div className="grid grid-cols-[1.75rem_minmax(0,1fr)] items-start gap-3">
@@ -1799,11 +1832,11 @@ function MinuteStamp({ minute }: { minute: number }) {
   );
 }
 
-function eventTone(event: MinuteOutcome["event"]) {
+function eventTone(event: MinuteOutcome["event"], t: Translate) {
   switch (event) {
     case "goal":
       return {
-        label: "Goal",
+        label: t("sim.event.goal"),
         card: "border-primary/35 bg-primary/10 ring-1 ring-primary/20",
         badge: "bg-primary text-primary-foreground",
         icon: "bg-primary/15 text-primary ring-primary/30",
@@ -1811,7 +1844,7 @@ function eventTone(event: MinuteOutcome["event"]) {
       };
     case "save":
       return {
-        label: "Save",
+        label: t("sim.event.save"),
         card: "border-sky-400/30 bg-sky-500/10",
         badge: "bg-sky-500/15 text-sky-700 dark:text-sky-300",
         icon: "bg-sky-500/15 text-sky-600 ring-sky-400/30",
@@ -1819,7 +1852,7 @@ function eventTone(event: MinuteOutcome["event"]) {
       };
     case "miss":
       return {
-        label: "Chance",
+        label: t("sim.event.miss"),
         card: "border-orange-400/25 bg-orange-500/10",
         badge: "bg-orange-500/15 text-orange-700 dark:text-orange-300",
         icon: "bg-orange-500/15 text-orange-600 ring-orange-400/30",
@@ -1827,7 +1860,7 @@ function eventTone(event: MinuteOutcome["event"]) {
       };
     case "foul":
       return {
-        label: "Foul",
+        label: t("sim.event.foul"),
         card: "border-amber-400/30 bg-amber-500/10",
         badge: "bg-amber-500/15 text-amber-800 dark:text-amber-300",
         icon: "bg-amber-500/15 text-amber-600 ring-amber-400/30",
@@ -1835,7 +1868,7 @@ function eventTone(event: MinuteOutcome["event"]) {
       };
     case "yellow":
       return {
-        label: "Booking",
+        label: t("sim.event.yellow"),
         card: "border-yellow-400/35 bg-yellow-400/10",
         badge: "bg-yellow-400/25 text-yellow-800 dark:text-yellow-200",
         icon: "bg-yellow-400/15 text-yellow-700 ring-yellow-400/30",
@@ -1843,7 +1876,7 @@ function eventTone(event: MinuteOutcome["event"]) {
       };
     case "red":
       return {
-        label: "Red card",
+        label: t("sim.event.red"),
         card: "border-red-500/35 bg-red-500/10 ring-1 ring-red-500/15",
         badge: "bg-red-500/15 text-red-700 dark:text-red-300",
         icon: "bg-red-500/15 text-red-600 ring-red-500/30",
@@ -1852,7 +1885,7 @@ function eventTone(event: MinuteOutcome["event"]) {
     case "none":
     default:
       return {
-        label: "Open play",
+        label: t("sim.event.none"),
         card: "border-border/70 bg-card/80 hover:bg-muted/30",
         badge: "bg-muted text-muted-foreground",
         icon: "bg-muted/70 text-muted-foreground ring-border/70",
@@ -1888,6 +1921,7 @@ function ManagerPanel({
   onSetLineup: () => void;
   interactive: boolean;
 }) {
+  const { t } = useI18n();
   const positions: Player["position"][] = ["GK", "DF", "MF", "FW"];
   // The manager is "picking" only while a run is in flight and no XI is in yet.
   const picking = (running || settingLineup) && !lineup;
@@ -1953,18 +1987,18 @@ function ManagerPanel({
           <CacheBadge label="mgr" stat={stat} />
         </div>
         <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">
-          <TeamMeta label="FIFA Rank" value={`#${team.fifaRanking}`} />
-          <TeamMeta label="Group" value={team.group} />
-          <TeamMeta label="Tier" value={`T${team.groupTier.tier}`} />
+          <TeamMeta label={t("sim.stats.fifaRank")} value={`#${team.fifaRanking}`} />
+          <TeamMeta label={t("sim.stats.group")} value={team.group} />
+          <TeamMeta label={t("sim.stats.tier")} value={`T${team.groupTier.tier}`} />
           <TeamMeta
-            label="Confed"
+            label={t("sim.stats.confed")}
             value={shortConfederation(team.confederation)}
           />
-          <TeamMeta label="Rating" value={team.rating} />
+          <TeamMeta label={t("sim.stats.rating")} value={team.rating} />
         </div>
         <div className="mt-3 grid grid-cols-2 gap-2">
-          <Stat label="Shots" value={shots} />
-          <Stat label="On Target" value={onTarget} />
+          <Stat label={t("sim.stats.shots")} value={shots} />
+          <Stat label={t("sim.stats.onTarget")} value={onTarget} />
         </div>
       </CardHeader>
 
@@ -1977,7 +2011,7 @@ function ManagerPanel({
           <div className="flex items-start justify-between gap-2">
             <div className="flex min-w-0 flex-col gap-2">
               <h3 className="text-muted-foreground flex items-center gap-2 text-xs font-semibold tracking-wide uppercase">
-                Line up
+                {t("sim.lineupTitle")}
                 {lineup && (
                   <span className="text-primary font-medium normal-case">
                     ★ {lineup.keyPlayer}
@@ -1994,17 +2028,17 @@ function ManagerPanel({
               ) : picking ? (
                 <div className="flex flex-wrap gap-1.5">
                   <Badge variant="outline" className="text-muted-foreground">
-                    selecting formation…
+                    {t("sim.selectingFormation")}
                   </Badge>
                 </div>
               ) : null}
             </div>
             <TabsList className="grid h-8 shrink-0 grid-cols-2">
               <TabsTrigger value="lineup" className="px-3 text-xs">
-                Lineup
+                {t("sim.lineup")}
               </TabsTrigger>
               <TabsTrigger value="agent" className="px-3 text-xs">
-                AI agent
+                {t("sim.aiAgent")}
               </TabsTrigger>
             </TabsList>
           </div>
@@ -2024,11 +2058,10 @@ function ManagerPanel({
                       className="font-semibold"
                     >
                       <Users className="size-4" />
-                      {picking ? "Setting lineup…" : "Set lineup"}
+                      {picking ? t("sim.settingLineup") : t("sim.setLineup")}
                     </Button>
                     <p className="text-muted-foreground max-w-56 text-sm">
-                      Set the lineup to let the manager choose formation,
-                      strategy, and the line up.
+                      {t("sim.lineupHelp")}
                     </p>
                   </div>
                 ) : (
@@ -2040,8 +2073,8 @@ function ManagerPanel({
                     )}
                     <p className="max-w-56">
                       {picking
-                        ? "The manager is choosing the lineup…"
-                        : "The lineup will appear as the replay reaches kickoff."}
+                        ? t("sim.managerChoosing")
+                        : t("sim.lineupReplay")}
                     </p>
                   </div>
                 )
@@ -2100,13 +2133,13 @@ function ManagerPanel({
                                 className="leading-relaxed"
                               >
                                 <span className="font-semibold text-emerald-600">
-                                  IN {sub.on}
+                                  {t("sim.in")} {sub.on}
                                 </span>{" "}
                                 <span className="text-muted-foreground">
-                                  for
+                                  {t("sim.for")}
                                 </span>{" "}
                                 <span className="font-medium text-red-600">
-                                  OUT {sub.off}
+                                  {t("sim.out")} {sub.off}
                                 </span>
                                 <span className="text-muted-foreground">
                                   {" "}
@@ -2127,8 +2160,10 @@ function ManagerPanel({
           </TabsContent>
           {stat.promptTokens > 0 && (
             <div className="text-muted-foreground mt-3 border-t pt-2 text-[11px] leading-snug">
-              prompt {stat.promptTokens} · completion {stat.completionTokens} ·
-              cache {Math.round(stat.cumulativeHitRate * 100)}% · latency{" "}
+              {t("sim.usage.prompt")} {stat.promptTokens} ·{" "}
+              {t("sim.usage.completion")} {stat.completionTokens} ·
+              {t("sim.usage.cache")} {Math.round(stat.cumulativeHitRate * 100)}
+              % · {t("sim.usage.latency")}{" "}
               {formatLatency(stat.latencyMs)} · cost{" "}
               {formatUsdCost(deepSeekV4ProCost(stat))}
             </div>
@@ -2305,13 +2340,15 @@ function shortConfederation(confederation: Team["confederation"]): string {
 function AgentThread({
   turns,
   scrollSignal,
-  userLabel = "Manager",
+  userLabel,
 }: {
   turns: AgentTurn[];
   scrollSignal?: string;
   /** Name shown on the user (prompt) turns — the role this thread belongs to. */
   userLabel?: string;
 }) {
+  const { t } = useI18n();
+  const visibleUserLabel = userLabel ?? t("sim.manager");
   const threadScrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -2329,7 +2366,7 @@ function AgentThread({
   if (turns.length === 0) {
     return (
       <div className="text-muted-foreground w-full rounded-lg border border-dashed px-3 py-8 text-center text-sm">
-        Set the lineup to see the manager&apos;s sim-agent thread.
+        {t("sim.thread.noMessages")}
       </div>
     );
   }
@@ -2342,7 +2379,7 @@ function AgentThread({
             <div className="flex min-w-0 justify-end gap-2">
               <div className="flex min-w-0 max-w-[88%] flex-col items-end gap-1">
                 <div className="text-muted-foreground flex items-center gap-1.5 text-[11px] font-medium">
-                  {userLabel}
+                  {visibleUserLabel}
                   <UserRound className="size-3" />
                 </div>
                 <div className="bg-primary text-primary-foreground max-w-full overflow-hidden rounded-2xl rounded-tr-sm px-3 py-2 text-xs leading-relaxed whitespace-pre-wrap break-words shadow-sm">
@@ -2357,19 +2394,20 @@ function AgentThread({
               </div>
               <div className="flex min-w-0 max-w-[88%] flex-col gap-1">
                 <div className="text-muted-foreground flex items-center gap-1.5 text-[11px] font-medium">
-                  SimAgent
+                  {t("sim.simAgent")}
                 </div>
                 <div className="bg-muted max-w-full overflow-hidden rounded-2xl rounded-tl-sm px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap break-words">
-                  {turn.response || "Waiting for response..."}
+                  {turn.response || t("sim.thread.waiting")}
                 </div>
                 {turn.usage && (
                   <p className="text-muted-foreground pl-1 pt-1 text-[11px] leading-snug">
-                    prompt {turn.usage.promptTokens} · completion{" "}
-                    {turn.usage.completionTokens} · cache hit{" "}
-                    {turn.usage.cacheHitTokens} · cache miss{" "}
+                    {t("sim.usage.prompt")} {turn.usage.promptTokens} ·{" "}
+                    {t("sim.usage.completion")} {turn.usage.completionTokens} ·{" "}
+                    {t("sim.usage.cache")} {turn.usage.cacheHitTokens} · cache miss{" "}
                     {turn.usage.cacheMissTokens} · reasoning{" "}
-                    {turn.usage.reasoningTokens} · latency{" "}
-                    {formatLatency(turn.usage.latencyMs)} · cost{" "}
+                    {turn.usage.reasoningTokens} · {t("sim.usage.latency")}{" "}
+                    {formatLatency(turn.usage.latencyMs)} ·{" "}
+                    {t("sim.usage.cost")}{" "}
                     {formatUsdCost(deepSeekV4ProCost(turn.usage))}
                   </p>
                 )}
@@ -2393,27 +2431,31 @@ function ThreadDetail({
   turns: AgentTurn[];
   onClose: () => void;
 }) {
-  const title = thread === "match" ? "Match Agent" : "Referee Agent";
+  const { t } = useI18n();
+  const title =
+    thread === "match" ? t("sim.matchAgent") : t("sim.refereeAgent");
   return (
     <div className="rounded-xl border p-3">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div>
           <h3 className="text-sm font-semibold">{title}</h3>
           <p className="text-muted-foreground text-xs">
-            prompt {stat.promptTokens} · completion {stat.completionTokens} ·
-            cache {Math.round(stat.cumulativeHitRate * 100)}% · latency{" "}
-            {formatLatency(stat.latencyMs)} · cost{" "}
+            {t("sim.usage.prompt")} {stat.promptTokens} ·{" "}
+            {t("sim.usage.completion")} {stat.completionTokens} ·{" "}
+            {t("sim.usage.cache")} {Math.round(stat.cumulativeHitRate * 100)}% ·{" "}
+            {t("sim.usage.latency")} {formatLatency(stat.latencyMs)} ·{" "}
+            {t("sim.usage.cost")}{" "}
             {formatUsdCost(deepSeekV4ProCost(stat))}
           </p>
         </div>
         <Button variant="ghost" size="sm" onClick={onClose}>
-          Close
+          {t("sim.close")}
         </Button>
       </div>
       <div className="h-80 min-h-0">
         <AgentThread
           turns={turns}
-          userLabel={thread === "match" ? "Match" : "Referee"}
+          userLabel={thread === "match" ? t("sim.match") : t("sim.referee")}
         />
       </div>
     </div>
@@ -2554,26 +2596,27 @@ function UsageBadge({
 }
 
 function UsageSummary({ stat }: { stat: ThreadStat }) {
+  const { t } = useI18n();
   const totalTokens = stat.promptTokens + stat.completionTokens;
   const cost = deepSeekV4ProCost(stat);
   return (
     <div className="text-muted-foreground flex items-center gap-2 rounded-md border px-3 py-2 text-xs">
       <span>
-        tokens{" "}
+        {t("sim.tokens")}{" "}
         <span className="text-foreground font-semibold tabular-nums">
           {formatCompactNumber(totalTokens)}
         </span>
       </span>
       <span className="text-border">|</span>
       <span>
-        KV{" "}
+        {t("sim.kv")}{" "}
         <span className="text-foreground font-semibold tabular-nums">
           {Math.round(stat.cumulativeHitRate * 100)}%
         </span>
       </span>
       <span className="text-border">|</span>
       <span>
-        cost{" "}
+        {t("sim.usage.cost")}{" "}
         <span className="text-foreground font-semibold tabular-nums">
           {formatUsdCost(cost)}
         </span>
@@ -2597,9 +2640,12 @@ function ModeControl({
   onMode: (m: Mode) => void;
   disabled: boolean;
 }) {
+  const { t } = useI18n();
   return (
     <div className="flex w-full items-center justify-between gap-2 sm:w-auto">
-      <span className="text-muted-foreground text-xs font-medium">Mode</span>
+      <span className="text-muted-foreground text-xs font-medium">
+        {t("sim.mode")}
+      </span>
       <div className="grid h-9 grid-cols-2 overflow-hidden rounded-md border">
         {(["mock", "live"] as const).map((m) => (
           <button
@@ -2612,7 +2658,7 @@ function ModeControl({
                 : "bg-background text-muted-foreground hover:bg-muted"
             }`}
           >
-            {m}
+            {t(m === "mock" ? "sim.mode.mock" : "sim.mode.live")}
           </button>
         ))}
       </div>
@@ -2629,10 +2675,11 @@ function SpeedControl({
   onGameSpeed: (speed: GameSpeed) => void;
   disabled: boolean;
 }) {
+  const { t } = useI18n();
   return (
     <div className="flex w-full items-start justify-between gap-2 sm:w-auto">
       <span className="text-muted-foreground pt-2 text-xs font-medium">
-        Speed
+        {t("sim.speed")}
       </span>
       <div className="min-w-44">
         <Select
@@ -2646,9 +2693,15 @@ function SpeedControl({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {(Object.keys(GAME_SPEEDS) as GameSpeed[]).map((speed) => (
+            {(["slow", "normal", "fast"] as const).map((speed) => (
               <SelectItem key={speed} value={speed}>
-                {GAME_SPEEDS[speed].label}
+                {t(
+                  speed === "slow"
+                    ? "sim.speed.slow"
+                    : speed === "normal"
+                      ? "sim.speed.normal"
+                      : "sim.speed.fast",
+                )}
               </SelectItem>
             ))}
           </SelectContent>
@@ -2662,12 +2715,13 @@ function SpeedControl({
 
 /** Voice preset selector — only shown when the in-browser engine is supported. */
 function VoiceControl() {
+  const { t } = useI18n();
   const { supported, voiceId, setVoiceId } = useSupertonic();
   if (supported !== true) return null;
   return (
     <div className="flex w-full items-start justify-between gap-2 sm:w-auto">
       <span className="text-muted-foreground pt-2 text-xs font-medium">
-        Voice
+        {t("sim.voice")}
       </span>
       <div className="min-w-36">
         <Select value={voiceId} onValueChange={(v) => v && setVoiceId(v)}>
@@ -2689,12 +2743,13 @@ function VoiceControl() {
 
 /** Synthesis-language selector — only shown when the engine is supported. */
 function LanguageControl() {
+  const { t } = useI18n();
   const { supported, lang, setLang } = useSupertonic();
   if (supported !== true) return null;
   return (
     <div className="flex w-full items-start justify-between gap-2 sm:w-auto">
       <span className="text-muted-foreground pt-2 text-xs font-medium">
-        Language
+        {t("sim.ttsLanguage")}
       </span>
       <div className="min-w-36">
         <Select value={lang} onValueChange={(v) => v && setLang(v)}>
@@ -2716,6 +2771,7 @@ function LanguageControl() {
 
 /** Speaker icon that synthesises and plays a commentary bubble's text. */
 function PlayBubbleButton({ id, text }: { id: string; text: string }) {
+  const { t } = useI18n();
   const { supported, busyId, playingId, play } = useSupertonic();
   if (supported !== true) return null;
   const busy = busyId === id;
@@ -2727,8 +2783,8 @@ function PlayBubbleButton({ id, text }: { id: string; text: string }) {
       size="icon"
       onClick={() => play(id, text)}
       disabled={busy}
-      aria-label={playing ? "Stop audio" : "Play audio"}
-      title={playing ? "Stop" : "Listen"}
+      aria-label={playing ? t("sim.stopAudio") : t("sim.playAudio")}
+      title={playing ? t("sim.stop") : t("sim.listen")}
       className="text-muted-foreground hover:text-foreground size-7 shrink-0"
     >
       {busy ? (
@@ -2801,6 +2857,7 @@ function Stat({ label, value }: { label: string; value: number }) {
 }
 
 function ResultDetails({ result }: { result: MatchResult }) {
+  const { t } = useI18n();
   return (
     <div className="flex flex-col gap-3 text-sm">
       <div className="text-center text-xl font-bold tabular-nums sm:text-2xl">
@@ -2809,13 +2866,13 @@ function ResultDetails({ result }: { result: MatchResult }) {
       </div>
       {result.scorers.length > 0 && (
         <div>
-          <span className="font-medium">Scorers: </span>
+          <span className="font-medium">{t("sim.result.scorers")}: </span>
           {result.scorers.map((s) => `${s.player} ${s.minute}'`).join(", ")}
         </div>
       )}
       {result.cards.length > 0 && (
         <div className="text-muted-foreground">
-          <span className="font-medium">Cards: </span>
+          <span className="font-medium">{t("sim.result.cards")}: </span>
           {result.cards
             .map(
               (c) =>
@@ -2825,7 +2882,7 @@ function ResultDetails({ result }: { result: MatchResult }) {
         </div>
       )}
       <p className="text-muted-foreground text-xs">
-        Played {result.minutesPlayed}&apos; · stored for the standings below.
+        {t("sim.result.playedStored", { minutes: result.minutesPlayed })}
       </p>
       {result.assistants && result.assistants.length > 0 && (
         <AssistantResultList assistants={result.assistants} />
@@ -2839,10 +2896,11 @@ function AssistantResultList({
 }: {
   assistants: AssistantSummary[];
 }) {
+  const { t } = useI18n();
   return (
     <div className="flex flex-col gap-2 border-t pt-3">
       <div className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
-        Assistant activity
+        {t("sim.assistantActivity")}
       </div>
       <div className="grid gap-2 sm:grid-cols-2">
         {assistants.map((assistant) => (
@@ -2853,21 +2911,22 @@ function AssistantResultList({
             <div className="flex items-center justify-between gap-2">
               <span className="font-medium">{assistant.label}</span>
               <Badge variant="outline" className="font-mono text-[11px]">
-                {assistant.turns} {assistant.turns === 1 ? "turn" : "turns"}
+                {assistant.turns}{" "}
+                {assistant.turns === 1 ? t("sim.turn") : t("sim.turns")}
               </Badge>
             </div>
             <div className="mt-2 flex flex-wrap gap-1.5">
-              <UsageBadge label="prompt" value={assistant.promptTokens} />
+              <UsageBadge label={t("sim.usage.prompt")} value={assistant.promptTokens} />
               <UsageBadge
-                label="completion"
+                label={t("sim.usage.completion")}
                 value={assistant.completionTokens}
               />
               <UsageBadge
-                label="cache"
+                label={t("sim.usage.cache")}
                 value={`${Math.round(assistant.cumulativeCacheHitRate * 100)}%`}
               />
               <UsageBadge
-                label="latency"
+                label={t("sim.usage.latency")}
                 value={formatLatency(assistant.totalLatencyMs)}
               />
             </div>
@@ -2879,6 +2938,7 @@ function AssistantResultList({
 }
 
 function StandingsView({ standings }: { standings: GroupStanding[] }) {
+  const { t } = useI18n();
   return (
     <ScrollArea className="max-h-[70vh]">
       <div className="grid gap-6 md:grid-cols-2">
@@ -2889,13 +2949,27 @@ function StandingsView({ standings }: { standings: GroupStanding[] }) {
               <table className="w-full min-w-[24rem] text-sm">
                 <thead className="text-muted-foreground text-xs">
                   <tr className="text-left">
-                    <th className="py-1 font-medium">Team</th>
-                    <th className="py-1 text-center font-medium">P</th>
-                    <th className="py-1 text-center font-medium">W</th>
-                    <th className="py-1 text-center font-medium">D</th>
-                    <th className="py-1 text-center font-medium">L</th>
-                    <th className="py-1 text-center font-medium">GD</th>
-                    <th className="py-1 text-center font-medium">Pts</th>
+                    <th className="py-1 font-medium">
+                      {t("sim.standings.team")}
+                    </th>
+                    <th className="py-1 text-center font-medium">
+                      {t("sim.standings.played")}
+                    </th>
+                    <th className="py-1 text-center font-medium">
+                      {t("sim.standings.won")}
+                    </th>
+                    <th className="py-1 text-center font-medium">
+                      {t("sim.standings.drawn")}
+                    </th>
+                    <th className="py-1 text-center font-medium">
+                      {t("sim.standings.lost")}
+                    </th>
+                    <th className="py-1 text-center font-medium">
+                      {t("team.gd")}
+                    </th>
+                    <th className="py-1 text-center font-medium">
+                      {t("sim.standings.points")}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
