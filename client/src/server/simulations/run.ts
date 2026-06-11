@@ -1,6 +1,11 @@
 import "server-only";
 
-import type { MatchResult, Mode, OrchestratorEvent } from "~/lib/playground-types";
+import type {
+  GameSpeed,
+  MatchResult,
+  Mode,
+  OrchestratorEvent,
+} from "~/lib/simulator-types";
 import { runMatch } from "~/server/agent/match-orchestrator";
 import { archiveSimulationPayload } from "./archive";
 import { buildSimulationArchive, nextSimulationSeq } from "./model";
@@ -20,6 +25,7 @@ export interface RunnableSimulation {
   homeId: string;
   awayId: string;
   mode: Mode;
+  gameSpeed: GameSpeed;
 }
 
 /**
@@ -42,6 +48,7 @@ export async function runSimulationToCompletion(
       homeId: simulation.homeId,
       awayId: simulation.awayId,
       mode: simulation.mode,
+      gameSpeed: simulation.gameSpeed,
       matchId: simulation.id,
     })) {
       await appendSimulationEvent(simulation.id, seq++, event);

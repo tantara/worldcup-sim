@@ -2,7 +2,7 @@ import "server-only";
 
 import type { MatchEvent, MatchEventType, Side } from "~/lib/match-engine";
 import type { Team } from "~/lib/teams";
-import type { GameSpeed, MinuteEventType } from "~/lib/playground-types";
+import type { GameSpeed, MinuteEventType } from "~/lib/simulator-types";
 import { runMatch } from "./match-orchestrator";
 
 export type AgentMatchSpeed = GameSpeed;
@@ -15,7 +15,7 @@ export type AgentMatchFrame =
  * Live play-by-play for the simple two-team simulator UI.
  *
  * This is a thin adapter over the full multi-agent {@link runMatch} orchestrator
- * (match + manager + referee agents), so both the playground and this UI share a
+ * (match + manager + referee agents), so both the simulator and this UI share a
  * single simulation engine. We translate the orchestrator's rich event log down
  * to the flat `MatchEvent` stream the UI consumes, synthesizing the kickoff,
  * half-time, and full-time markers the orchestrator doesn't emit itself.

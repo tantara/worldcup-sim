@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-// Slim, single-row footer for the full-height app views (playground / match) so
+// Slim, single-row footer for the full-height app views (simulator / match) so
 // the simulation columns can fill the viewport without the page scrolling.
 export function CompactFooter() {
   return (

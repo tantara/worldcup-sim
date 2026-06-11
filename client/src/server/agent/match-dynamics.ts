@@ -13,7 +13,7 @@ import type {
   MinuteOutcome,
   TacticalKnobs,
   Tactic,
-} from "~/lib/playground-types";
+} from "~/lib/simulator-types";
 
 export interface SideState {
   home: number;

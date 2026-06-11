@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { Badge } from "~/components/ui/badge";
-import type { MatchResult } from "~/lib/playground-types";
+import type { MatchResult } from "~/lib/simulator-types";
 import type { listCompletedSimulationsForMatch } from "~/server/simulations/store";
 
 export type Replay = Awaited<

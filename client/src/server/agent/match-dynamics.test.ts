@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { MinuteOutcome, TacticalKnobs } from "~/lib/playground-types";
+import type { MinuteOutcome, TacticalKnobs } from "~/lib/simulator-types";
 import {
   FATIGUE_FLOOR,
   freshFatigue,

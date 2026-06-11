@@ -5,7 +5,7 @@ import type {
   MinuteContext,
 } from "./dummy";
 import { decideMinute, makeRng, pickStrictness } from "./dummy";
-import type { OfficiatingStrictness, TacticalKnobs } from "~/lib/playground-types";
+import type { OfficiatingStrictness, TacticalKnobs } from "~/lib/simulator-types";
 import type { Player, Team } from "~/lib/teams";
 import { freshFatigue, freshMomentum } from "./match-dynamics";
 

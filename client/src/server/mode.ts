@@ -1,7 +1,7 @@
 import "server-only";
 
 import { env } from "~/env";
-import type { Mode } from "~/lib/playground-types";
+import type { Mode } from "~/lib/simulator-types";
 
 /**
  * Mock mode is a local-development convenience only. In production every

@@ -1,4 +1,4 @@
-import type { MatchResult, OrchestratorEvent } from "~/lib/playground-types";
+import type { MatchResult, OrchestratorEvent } from "~/lib/simulator-types";
 
 export type SimulationStatus =
   | "created"

@@ -2,10 +2,11 @@ import { relations } from "drizzle-orm";
 import { index, pgTableCreator, primaryKey } from "drizzle-orm/pg-core";
 import type { AdapterAccount } from "next-auth/adapters";
 import type {
+  GameSpeed,
   MatchResult,
   Mode,
   OrchestratorEvent,
-} from "~/lib/playground-types";
+} from "~/lib/simulator-types";
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -137,6 +138,11 @@ export const simulations = createTable(
     homeId: d.varchar({ length: 128 }).notNull(),
     awayId: d.varchar({ length: 128 }).notNull(),
     mode: d.varchar({ length: 16 }).$type<Mode>().notNull().default("mock"),
+    gameSpeed: d
+      .varchar({ length: 16 })
+      .$type<GameSpeed>()
+      .notNull()
+      .default("normal"),
     status: d
       .varchar({ length: 32 })
       .$type<"created" | "queued" | "running" | "completed" | "failed">()

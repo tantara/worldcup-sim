@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Client-only context for the in-browser Supertonic TTS used in the playground:
+ * Client-only context for the in-browser Supertonic TTS used in the simulator:
  * capability detection, the selected voice/language, and per-bubble synthesis +
  * playback.
  *

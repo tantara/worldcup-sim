@@ -20,6 +20,7 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -43,9 +44,9 @@ export function AuthNav({ user }: AuthNavProps) {
       <DropdownMenu>
         <DropdownMenuTrigger
           aria-label={label}
-          className="group/account bg-card/70 hover:bg-muted focus-visible:ring-ring/50 data-popup-open:bg-muted flex items-center gap-1 rounded-lg border py-0.5 pr-1.5 pl-0.5 transition-colors outline-none focus-visible:ring-3"
+          className="group/account bg-card/70 hover:bg-muted focus-visible:ring-ring/50 data-popup-open:bg-muted flex items-center gap-1 rounded-lg py-0.5 pr-1.5 pl-0.5 transition-colors outline-none focus-visible:ring-3"
         >
-          <Avatar size="sm">
+          <Avatar size="default">
             <AvatarImage src={user.image ?? undefined} alt="" />
             <AvatarFallback>{label.slice(0, 1).toUpperCase()}</AvatarFallback>
           </Avatar>
@@ -56,9 +57,11 @@ export function AuthNav({ user }: AuthNavProps) {
           sideOffset={6}
           className="w-auto min-w-44"
         >
-          <DropdownMenuLabel className="text-foreground truncate text-sm font-medium">
-            {label}
-          </DropdownMenuLabel>
+          <DropdownMenuGroup>
+            <DropdownMenuLabel className="text-foreground truncate text-sm font-medium">
+              {label}
+            </DropdownMenuLabel>
+          </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuItem render={<Link href="/account" />}>
             <UserIcon />

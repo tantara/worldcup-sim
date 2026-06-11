@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, ArrowRight, CalendarDays, Clock, MapPin } from "lucide-react";
 
-import { PlaygroundExperience } from "~/app/playground/playground-experience";
+import { SimulatorExperience } from "~/app/simulator/simulator-experience";
 import { auth } from "~/server/auth";
 import { Badge } from "~/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -97,7 +97,7 @@ export default async function MatchPage({
   if (playable && home && away) {
     return (
       <main className="flex-1">
-        <PlaygroundExperience
+        <SimulatorExperience
           initialGroup={match.group ?? undefined}
           initialMatchNumber={match.match}
           fixtureLocked

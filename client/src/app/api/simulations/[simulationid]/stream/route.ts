@@ -1,6 +1,10 @@
-import type { OrchestratorEvent } from "~/lib/playground-types";
+import type { OrchestratorEvent } from "~/lib/simulator-types";
 import { requireUser } from "~/server/auth/require-user";
 import { createSseResponse } from "~/server/http/sse";
+import {
+  parseReplaySpeed,
+  replayPacedEvents,
+} from "~/server/simulations/replay";
 import { runSimulationToCompletion } from "~/server/simulations/run";
 import {
   getSimulationEvents,
@@ -17,7 +21,7 @@ function simulationSseResponse(
 }
 
 export async function POST(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ simulationid: string }> },
 ): Promise<Response> {
   const { simulationid } = await params;
@@ -27,14 +31,18 @@ export async function POST(
   }
 
   const storedEvents = await getSimulationEvents(simulation.id);
-  if (simulation.status === "completed") {
+
+  // Simulations are public: anyone can replay a completed simulation or follow
+  // one that already has events, no sign-in required. The replay is paced to
+  // the events' recorded timeline (override the rate with `?speed=`).
+  if (simulation.status === "completed" || storedEvents.length > 0) {
+    const speed = parseReplaySpeed(new URL(req.url).searchParams.get("speed"));
     return simulationSseResponse(async (send) => {
-      for (const event of storedEvents) {
-        send(event.payload);
-      }
+      await replayPacedEvents(storedEvents, send, req.signal, speed);
     });
   }
 
+  // Starting a fresh run spends compute, so it stays gated to the owner.
   const user = await requireUser("Sign in to run this simulation.");
   if (user instanceof Response) return user;
 
@@ -49,14 +57,6 @@ export async function POST(
       { error: "This simulation is already running." },
       { status: 409 },
     );
-  }
-
-  if (storedEvents.length > 0) {
-    return simulationSseResponse(async (send) => {
-      for (const event of storedEvents) {
-        send(event.payload);
-      }
-    });
   }
 
   return simulationSseResponse(async (send) => {

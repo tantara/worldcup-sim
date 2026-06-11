@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { parseManagerUpdate } from "./manager-update";
-import type { TacticalKnobs } from "~/lib/playground-types";
+import type { TacticalKnobs } from "~/lib/simulator-types";
 import type { Player } from "~/lib/teams";
 
 const squad: Player[] = [

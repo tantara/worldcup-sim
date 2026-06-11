@@ -15,6 +15,13 @@
       "when": 1781163172800,
       "tag": "0001_even_starjammers",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781165415843,
+      "tag": "0002_living_marauders",
+      "breakpoints": true
     }
   ]
 }

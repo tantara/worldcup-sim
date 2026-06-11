@@ -22,7 +22,7 @@ import type {
   Tactic,
   TacticalKnobs,
   Thread,
-} from "~/lib/playground-types";
+} from "~/lib/simulator-types";
 import { fullSquad, getTeam, type Player, type Team } from "~/lib/teams";
 import {
   decideLineup,
@@ -70,7 +70,7 @@ export interface OrchestratorOptions {
    * Stable per-session id used as the provider `user_id` base (one key per agent
    * thread → `${sessionId}:${thread}`), pinning each thread to one DeepSeek
    * KVCache partition. Distinct from `matchId` (which also seeds the RNG): real
-   * fixtures pass their match id here; the free playground passes a generated
+   * fixtures pass their match id here; the free simulator passes a generated
    * uuid so each session gets its own cache partition. Defaults to `matchId`.
    */
   sessionId?: string;

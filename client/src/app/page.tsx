@@ -72,10 +72,10 @@ export default function Home() {
                   </Link>
                 )}
                 <Link
-                  href="/playground"
+                  href="/simulator"
                   className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-md border border-white/20 bg-background/45 px-4 text-sm font-semibold text-white transition-colors hover:bg-background/65 sm:w-fit"
                 >
-                  Open playground
+                  Open simulator
                   <ChevronRight className="size-4" />
                 </Link>
               </div>

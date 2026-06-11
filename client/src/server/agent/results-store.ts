@@ -4,13 +4,13 @@ import type {
   GroupStanding,
   MatchResult,
   StandingRow,
-} from "~/lib/playground-types";
+} from "~/lib/simulator-types";
 import { GROUP_LETTERS, teamsInGroup } from "~/lib/teams";
 
 /**
  * In-memory store of completed matches, so results feed into the next ones.
  *
- * Module-level state: this is a playground, not a database — results live for
+ * Module-level state: this is a simulator, not a database — results live for
  * the lifetime of the server process. The orchestrator writes here on full time;
  * the page reads standings from here.
  */

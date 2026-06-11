@@ -2,7 +2,12 @@ import "server-only";
 
 import { and, asc, count, desc, eq } from "drizzle-orm";
 
-import type { MatchResult, Mode, OrchestratorEvent } from "~/lib/playground-types";
+import type {
+  GameSpeed,
+  MatchResult,
+  Mode,
+  OrchestratorEvent,
+} from "~/lib/simulator-types";
 import { db } from "~/server/db";
 import { simulationEvents, simulations } from "~/server/db/schema";
 import type { SimulationStatus } from "./model";
@@ -13,6 +18,7 @@ export async function createSimulation(input: {
   homeId: string;
   awayId: string;
   mode?: Mode;
+  gameSpeed?: GameSpeed;
 }) {
   const [simulation] = await db
     .insert(simulations)
@@ -22,6 +28,7 @@ export async function createSimulation(input: {
       homeId: input.homeId,
       awayId: input.awayId,
       mode: input.mode ?? "mock",
+      gameSpeed: input.gameSpeed ?? "normal",
     })
     .returning();
 

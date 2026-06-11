@@ -23,10 +23,10 @@ export async function Navbar() {
         </Link>
         <nav className="flex items-center justify-center">
           <Link
-            href="/playground"
+            href="/simulator"
             className="text-muted-foreground hover:border-border hover:bg-card/70 hover:text-foreground rounded-md border border-transparent px-2 py-1.5 text-sm font-medium transition-colors sm:px-3"
           >
-            Playground
+            Simulator
           </Link>
         </nav>
         <nav className="flex min-w-0 items-center justify-end gap-0.5 sm:gap-1">

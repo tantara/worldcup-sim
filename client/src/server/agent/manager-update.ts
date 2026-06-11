@@ -3,7 +3,7 @@ import type {
   Lineup,
   Tactic,
   TacticalKnobs,
-} from "../../lib/playground-types";
+} from "../../lib/simulator-types";
 import type { Player } from "../../lib/teams";
 import { decideLineup } from "./dummy";
 

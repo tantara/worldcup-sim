@@ -1,5 +1,5 @@
 /**
- * Shared types for the multi-agent match playground. Kept in `lib` (no server
+ * Shared types for the multi-agent match simulator. Kept in `lib` (no server
  * imports) so the client UI can `import type` from it without bundling server
  * code.
  */
@@ -141,7 +141,7 @@ export interface GroupStanding {
   rows: StandingRow[];
 }
 
-/** Shape of the GET /api/playground response. */
+/** Shape of the GET /api/simulator response. */
 export interface StandingsResponse {
   results: MatchResult[];
   standings: GroupStanding[];
@@ -159,7 +159,7 @@ export interface AgentUsageSummary {
 }
 
 /**
- * Events streamed from the orchestrator to the playground UI. One unified log,
+ * Events streamed from the orchestrator to the simulator UI. One unified log,
  * tagged by `thread` so the UI can route each into the right panel.
  */
 export type OrchestratorEvent =

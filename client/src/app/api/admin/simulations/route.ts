@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { env } from "~/env";
 import { getMatch, resolveMatch } from "~/lib/tournament";
 import { checkAdminSecret } from "~/server/auth/admin-secret";
 import { resolveMode } from "~/server/mode";
@@ -16,6 +17,12 @@ const triggerSchema = z.object({
   matchId: z.string().min(1),
   // The admin user the generated simulation is attributed to.
   email: z.string().email(),
+  // Production always forces "live" (see resolveMode); "mock" is only honored in
+  // dev for fast, API-free local testing of the trigger → queue → run pipeline.
+  mode: z.enum(["mock", "live"]).default("live"),
+  // Match pacing/granularity: slow = every minute + reasoning, normal = every
+  // minute, fast = every 3 minutes (fewer agent calls).
+  speed: z.enum(["slow", "normal", "fast"]).default("normal"),
 });
 
 /**
@@ -66,7 +73,8 @@ export async function POST(req: Request): Promise<Response> {
     matchId: fixture.match,
     homeId: home.id,
     awayId: away.id,
-    mode: resolveMode("live"),
+    mode: resolveMode(body.mode),
+    gameSpeed: body.speed,
   });
   if (!simulation) {
     return Response.json(
@@ -77,16 +85,21 @@ export async function POST(req: Request): Promise<Response> {
 
   await markSimulationStatus(simulation.id, "queued");
 
-  const enqueued = await enqueueSimulation(simulation.id);
+  // In production the Cloudflare Queue consumer (custom-worker.ts) runs the
+  // simulation. Under `next dev` the SIM_QUEUE binding exists but nothing
+  // consumes it, so we run inline there to keep the trigger testable. A failed
+  // enqueue in production also falls back to inline as a safety net.
+  const enqueued =
+    env.NODE_ENV === "production" &&
+    (await enqueueSimulation(simulation.id));
   if (!enqueued) {
-    // No queue binding (local dev): run it inline so the trigger still works
-    // end-to-end. In production the Cloudflare Queue consumer handles this.
     await runSimulationToCompletion(simulation);
   }
 
   return Response.json({
     simulationId: simulation.id,
     status: enqueued ? "queued" : "completed",
+    speed: body.speed,
     url: `/match/${fixture.match}/s/${simulation.id}`,
   });
 }

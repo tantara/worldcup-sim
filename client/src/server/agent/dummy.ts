@@ -14,7 +14,7 @@ import type {
   RefereeVerdict,
   Tactic,
   TacticalKnobs,
-} from "~/lib/playground-types";
+} from "~/lib/simulator-types";
 import type { Player, Team } from "~/lib/teams";
 import { knobFactor, knobsForTactic, type SideState } from "./match-dynamics";
 

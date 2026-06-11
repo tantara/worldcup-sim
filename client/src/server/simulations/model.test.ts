@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { OrchestratorEvent } from "~/lib/playground-types";
+import type { OrchestratorEvent } from "~/lib/simulator-types";
 import {
   buildSimulationArchive,
   canAccessSimulation,

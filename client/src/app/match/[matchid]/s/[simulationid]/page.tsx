@@ -1,12 +1,11 @@
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { ArrowLeftIcon } from "lucide-react";
 
+import { SimulatorExperience } from "~/app/simulator/simulator-experience";
 import { Badge } from "~/components/ui/badge";
-import { getMatch, resolveMatch } from "~/lib/tournament";
-import { auth } from "~/server/auth";
+import { getMatch, matchId, resolveMatch } from "~/lib/tournament";
 import { getSimulation } from "~/server/simulations/store";
-import { SimulationClient } from "./simulation-client";
 
 export default async function SimulationPage({
   params,
@@ -22,51 +21,44 @@ export default async function SimulationPage({
     notFound();
   }
 
-  if (simulation.status !== "completed") {
-    const session = await auth();
-    if (!session?.user?.id) {
-      redirect(`/match/${match.match}`);
-    }
-    if (simulation.userId !== session.user.id) {
-      notFound();
-    }
-  }
+  // Simulations are public — anyone can open any simulation to replay it,
+  // regardless of who created it or its status.
 
   const { home, away, playable } = resolveMatch(match);
   if (!playable || !home || !away) {
     notFound();
   }
 
+  const canonicalId = matchId(match);
+
   return (
     <main className="flex-1">
-      <div className="mx-auto flex max-w-7xl flex-col gap-6 px-3 py-6 sm:px-4 sm:py-8">
-        <div className="flex flex-col gap-3">
-          <Link
-            href={`/match/${match.match}`}
-            className="text-muted-foreground hover:text-foreground flex w-fit items-center gap-1.5 text-sm transition-colors"
-          >
-            <ArrowLeftIcon className="size-4" />
-            Match {match.match}
-          </Link>
+      <SimulatorExperience
+        initialGroup={match.group ?? undefined}
+        initialMatchNumber={match.match}
+        fixtureLocked
+        replay={{ simulationId: simulation.id }}
+        title={
+          <>
+            {home.name} <span className="text-primary">vs</span> {away.name}
+          </>
+        }
+        beforeHeader={
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h1 className="text-2xl font-extrabold tracking-tight">
-                {home.name} vs {away.name}
-              </h1>
-              <p className="text-muted-foreground text-sm">
-                Simulation {simulation.id}
-              </p>
+            <Link
+              href={`/match/${canonicalId}`}
+              className="text-muted-foreground hover:text-foreground flex w-fit items-center gap-1.5 text-sm transition-colors"
+            >
+              <ArrowLeftIcon className="size-4" />
+              Match {match.match}
+            </Link>
+            <div className="text-muted-foreground flex items-center gap-2 text-sm">
+              <span className="font-mono text-xs">Simulation {simulation.id}</span>
+              <Badge variant="secondary">{simulation.status}</Badge>
             </div>
-            <Badge variant="secondary">{simulation.status}</Badge>
           </div>
-        </div>
-
-        <SimulationClient
-          simulationId={simulation.id}
-          home={home}
-          away={away}
-        />
-      </div>
+        }
+      />
     </main>
   );
 }

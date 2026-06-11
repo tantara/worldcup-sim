@@ -1,12 +1,12 @@
 import { z } from "zod";
-import type { OrchestratorEvent } from "~/lib/playground-types";
+import type { OrchestratorEvent } from "~/lib/simulator-types";
 import { runLineup, runMatch } from "~/server/agent/match-orchestrator";
 import { computeStandings, listResults } from "~/server/agent/results-store";
 import { createSseResponse } from "~/server/http/sse";
 import { resolveMode } from "~/server/mode";
 
 /**
- * Playground transport.
+ * Simulator transport.
  *
  * POST `{ homeId, awayId, mode, maxMinutes? }` → SSE stream of OrchestratorEvents
  * as the four agent sessions play out a match.
@@ -54,7 +54,7 @@ const matchBodySchema = z.object({
   maxMinutes: z.number().int().min(1).max(90).optional(),
   /** Real WC26 fixture id (FIFA match number), when launched from a fixture. */
   matchId: z.string().min(1).optional(),
-  /** Per-session KVCache key base (a uuid for free playground runs). */
+  /** Per-session KVCache key base (a uuid for free simulator runs). */
   sessionId: z.string().min(1).optional(),
 });
 
@@ -64,7 +64,7 @@ const lineupBodySchema = z.object({
   side: z.enum(["home", "away"]),
   mode: z.enum(["mock", "live"]).default("mock"),
   matchId: z.string().min(1).optional(),
-  /** Per-session KVCache key base (a uuid for free playground runs). */
+  /** Per-session KVCache key base (a uuid for free simulator runs). */
   sessionId: z.string().min(1).optional(),
   managerContext: z.string().optional(),
 });

@@ -74,7 +74,7 @@ import type {
   RefereeVerdict,
   StandingsResponse,
   Thread,
-} from "~/lib/playground-types";
+} from "~/lib/simulator-types";
 import {
   getTeam,
   GROUP_LETTERS,
@@ -96,7 +96,7 @@ import {
   useSupertonic,
 } from "./supertonic-provider";
 
-// The playground is driven by the real WC26 group-stage schedule.
+// The simulator is driven by the real WC26 group-stage schedule.
 const DEFAULT_GROUP: GroupLetter = GROUP_LETTERS[0] ?? "A";
 const DEFAULT_MATCH = matchesByGroup(DEFAULT_GROUP)[0]?.match ?? 1;
 const GAME_SPEEDS: Record<GameSpeed, { label: string; detail: string }> = {
@@ -317,7 +317,7 @@ function reduce(state: MatchState, event: OrchestratorEvent): MatchState {
 
 // --- page -------------------------------------------------------------------
 
-export function PlaygroundExperience({
+export function SimulatorExperience({
   initialGroup = DEFAULT_GROUP,
   initialMatchNumber,
   fixtureLocked = false,
@@ -325,12 +325,13 @@ export function PlaygroundExperience({
   isAuthenticated = false,
   title = (
     <>
-      Agent <span className="text-primary">Playground</span>
+      Agent <span className="text-primary">Simulator</span>
     </>
   ),
   description = null,
   beforeHeader,
   afterHeader,
+  replay,
 }: {
   initialGroup?: GroupLetter;
   initialMatchNumber?: number;
@@ -341,7 +342,13 @@ export function PlaygroundExperience({
   description?: React.ReactNode;
   beforeHeader?: React.ReactNode;
   afterHeader?: React.ReactNode;
+  // When set, the experience replays a stored simulation from its recorded
+  // event stream instead of driving a fresh live run. Interactive controls
+  // (fixture/mode/speed pickers, lineup buttons, kickoff) collapse to a single
+  // replay control, and the run auto-starts on mount.
+  replay?: { simulationId: string };
 }) {
+  const isReplay = Boolean(replay);
   const [group, setGroup] = useState<GroupLetter>(initialGroup);
   const [matchNumber, setMatchNumber] = useState<number>(
     initialMatchNumber ?? DEFAULT_MATCH,
@@ -364,7 +371,7 @@ export function PlaygroundExperience({
   const abortRef = useRef<AbortController | null>(null);
   // KVCache session key base, appended with the agent thread server-side. On a
   // real fixture page we omit it so the orchestrator falls back to the fixture's
-  // match id ("simulation id + agent name"). In the free playground there is no
+  // match id ("simulation id + agent name"). In the free simulator there is no
   // durable id, so we mint a per-session uuid ("uuid + agent name") to give each
   // browser session its own DeepSeek cache partition.
   const sessionIdRef = useRef<string | null>(null);
@@ -372,6 +379,7 @@ export function PlaygroundExperience({
   const sessionId = fixtureLocked ? undefined : sessionIdRef.current;
   const playbackStoppedRef = useRef(false);
   const resumeWaitersRef = useRef<(() => void)[]>([]);
+  const replayStartedRef = useRef(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   // Columns are draggable on lg+; below that they stack and resizing is moot.
   const isDesktop = useMediaQuery("(min-width: 1024px)");
@@ -424,7 +432,7 @@ export function PlaygroundExperience({
 
   const loadStandings = useCallback(async () => {
     try {
-      const res = await fetch("/api/playground");
+      const res = await fetch("/api/simulator");
       if (res.ok) {
         const raw: unknown = await res.json();
         setStandings(raw as StandingsResponse);
@@ -480,7 +488,7 @@ export function PlaygroundExperience({
       setState((s) => ({ ...s, error: null }));
 
       try {
-        const res = await fetch("/api/playground", {
+        const res = await fetch("/api/simulator", {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
@@ -522,7 +530,7 @@ export function PlaygroundExperience({
   const kickoff = useCallback(async () => {
     if (!home || !away || !playable || running) return;
     // On gated views (e.g. a real fixture page) a sign-in is required before a
-    // simulation can be started; the open playground stays anonymous.
+    // simulation can be started; the open simulator stays anonymous.
     if (requireAuth && !isAuthenticated) {
       setLoginOpen(true);
       return;
@@ -538,7 +546,7 @@ export function PlaygroundExperience({
     setRunning(true);
 
     try {
-      const res = await fetch("/api/playground", {
+      const res = await fetch("/api/simulator", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
@@ -588,6 +596,42 @@ export function PlaygroundExperience({
     readEventStream,
     loadStandings,
   ]);
+
+  const startReplay = useCallback(async () => {
+    if (!replay) return;
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    setState(initialState());
+    setPlaybackStoppedState(false);
+    setRunning(true);
+
+    try {
+      const res = await fetch(
+        `/api/simulations/${replay.simulationId}/stream`,
+        { method: "POST", signal: controller.signal },
+      );
+      await readEventStream(res);
+    } catch (err) {
+      if (!controller.signal.aborted) {
+        setState((s) => ({
+          ...s,
+          error: err instanceof Error ? err.message : String(err),
+        }));
+      }
+    } finally {
+      setRunning(false);
+      setPlaybackStoppedState(false);
+    }
+  }, [replay, readEventStream, setPlaybackStoppedState]);
+
+  // Replays auto-start once on mount; the user can re-trigger them afterwards
+  // via the same "Replay" control that a finished live run exposes.
+  useEffect(() => {
+    if (!isReplay || replayStartedRef.current) return;
+    replayStartedRef.current = true;
+    void startReplay();
+  }, [isReplay, startReplay]);
 
   useEffect(
     () => () => {
@@ -642,6 +686,7 @@ export function PlaygroundExperience({
       running={running}
       settingLineup={lineupLoading === "home"}
       onSetLineup={() => void setManagerLineup("home")}
+      interactive={!isReplay}
     />
   );
 
@@ -673,6 +718,7 @@ export function PlaygroundExperience({
           onMaxMinutes={setMaxMinutes}
           running={running}
           fixtureLocked={fixtureLocked}
+          interactive={!isReplay}
           matchStat={state.cache.match}
           refStat={state.cache.referee}
           activeThread={activeCenterThread}
@@ -692,8 +738,8 @@ export function PlaygroundExperience({
           running={running}
           playbackStopped={playbackStopped}
           started={started}
-          canKick={playable}
-          onKickoff={() => void kickoff()}
+          canKick={isReplay ? true : playable}
+          onKickoff={() => void (isReplay ? startReplay() : kickoff())}
           onTogglePlayback={() =>
             setPlaybackStoppedState(!playbackStoppedRef.current)
           }
@@ -723,6 +769,7 @@ export function PlaygroundExperience({
       running={running}
       settingLineup={lineupLoading === "away"}
       onSetLineup={() => void setManagerLineup("away")}
+      interactive={!isReplay}
     />
   );
 
@@ -771,16 +818,19 @@ export function PlaygroundExperience({
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <UsageSummary stat={totalUsage} />
-              {/* Mock mode is a local-dev convenience only; production always
-                  runs live against DeepSeek, so the toggle is hidden there. */}
-              {process.env.NODE_ENV !== "production" && (
-                <ModeControl mode={mode} onMode={setMode} disabled={running} />
+              {/* Mock/speed pickers steer a fresh live run; a replay is fixed to
+                  its recording, so they collapse away in replay mode. */}
+              {!isReplay &&
+                process.env.NODE_ENV !== "production" && (
+                  <ModeControl mode={mode} onMode={setMode} disabled={running} />
+                )}
+              {!isReplay && (
+                <SpeedControl
+                  gameSpeed={gameSpeed}
+                  onGameSpeed={setGameSpeed}
+                  disabled={running}
+                />
               )}
-              <SpeedControl
-                gameSpeed={gameSpeed}
-                onGameSpeed={setGameSpeed}
-                disabled={running}
-              />
               <VoiceControl />
               <LanguageControl />
             </div>
@@ -802,12 +852,12 @@ export function PlaygroundExperience({
         {/* three columns: home manager · match · away manager */}
         {isDesktop ? (
           <ResizablePanelGroup
-            id="playground-columns"
+            id="simulator-columns"
             direction="horizontal"
             className="w-full items-stretch lg:min-h-0 lg:flex-1"
           >
             <ResizablePanel
-              id="playground-home"
+              id="simulator-home"
               defaultSize="27%"
               minSize="220px"
             >
@@ -815,7 +865,7 @@ export function PlaygroundExperience({
             </ResizablePanel>
             <ResizableHandle withHandle className="mx-1.5" />
             <ResizablePanel
-              id="playground-match"
+              id="simulator-match"
               defaultSize="46%"
               minSize="360px"
             >
@@ -823,7 +873,7 @@ export function PlaygroundExperience({
             </ResizablePanel>
             <ResizableHandle withHandle className="mx-1.5" />
             <ResizablePanel
-              id="playground-away"
+              id="simulator-away"
               defaultSize="27%"
               minSize="220px"
             >
@@ -1200,6 +1250,7 @@ function Controls({
   onMaxMinutes,
   running,
   fixtureLocked,
+  interactive,
   matchStat,
   refStat,
   activeThread,
@@ -1214,6 +1265,7 @@ function Controls({
   onMaxMinutes: (n: number) => void;
   running: boolean;
   fixtureLocked: boolean;
+  interactive: boolean;
   matchStat: ThreadStat;
   refStat: ThreadStat;
   activeThread: "match" | "referee" | null;
@@ -1224,11 +1276,19 @@ function Controls({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="grid grid-cols-2 items-start gap-3 md:grid-cols-[5.5rem_minmax(18rem,1fr)_5.5rem]">
+      <div
+        className={
+          interactive
+            ? "grid grid-cols-2 items-start gap-3 md:grid-cols-[5.5rem_minmax(18rem,1fr)_5.5rem]"
+            : "grid grid-cols-1 items-start gap-3"
+        }
+      >
         {fixtureLocked ? (
           <Field
             label="Fixture"
-            className="col-span-2 min-w-0 md:col-span-2"
+            className={
+              interactive ? "col-span-2 min-w-0 md:col-span-2" : "min-w-0"
+            }
           >
             <div className="flex h-9 min-w-0 items-center rounded-md border bg-muted/45 px-3 text-sm font-medium">
               <span className="truncate">
@@ -1291,21 +1351,23 @@ function Controls({
           </>
         )}
 
-        <Field label="Minutes" className="min-w-0">
-          <input
-            type="number"
-            min={1}
-            max={90}
-            value={maxMinutes}
-            disabled={running}
-            onChange={(e) =>
-              onMaxMinutes(
-                Math.min(90, Math.max(1, Number(e.target.value) || 1)),
-              )
-            }
-            className="bg-background h-9 w-full rounded-md border px-2 text-sm"
-          />
-        </Field>
+        {interactive && (
+          <Field label="Minutes" className="min-w-0">
+            <input
+              type="number"
+              min={1}
+              max={90}
+              value={maxMinutes}
+              disabled={running}
+              onChange={(e) =>
+                onMaxMinutes(
+                  Math.min(90, Math.max(1, Number(e.target.value) || 1)),
+                )
+              }
+              className="bg-background h-9 w-full rounded-md border px-2 text-sm"
+            />
+          </Field>
+        )}
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -1750,6 +1812,7 @@ function ManagerPanel({
   running,
   settingLineup,
   onSetLineup,
+  interactive,
 }: {
   team: Team;
   side: "home" | "away";
@@ -1761,6 +1824,7 @@ function ManagerPanel({
   running: boolean;
   settingLineup: boolean;
   onSetLineup: () => void;
+  interactive: boolean;
 }) {
   const positions: Player["position"][] = ["GK", "DF", "MF", "FW"];
   // The manager is "picking" only while a run is in flight and no XI is in yet.
@@ -1889,21 +1953,36 @@ function ManagerPanel({
             className="m-0 min-h-0 flex-1 overflow-y-auto"
           >
               {!lineup ? (
-                <div className="flex flex-col items-center gap-3 py-6 text-center">
-                  <Button
-                    variant="outline"
-                    onClick={onSetLineup}
-                    disabled={picking}
-                    className="font-semibold"
-                  >
-                    <Users className="size-4" />
-                    {picking ? "Setting lineup…" : "Set lineup"}
-                  </Button>
-                  <p className="text-muted-foreground max-w-56 text-sm">
-                    Set the lineup to let the manager choose formation,
-                    strategy, and the line up.
-                  </p>
-                </div>
+                interactive ? (
+                  <div className="flex flex-col items-center gap-3 py-6 text-center">
+                    <Button
+                      variant="outline"
+                      onClick={onSetLineup}
+                      disabled={picking}
+                      className="font-semibold"
+                    >
+                      <Users className="size-4" />
+                      {picking ? "Setting lineup…" : "Set lineup"}
+                    </Button>
+                    <p className="text-muted-foreground max-w-56 text-sm">
+                      Set the lineup to let the manager choose formation,
+                      strategy, and the line up.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="text-muted-foreground flex flex-col items-center gap-3 py-6 text-center text-sm">
+                    {picking ? (
+                      <Loader2 className="size-5 animate-spin" />
+                    ) : (
+                      <Users className="size-5" />
+                    )}
+                    <p className="max-w-56">
+                      {picking
+                        ? "The manager is choosing the lineup…"
+                        : "The lineup will appear as the replay reaches kickoff."}
+                    </p>
+                  </div>
+                )
               ) : (
                 <div className="flex flex-col gap-3">
                   <ul className="flex flex-col gap-0.5">

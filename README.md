@@ -75,127 +75,32 @@ Use the package manager declared in `package.json`.
 
 ## Setup
 
-Install dependencies from the repository root:
-
-```bash
-pnpm install
-```
-
-Create local environment values:
+From the repository root, run `pnpm install`. Then create local environment values with `cp .env.example .env` in `client/`, and start the local database when working with persistence:
 
 ```bash
 cd client
-cp .env.example .env
-```
-
-Start the local database when working with persistence:
-
-```bash
-cd client
-./start-database.sh
-pnpm db:push
+./start-database.sh && pnpm db:push
 ```
 
 ## Local Development
 
-Run the web app from the repository root:
+Run `pnpm dev` from the repository root and open `http://localhost:3000`.
 
-```bash
-pnpm dev
-```
-
-The Next.js app runs at `http://localhost:3000`.
-
-Common app commands:
-
-```bash
-pnpm --filter worldcupsim lint
-pnpm --filter worldcupsim typecheck
-pnpm --filter worldcupsim test:unit
-pnpm --filter worldcupsim check
-```
-
-Database helpers:
-
-```bash
-cd client
-pnpm db:generate
-pnpm db:migrate
-pnpm db:push
-pnpm db:studio
-```
-
-Cloudflare/OpenNext helpers:
-
-```bash
-pnpm preview
-pnpm deploy
-pnpm cf-typegen
-```
+Common workflows, all prefixed with `pnpm --filter worldcupsim`: `lint`, `typecheck`, `test:unit`, and `check` (the full gate). Database helpers run from `client/`: `db:generate`, `db:migrate`, `db:push`, and `db:studio`. Cloudflare/OpenNext deploys use `pnpm preview`, `pnpm deploy`, and `pnpm cf-typegen`.
 
 ## Packages
 
 ### `@worldcupsim/wc26-data`
 
-Processed 2026 FIFA World Cup data exported as typed TypeScript values and raw JSON.
-
-```ts
-import {
-  getMatch,
-  getTeam,
-  getTeamsByGroup,
-  matches,
-  teams,
-  venues,
-} from "@worldcupsim/wc26-data";
-
-getTeamsByGroup("A").map((team) => team.country);
-getMatch(104);
-getTeam("Argentina")?.manager;
-```
+Processed 2026 FIFA World Cup data exported as typed TypeScript values and raw JSON. Exposes `teams`, `matches`, and `venues` collections alongside lookup helpers like `getTeam`, `getMatch`, and `getTeamsByGroup`.
 
 ### `@worldcupsim/sim-agent`
 
-A dependency-free, OpenAI-compatible streaming agent kernel designed for stable prefix caching and append-only histories.
-
-```ts
-import {
-  Agent,
-  ToolRegistry,
-  createOpenAICompatProvider,
-} from "@worldcupsim/sim-agent";
-
-const provider = createOpenAICompatProvider({
-  apiKey: process.env.DEEPSEEK_API_KEY!,
-});
-
-const agent = new Agent({
-  provider,
-  registry: new ToolRegistry([]),
-  systemPrompt: "You are a football match simulator.",
-});
-```
+A dependency-free, OpenAI-compatible streaming agent kernel designed for stable prefix caching and append-only histories. The core `Agent` pairs a provider (e.g. `createOpenAICompatProvider`) with a `ToolRegistry` and a system prompt.
 
 ## Verification
 
-Run the repository check before considering changes complete:
-
-```bash
-pnpm check
-```
-
-For narrower checks:
-
-```bash
-pnpm --filter worldcupsim lint
-pnpm --filter worldcupsim typecheck
-pnpm --filter worldcupsim test:unit
-pnpm --filter @worldcupsim/wc26-data typecheck
-pnpm --filter @worldcupsim/sim-agent typecheck
-git diff --check
-```
-
-Do not run the production build unless you specifically need to validate build output.
+Run `pnpm check` before considering changes complete. For narrower checks, filter per workspace — e.g. `pnpm --filter worldcupsim lint`, `typecheck`, or `test:unit`, plus `typecheck` on `@worldcupsim/wc26-data` and `@worldcupsim/sim-agent`, and `git diff --check` for whitespace. Do not run the production build unless you specifically need to validate build output.
 
 ## Acknowledgements
 

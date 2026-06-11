@@ -1,0 +1,1 @@
+ALTER TABLE "worldcupsim_simulation" ADD COLUMN "gameSpeed" varchar(16) DEFAULT 'normal' NOT NULL;
