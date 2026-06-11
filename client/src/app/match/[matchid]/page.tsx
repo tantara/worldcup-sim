@@ -35,16 +35,16 @@ export default async function MatchPage({
 
   return (
     <main className="flex-1">
-      <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-8">
+      <div className="mx-auto flex max-w-7xl flex-col gap-6 px-3 py-6 sm:px-4 sm:py-8">
         <div className="flex flex-col gap-3">
           <Link
             href="/"
-            className="flex w-fit items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground flex w-fit items-center gap-1.5 text-sm transition-colors"
           >
             <ArrowLeft className="size-4" />
             All fixtures
           </Link>
-          <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+          <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
             <Badge variant="secondary">
               {match.group ? `Group ${match.group}` : match.round}
             </Badge>
@@ -71,19 +71,19 @@ export default async function MatchPage({
         ) : (
           <Card>
             <CardContent className="flex flex-col items-center gap-3 py-16 text-center">
-              <div className="text-3xl font-bold">
+              <div className="text-2xl font-bold sm:text-3xl">
                 {match.home}{" "}
-                <span className="mx-2 text-muted-foreground">vs</span>{" "}
+                <span className="text-muted-foreground mx-2">vs</span>{" "}
                 {match.away}
               </div>
-              <p className="max-w-md text-sm text-muted-foreground">
+              <p className="text-muted-foreground max-w-md text-sm">
                 This {match.round} fixture isn&apos;t playable yet — the
                 qualifying teams are decided once the earlier rounds are
                 simulated.
               </p>
               <Link
                 href="/"
-                className="text-sm font-medium text-primary hover:underline"
+                className="text-primary text-sm font-medium hover:underline"
               >
                 Back to fixtures
               </Link>

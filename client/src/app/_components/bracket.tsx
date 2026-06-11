@@ -25,15 +25,15 @@ function BracketMatch({ match }: { match: Match }) {
   return (
     <Link
       href={`/match/${matchId(match)}`}
-      className="group block rounded-lg border bg-card p-2.5 transition-colors hover:border-primary/50 hover:bg-accent/40"
+      className="group bg-card hover:border-primary/50 hover:bg-accent/40 block rounded-lg border p-2.5 transition-colors"
     >
-      <div className="mb-1.5 flex items-center justify-between text-[10px] text-muted-foreground">
+      <div className="text-muted-foreground mb-1.5 flex items-center justify-between text-[10px]">
         <span>#{match.match}</span>
         <span>{match.date.slice(5)}</span>
       </div>
       <div className="flex flex-col gap-1">
         <Slot text={match.home} />
-        <div className="h-px bg-border" />
+        <div className="bg-border h-px" />
         <Slot text={match.away} />
       </div>
     </Link>
@@ -53,11 +53,11 @@ export function Bracket() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="overflow-x-auto pb-2">
-        <div className="flex min-w-max gap-4">
+      <div className="-mx-3 overflow-x-auto px-3 pb-2 sm:-mx-4 sm:px-4">
+        <div className="flex min-w-max gap-3 sm:gap-4">
           {columns.map((col) => (
-            <div key={col.round} className="flex w-44 flex-col">
-              <h3 className="mb-3 text-center text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+            <div key={col.round} className="flex w-36 flex-col sm:w-44">
+              <h3 className="text-muted-foreground mb-3 text-center text-xs font-semibold tracking-wide uppercase">
                 {ROUND_LABEL[col.round] ?? col.round}
               </h3>
               <div className="flex flex-1 flex-col justify-around gap-3">
@@ -72,10 +72,10 @@ export function Bracket() {
 
       {thirdPlace && (
         <div className="flex flex-col gap-2">
-          <h3 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+          <h3 className="text-muted-foreground text-xs font-semibold tracking-wide uppercase">
             Third-place play-off
           </h3>
-          <div className="w-44">
+          <div className="w-full sm:w-44">
             <BracketMatch match={thirdPlace} />
           </div>
         </div>

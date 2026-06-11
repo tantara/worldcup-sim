@@ -21,6 +21,16 @@ export interface Lineup {
   formation: string;
   tactic: Tactic;
   keyPlayer: string;
+  /** Why the manager chose this shape, tactic, XI, or update. */
+  reason?: string;
+  /** Short tactical instruction from the manager. */
+  strategy?: string;
+  /** In-match player changes requested by the manager. */
+  substitutions?: {
+    off: string;
+    on: string;
+    reason: string;
+  }[];
   /** The chosen starting XI, picked from the full squad by mock or live. */
   lineup: LineupPlayer[];
 }
@@ -38,6 +48,8 @@ export interface MinuteOutcome {
   event: MinuteEventType;
   side: "home" | "away" | null;
   player: string | null;
+  /** Goal assister, when the minute outcome includes one. */
+  assist?: string | null;
   text: string;
 }
 
@@ -53,7 +65,12 @@ export interface MatchResult {
   homeName: string;
   awayName: string;
   score: { home: number; away: number };
-  scorers: { side: "home" | "away"; player: string; minute: number }[];
+  scorers: {
+    side: "home" | "away";
+    player: string;
+    minute: number;
+    assist?: string | null;
+  }[];
   cards: {
     side: "home" | "away";
     player: string;
@@ -63,6 +80,20 @@ export interface MatchResult {
   minutesPlayed: number;
   abandoned: boolean;
   mode: Mode;
+  assistants?: AssistantSummary[];
+}
+
+export interface AssistantSummary {
+  thread: Thread;
+  label: string;
+  turns: number;
+  promptTokens: number;
+  completionTokens: number;
+  cacheHitTokens: number;
+  cacheMissTokens: number;
+  reasoningTokens: number;
+  cumulativeCacheHitRate: number;
+  totalLatencyMs: number;
 }
 
 export interface StandingRow {
@@ -87,13 +118,28 @@ export interface StandingsResponse {
   standings: GroupStanding[];
 }
 
+export interface AgentUsageSummary {
+  promptTokens: number;
+  completionTokens: number;
+  cacheHitTokens: number;
+  cacheMissTokens: number;
+  reasoningTokens: number;
+  cacheHitRate: number;
+  cumulativeHitRate: number;
+  latencyMs: number;
+}
+
 /**
  * Events streamed from the orchestrator to the playground UI. One unified log,
  * tagged by `thread` so the UI can route each into the right panel.
  */
 export type OrchestratorEvent =
-  | { type: "phase"; phase: "lineups" | "kickoff" | "play" | "fulltime" | "stopped" }
+  | {
+      type: "phase";
+      phase: "lineups" | "kickoff" | "play" | "fulltime" | "stopped";
+    }
   | { type: "thread_start"; thread: Thread; label: string }
+  | { type: "agent_prompt"; thread: Thread; prompt: string }
   | { type: "agent_delta"; thread: Thread; delta: string }
   | { type: "lineup"; thread: Thread; teamName: string; lineup: Lineup }
   | {
@@ -109,6 +155,11 @@ export type OrchestratorEvent =
       hitRate: number;
       promptTokens: number;
       cumulativeHitRate: number;
+      completionTokens?: number;
+      cacheHitTokens?: number;
+      cacheMissTokens?: number;
+      reasoningTokens?: number;
+      latencyMs?: number;
     }
   | { type: "result"; result: MatchResult }
   | { type: "error"; message: string };

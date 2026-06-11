@@ -19,24 +19,23 @@ import {
 export default function Home() {
   return (
     <main className="flex-1">
-      <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-10">
+      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-3 py-8 sm:gap-8 sm:px-4 sm:py-10">
         <header className="flex flex-col items-center text-center">
-          <div className="mb-3 flex size-12 items-center justify-center rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/30">
+          <div className="bg-primary/15 text-primary ring-primary/30 mb-3 flex size-12 items-center justify-center rounded-2xl ring-1">
             <Trophy className="size-6" />
           </div>
           <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
-            2026 World Cup{" "}
-            <span className="text-primary">Simulator</span>
+            2026 World Cup <span className="text-primary">Simulator</span>
           </h1>
-          <p className="mt-2 max-w-lg text-sm text-muted-foreground">
-            48 nations · 12 groups · hosted by {HOSTS.join(", ")} · {" "}
+          <p className="text-muted-foreground mt-2 max-w-lg text-sm">
+            48 nations · 12 groups · hosted by {HOSTS.join(", ")} ·{" "}
             {TOURNAMENT_DATES}. Pick any group-stage fixture and simulate it
             minute by minute.
           </p>
         </header>
 
         <Tabs defaultValue="groups" className="gap-6">
-          <TabsList className="mx-auto">
+          <TabsList className="mx-auto grid w-full grid-cols-3 sm:inline-flex sm:w-fit">
             <TabsTrigger value="groups">Groups</TabsTrigger>
             <TabsTrigger value="schedule">Schedule</TabsTrigger>
             <TabsTrigger value="tournament">Tournament</TabsTrigger>
@@ -56,7 +55,11 @@ export default function Home() {
 
           <TabsContent value="schedule" className="flex flex-col gap-8">
             {groupStageSchedule().map(({ group, matches }) => (
-              <ScheduleSection key={group} title={`Group ${group}`} matches={matches} />
+              <ScheduleSection
+                key={group}
+                title={`Group ${group}`}
+                matches={matches}
+              />
             ))}
             {knockoutSchedule().map(({ round, matches }) => (
               <ScheduleSection key={round} title={round} matches={matches} />
@@ -77,7 +80,7 @@ function GroupCard({ letter, teams }: { letter: string; teams: Team[] }) {
     <Card className="gap-0">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-base">
-          <span className="flex size-7 items-center justify-center rounded-md bg-primary/15 text-sm font-bold text-primary">
+          <span className="bg-primary/15 text-primary flex size-7 items-center justify-center rounded-md text-sm font-bold">
             {letter}
           </span>
           Group {letter}
@@ -87,17 +90,23 @@ function GroupCard({ letter, teams }: { letter: string; teams: Team[] }) {
         {teams.map((t) => (
           <Link
             key={t.id}
-            href={`/teams/${t.id}`}
-            className="group -mx-2 flex items-center gap-2.5 rounded-md border-t border-border/60 px-2 py-2 text-sm transition-colors first:border-t-0 hover:bg-accent/40"
+            href={`/team/${t.id}`}
+            className="group border-border/60 hover:bg-accent/40 -mx-2 flex items-center gap-2.5 rounded-md border-t px-2 py-2 text-sm transition-colors first:border-t-0"
           >
             <span className="text-xl">{t.flag}</span>
-            <span className="flex-1 truncate font-medium group-hover:text-primary">
+            <span className="group-hover:text-primary flex-1 truncate font-medium">
               {t.name}
             </span>
-            <span className="text-xs text-muted-foreground">
+            <span
+              className="text-muted-foreground shrink-0 text-xs font-semibold tabular-nums"
+              title="FIFA world ranking"
+            >
+              #{t.fifaRanking}
+            </span>
+            <span className="text-muted-foreground hidden text-xs sm:inline">
               {t.confederation}
             </span>
-            <ChevronRight className="size-4 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+            <ChevronRight className="text-muted-foreground/50 group-hover:text-primary size-4 transition-transform group-hover:translate-x-0.5" />
           </Link>
         ))}
       </CardContent>
@@ -138,14 +147,14 @@ function MatchCard({ match }: { match: Match }) {
           : "opacity-70"
       }`}
     >
-      <div className="mb-3 flex items-center justify-between text-xs text-muted-foreground">
-        <span className="flex items-center gap-1.5">
+      <div className="text-muted-foreground mb-3 flex items-start justify-between gap-2 text-xs">
+        <span className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5">
           <CalendarDays className="size-3.5" />
           {match.date}
           {match.kickoff_local ? ` · ${match.kickoff_local}` : ""}
         </span>
         {playable ? (
-          <ChevronRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+          <ChevronRight className="group-hover:text-primary size-4 transition-transform group-hover:translate-x-0.5" />
         ) : (
           <span className="text-[10px] font-semibold tracking-wide uppercase">
             TBD
@@ -158,16 +167,18 @@ function MatchCard({ match }: { match: Match }) {
           <span className="text-2xl">{home?.flag ?? "🏟️"}</span>
           <span className="truncate font-semibold">{match.home}</span>
         </div>
-        <span className="shrink-0 text-xs font-bold text-muted-foreground">
+        <span className="text-muted-foreground shrink-0 text-xs font-bold">
           VS
         </span>
         <div className="flex flex-1 items-center justify-end gap-2">
-          <span className="truncate text-right font-semibold">{match.away}</span>
+          <span className="truncate text-right font-semibold">
+            {match.away}
+          </span>
           <span className="text-2xl">{away?.flag ?? "🏟️"}</span>
         </div>
       </div>
 
-      <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
+      <div className="text-muted-foreground mt-3 flex items-center gap-1.5 text-xs">
         <MapPin className="size-3.5" />
         {match.venue}, {match.city}
       </div>

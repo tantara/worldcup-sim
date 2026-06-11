@@ -21,6 +21,8 @@ export type Team = {
   group: GroupLetter;
   confederation: Confederation;
   manager: string;
+  /** FIFA/Coca-Cola Men's World Ranking position (1 April 2026 edition). */
+  fifaRanking: number;
   /** Overall strength, ~70-92. Drives the simulation. */
   rating: number;
   /** Derived from the selected XI, e.g. "4-3-3". */
@@ -170,6 +172,7 @@ function buildTeam(team: WcTeam): Team {
     group: team.group,
     confederation: team.confederation,
     manager: team.manager,
+    fifaRanking: team.fifaRanking,
     rating: ratingFor(team),
     formation: formationFor(squad),
     colors: colorsFor(team.country),

@@ -46,6 +46,8 @@ export interface Team {
   country: string;
   group: GroupLetter;
   confederation: Confederation;
+  /** FIFA/Coca-Cola Men's World Ranking position (see `SquadsFile.rankingEdition`). */
+  fifaRanking: number;
   /** Head coach full name. */
   manager: string;
   /** Up to 26 players. */
@@ -58,6 +60,8 @@ export interface SquadsFile {
   dates: string;
   format: string;
   source: string;
+  /** Which FIFA ranking edition the `fifaRanking` values come from. */
+  rankingEdition: string;
   notes: string;
   teams: Team[];
 }

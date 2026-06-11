@@ -16,12 +16,7 @@ import {
 
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import {
   Select,
@@ -91,7 +86,7 @@ export function MatchSimulator({ home, away }: { home: Team; away: Team }) {
     <div className="grid w-full grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.7fr)_minmax(0,1fr)]">
       <TeamPanel team={home} side="home" shown={shown} />
 
-      <Card className="overflow-hidden pt-0">
+      <Card className="order-first overflow-hidden pt-0 lg:order-none">
         <Scoreboard
           home={home}
           away={away}
@@ -102,9 +97,9 @@ export function MatchSimulator({ home, away }: { home: Team; away: Team }) {
         />
 
         <CardContent className="flex flex-col gap-4">
-          <div className="flex flex-wrap items-end gap-3">
-            <div className="flex flex-col gap-1">
-              <span className="text-xs font-medium text-muted-foreground">
+          <div className="grid grid-cols-1 items-end gap-3 sm:flex sm:flex-wrap">
+            <div className="flex min-w-0 flex-col gap-1">
+              <span className="text-muted-foreground text-xs font-medium">
                 Speed
               </span>
               <Select
@@ -113,7 +108,7 @@ export function MatchSimulator({ home, away }: { home: Team; away: Team }) {
                   if (v) setSpeed(v);
                 }}
               >
-                <SelectTrigger className="w-[110px]">
+                <SelectTrigger className="w-full sm:w-[110px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -128,7 +123,7 @@ export function MatchSimulator({ home, away }: { home: Team; away: Team }) {
             <Button
               onClick={kickOff}
               disabled={playing}
-              className="ml-auto font-semibold"
+              className="w-full font-semibold sm:ml-auto sm:w-auto"
             >
               {events.length === 0 ? (
                 <>
@@ -167,11 +162,11 @@ function Scoreboard({
   finished: boolean;
 }) {
   return (
-    <CardHeader className="pitch-stripes border-b py-5 [.border-b]:pb-5">
+    <CardHeader className="pitch-stripes border-b py-4 sm:py-5 [.border-b]:pb-4 sm:[.border-b]:pb-5">
       <div className="flex items-center justify-between gap-2">
         <TeamBadge team={home} />
         <div className="flex flex-col items-center px-2">
-          <div className="text-5xl font-extrabold tabular-nums tracking-tight drop-shadow">
+          <div className="text-3xl font-extrabold tracking-tight tabular-nums drop-shadow sm:text-5xl">
             {score.home}
             <span className="mx-2 text-white/40">:</span>
             {score.away}
@@ -187,8 +182,8 @@ function Scoreboard({
 function TeamBadge({ team }: { team: Team }) {
   return (
     <div className="flex min-w-0 flex-1 flex-col items-center gap-1">
-      <span className="text-4xl drop-shadow-md">{team.flag}</span>
-      <span className="truncate text-sm font-semibold text-white">
+      <span className="text-3xl drop-shadow-md sm:text-4xl">{team.flag}</span>
+      <span className="max-w-full truncate text-xs font-semibold text-white sm:text-sm">
         {team.name}
       </span>
     </div>
@@ -219,17 +214,17 @@ function ClockPill({
 }
 
 const EVENT_ICON: Record<MatchEventType, React.ReactNode> = {
-  goal: <Goal className="size-4 text-primary" />,
+  goal: <Goal className="text-primary size-4" />,
   save: <Hand className="size-4 text-sky-400" />,
-  miss: <CircleDot className="size-4 text-muted-foreground" />,
-  chance: <CircleDot className="size-4 text-muted-foreground" />,
+  miss: <CircleDot className="text-muted-foreground size-4" />,
+  chance: <CircleDot className="text-muted-foreground size-4" />,
   foul: <TriangleAlert className="size-4 text-amber-400" />,
   yellow: <span className="block h-3.5 w-2.5 rounded-[2px] bg-yellow-400" />,
   red: <ShieldX className="size-4 text-red-500" />,
-  kickoff: <Flag className="size-4 text-muted-foreground" />,
-  halftime: <Timer className="size-4 text-muted-foreground" />,
-  fulltime: <Trophy className="size-4 text-primary" />,
-  info: <CircleDot className="size-4 text-muted-foreground" />,
+  kickoff: <Flag className="text-muted-foreground size-4" />,
+  halftime: <Timer className="text-muted-foreground size-4" />,
+  fulltime: <Trophy className="text-primary size-4" />,
+  info: <CircleDot className="text-muted-foreground size-4" />,
 };
 
 function Commentary({
@@ -242,13 +237,13 @@ function Commentary({
   return (
     <ScrollArea
       ref={scrollRef}
-      className="h-[26rem] rounded-xl border bg-background/40"
+      className="bg-background/40 h-[22rem] rounded-xl border sm:h-[26rem]"
     >
       <div className="flex flex-col gap-1.5 p-3">
         {events.length === 0 ? (
-          <p className="py-32 text-center text-sm text-muted-foreground">
+          <p className="text-muted-foreground py-24 text-center text-sm sm:py-32">
             Pick two nations and hit{" "}
-            <span className="font-semibold text-foreground">Kick Off</span> to
+            <span className="text-foreground font-semibold">Kick Off</span> to
             start the match.
           </p>
         ) : (
@@ -273,7 +268,7 @@ function CommentaryLine({ event }: { event: MatchEvent }) {
     <div
       className={`flex items-start gap-3 rounded-lg px-2.5 py-2 text-sm transition-colors ${emphasis}`}
     >
-      <span className="w-7 shrink-0 pt-0.5 text-right text-xs font-medium tabular-nums text-muted-foreground">
+      <span className="text-muted-foreground w-7 shrink-0 pt-0.5 text-right text-xs font-medium tabular-nums">
         {event.minute}&apos;
       </span>
       <span className="mt-0.5 shrink-0">{EVENT_ICON[event.type]}</span>
@@ -306,13 +301,16 @@ function TeamPanel({
 
   return (
     <Card className="overflow-hidden pt-0">
-      <div className="h-1.5 w-full" style={{ backgroundColor: team.colors.primary }} />
+      <div
+        className="h-1.5 w-full"
+        style={{ backgroundColor: team.colors.primary }}
+      />
       <CardHeader className="pt-5">
         <div className="flex items-center gap-3">
-          <span className="text-5xl drop-shadow">{team.flag}</span>
+          <span className="text-4xl drop-shadow sm:text-5xl">{team.flag}</span>
           <div className="min-w-0">
             <CardTitle className="truncate text-xl">{team.name}</CardTitle>
-            <p className="mt-0.5 text-sm text-muted-foreground">
+            <p className="text-muted-foreground mt-0.5 text-sm">
               {team.manager}
             </p>
           </div>
@@ -332,7 +330,7 @@ function TeamPanel({
         <Separator />
 
         <div>
-          <h3 className="mb-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+          <h3 className="text-muted-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
             Starting XI
           </h3>
           <ul className="flex flex-col gap-0.5">
@@ -342,13 +340,13 @@ function TeamPanel({
                 .map((p) => (
                   <li
                     key={`${team.id}-${p.number}`}
-                    className="flex items-center gap-3 rounded-md px-1.5 py-1 text-sm hover:bg-muted/50"
+                    className="hover:bg-muted/50 flex items-center gap-3 rounded-md px-1.5 py-1 text-sm"
                   >
-                    <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted text-xs font-semibold tabular-nums">
+                    <span className="bg-muted flex size-6 shrink-0 items-center justify-center rounded-md text-xs font-semibold tabular-nums">
                       {p.number}
                     </span>
                     <span className="flex-1 truncate">{p.name}</span>
-                    <span className="text-xs font-medium text-muted-foreground">
+                    <span className="text-muted-foreground text-xs font-medium">
                       {p.position}
                     </span>
                   </li>
@@ -363,9 +361,9 @@ function TeamPanel({
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-lg bg-muted/50 px-3 py-2">
+    <div className="bg-muted/50 rounded-lg px-3 py-2">
       <div className="text-2xl font-bold tabular-nums">{value}</div>
-      <div className="text-xs text-muted-foreground">{label}</div>
+      <div className="text-muted-foreground text-xs">{label}</div>
     </div>
   );
 }

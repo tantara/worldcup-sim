@@ -63,6 +63,20 @@ const TACTIC_GOAL_BOOST: Record<Tactic, number> = {
 };
 
 const FORMATIONS = ["4-3-3", "4-2-3-1", "3-5-2", "4-4-2", "5-3-2", "3-4-3"];
+const STRATEGIES = [
+  "Press high for five minutes, then settle into compact rest defense.",
+  "Attack through the left half-space and keep the fullback deeper in transition.",
+  "Slow the tempo, draw pressure, and use diagonal switches behind the far fullback.",
+  "Protect the middle first, counter through the key forward after recoveries.",
+  "Overload midfield, keep the nearest winger narrow, and force wide crosses.",
+];
+const LINEUP_REASONS = [
+  "The selected shape balances defensive cover with enough runners to attack early transitions.",
+  "This XI keeps the strongest spine on the pitch while matching the opponent's likely midfield numbers.",
+  "The formation protects central zones first because the match context rewards avoiding an early deficit.",
+  "The key player is placed where they can receive between lines and influence the highest-value chances.",
+  "The tactic reflects the current group situation and avoids unnecessary risk while preserving counter threat.",
+];
 
 /** How many players in each line, derived from a formation string. */
 function lineCounts(formation: string): {
@@ -127,9 +141,11 @@ export function decideLineup(squad: Player[], rng: () => number): Lineup {
   const xi = selectXI(squad, formation, rng);
   const keyPlayer = pick(attackers(xi), rng).name;
   return {
+    reason: pick(LINEUP_REASONS, rng),
     formation,
     tactic,
     keyPlayer,
+    strategy: pick(STRATEGIES, rng),
     lineup: xi.map((p) => ({
       number: p.number,
       name: p.name,
@@ -203,11 +219,20 @@ export function decideMinute(ctx: MinuteContext): MinuteOutcome {
   const roll = rng();
 
   if (roll < goalProb) {
+    const possibleAssists = attackers(teamXI).filter(
+      (p) => p.name !== attacker.name,
+    );
+    const assist = possibleAssists.length
+      ? pick(possibleAssists, rng).name
+      : null;
     return {
       event: "goal",
       side,
       player: attacker.name,
-      text: `⚽ GOAL! ${attacker.name} finishes for ${team.name} in the ${minute}'.`,
+      assist,
+      text: assist
+        ? `⚽ GOAL! ${attacker.name} finishes for ${team.name} in the ${minute}' after a pass from ${assist}.`
+        : `⚽ GOAL! ${attacker.name} finishes for ${team.name} in the ${minute}'.`,
     };
   }
   if (roll < goalProb + 0.22) {

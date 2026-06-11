@@ -5,20 +5,20 @@ import { ModeToggle } from "~/components/mode-toggle";
 
 export function Navbar() {
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-2 font-bold">
-          <span className="flex size-8 items-center justify-center rounded-lg bg-primary/15 text-primary ring-1 ring-primary/30">
+    <header className="bg-background/80 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur">
+      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-2 px-3 sm:px-4">
+        <Link href="/" className="flex min-w-0 items-center gap-2 font-bold">
+          <span className="bg-primary/15 text-primary ring-primary/30 flex size-8 items-center justify-center rounded-lg ring-1">
             <Trophy className="size-4" />
           </span>
-          <span>
+          <span className="truncate">
             World Cup <span className="text-primary">Simulator</span>
           </span>
         </Link>
-        <nav className="flex items-center gap-1">
+        <nav className="flex shrink-0 items-center gap-1">
           <Link
             href="/playground"
-            className="rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground rounded-md px-2 py-1.5 text-sm font-medium transition-colors sm:px-3"
           >
             Playground
           </Link>
