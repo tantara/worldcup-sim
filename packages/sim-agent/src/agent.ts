@@ -11,7 +11,7 @@ import type {
   ToolSpec,
   Usage,
 } from "./types";
-import { emptyUsage } from "./types";
+import { addUsage, emptyUsage } from "./types";
 
 export interface AgentOptions {
   provider: Provider;
@@ -57,6 +57,15 @@ export class Agent {
   /** Append-only conversation after the system prefix. */
   private history: Message[] = [];
 
+  /**
+   * Running token total across every model call this agent has made, summed
+   * field-by-field (input/prompt, cached, reasoning, output/completion). Spans
+   * all steps within a turn and all turns within the agent's lifetime — for a
+   * per-request route that means one request; for a long-lived session agent it
+   * accumulates across the whole session.
+   */
+  private cumulative: Usage = emptyUsage();
+
   constructor(opts: AgentOptions) {
     this.provider = opts.provider;
     this.registry = opts.registry;
@@ -70,6 +79,11 @@ export class Agent {
   /** Snapshot of the conversation (excluding the system prefix) for persistence. */
   get messages(): readonly Message[] {
     return this.history;
+  }
+
+  /** Running token total across every model call this agent has made. */
+  get usage(): Usage {
+    return { ...this.cumulative };
   }
 
   /**
@@ -141,6 +155,7 @@ export class Agent {
         return;
       }
 
+      this.cumulative = addUsage(this.cumulative, usage);
       yield { type: "usage", usage, cacheHitRate: cacheHitRate(usage) };
 
       const toolCalls = collectToolCalls(toolAccum);
@@ -154,7 +169,7 @@ export class Agent {
 
       if (toolCalls.length === 0) {
         finalText = text;
-        yield { type: "done", reason: "stop", text: finalText };
+        yield { type: "done", reason: "stop", text: finalText, usage: this.usage };
         return;
       }
 
@@ -187,7 +202,7 @@ export class Agent {
       // Loop: next step sends [system, ...history] with the tool results appended.
     }
 
-    yield { type: "done", reason: "max_steps", text: finalText };
+    yield { type: "done", reason: "max_steps", text: finalText, usage: this.usage };
   }
 }
 

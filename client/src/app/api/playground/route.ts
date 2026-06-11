@@ -18,6 +18,8 @@ const bodySchema = z.object({
   awayId: z.string().min(1),
   mode: z.enum(["mock", "live"]).default("mock"),
   maxMinutes: z.number().int().min(1).max(90).optional(),
+  /** Real WC26 fixture id (FIFA match number), when launched from a fixture. */
+  matchId: z.string().min(1).optional(),
 });
 
 export async function POST(req: Request): Promise<Response> {

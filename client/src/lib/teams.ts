@@ -1,4 +1,5 @@
 import {
+  getTeam as getWcTeam,
   getTeamsByGroup,
   teams as wcTeams,
   type Confederation,
@@ -203,4 +204,44 @@ export const GROUP_LETTERS: GroupLetter[] = [
 /** Teams in a group, mapped to the client `Team` shape. */
 export function teamsInGroup(group: GroupLetter): Team[] {
   return getTeamsByGroup(group).map(buildTeam);
+}
+
+// --- full roster (for the team detail page) ---------------------------------
+
+export type RosterPlayer = {
+  number: number | null;
+  name: string;
+  position: Player["position"];
+  club: string | null;
+  caps: number | null;
+  /** Age at the start of the tournament; `null` where DOB isn't published. */
+  age: number | null;
+};
+
+const TOURNAMENT_START = new Date("2026-06-11");
+
+function ageFromDob(dob: string | null): number | null {
+  if (!dob) return null;
+  const born = new Date(dob);
+  if (Number.isNaN(born.getTime())) return null;
+  let age = TOURNAMENT_START.getFullYear() - born.getFullYear();
+  const m = TOURNAMENT_START.getMonth() - born.getMonth();
+  if (m < 0 || (m === 0 && TOURNAMENT_START.getDate() < born.getDate())) age--;
+  return age;
+}
+
+/** Full 26-player squad (with club/caps/age) for the given team id. */
+export function getRoster(id: string): RosterPlayer[] {
+  const team = BY_ID.get(id);
+  if (!team) return [];
+  const wc = getWcTeam(team.name);
+  if (!wc) return [];
+  return wc.players.map((p) => ({
+    number: p.number,
+    name: p.name,
+    position: p.position,
+    club: p.club,
+    caps: p.caps,
+    age: ageFromDob(p.dob),
+  }));
 }

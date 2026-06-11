@@ -11,11 +11,18 @@ export type Mode = "mock" | "live";
 
 export type Tactic = "attacking" | "balanced" | "defensive";
 
+export interface LineupPlayer {
+  number: number;
+  name: string;
+  position: "GK" | "DF" | "MF" | "FW";
+}
+
 export interface Lineup {
   formation: string;
   tactic: Tactic;
   keyPlayer: string;
-  lineup: string[];
+  /** The chosen starting XI, picked from the full squad by mock or live. */
+  lineup: LineupPlayer[];
 }
 
 export type MinuteEventType =

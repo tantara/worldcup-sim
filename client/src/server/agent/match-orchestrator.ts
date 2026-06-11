@@ -19,7 +19,8 @@ import type {
   Tactic,
   Thread,
 } from "~/lib/playground-types";
-import { getTeam, type Team } from "~/lib/teams";
+import { teams as wcTeams } from "@worldcupsim/wc26-data";
+import { getTeam, type Player, type Team } from "~/lib/teams";
 import {
   decideLineup,
   decideMinute,
@@ -29,12 +30,32 @@ import {
 } from "./dummy";
 import { saveResult } from "./results-store";
 
+/**
+ * The full ~26-player squad for a team (the client `Team.squad` is only the
+ * default XI). Managers pick their starting XI from this. Falls back to the
+ * default XI if the squad isn't found.
+ */
+function fullSquad(team: Team): Player[] {
+  const wc = wcTeams.find((t) => t.country === team.name);
+  if (!wc) return team.squad;
+  return wc.players.map((p, i) => ({
+    number: p.number ?? i + 1,
+    name: p.name,
+    position: p.position,
+  }));
+}
+
 export interface OrchestratorOptions {
   homeId: string;
   awayId: string;
   mode: Mode;
   /** Cap match length (1–90). Useful to keep live runs short. */
   maxMinutes?: number;
+  /**
+   * Stable id for the fixture (e.g. the WC26 FIFA match number). Used as the
+   * result key and the RNG seed. Defaults to `${homeId}-${awayId}`.
+   */
+  matchId?: string;
 }
 
 const TACTICS: ReadonlySet<string> = new Set([
@@ -57,7 +78,7 @@ export async function* runMatch(
 ): AsyncGenerator<OrchestratorEvent> {
   const home = getTeam(opts.homeId);
   const away = getTeam(opts.awayId);
-  const matchId = `${opts.homeId}-${opts.awayId}`;
+  const matchId = opts.matchId ?? `${opts.homeId}-${opts.awayId}`;
   const maxMinutes = Math.min(90, Math.max(1, opts.maxMinutes ?? 90));
   const mode = opts.mode;
 
@@ -69,13 +90,20 @@ export async function* runMatch(
     return;
   }
 
+  const homeSquad = fullSquad(home);
+  const awaySquad = fullSquad(away);
+
   // Shared mock state read by the scripted responders (ignored in live mode).
+  // homeXI/awayXI default to the standard XI and are replaced once the managers
+  // pick — the play logic draws scorers/keepers from whoever is on the pitch.
   const state = {
     minute: 0,
     score: { home: 0, away: 0 },
     homeTactic: "balanced" as Tactic,
     awayTactic: "balanced" as Tactic,
     redCards: { home: 0, away: 0 },
+    homeXI: [...home.squad],
+    awayXI: [...away.squad],
   };
 
   // Deterministic, independent RNG streams per role.
@@ -113,13 +141,13 @@ export async function* runMatch(
   const homeManager = newAgent(
     "home-manager",
     managerSystem(home),
-    () => JSON.stringify(decideLineup(home, homeRng)),
+    () => JSON.stringify(decideLineup(homeSquad, homeRng)),
     0.6,
   );
   const awayManager = newAgent(
     "away-manager",
     managerSystem(away),
-    () => JSON.stringify(decideLineup(away, awayRng)),
+    () => JSON.stringify(decideLineup(awaySquad, awayRng)),
     0.6,
   );
   const matchAgent = newAgent(
@@ -132,6 +160,8 @@ export async function* runMatch(
           minute: state.minute,
           home,
           away,
+          homeXI: state.homeXI,
+          awayXI: state.awayXI,
           homeTactic: state.homeTactic,
           awayTactic: state.awayTactic,
         }),
@@ -195,13 +225,23 @@ export async function* runMatch(
   yield { type: "phase", phase: "lineups" };
 
   yield { type: "thread_start", thread: "home-manager", label: `${home.name} manager` };
-  const homeLineup = parseLineup(yield* drive(homeManager, "home-manager", managerPrompt(home)), home, homeRng);
+  const homeLineup = parseLineup(
+    yield* drive(homeManager, "home-manager", managerPrompt(home, homeSquad)),
+    homeSquad,
+    homeRng,
+  );
   state.homeTactic = homeLineup.tactic;
+  state.homeXI = homeLineup.lineup;
   yield { type: "lineup", thread: "home-manager", teamName: home.name, lineup: homeLineup };
 
   yield { type: "thread_start", thread: "away-manager", label: `${away.name} manager` };
-  const awayLineup = parseLineup(yield* drive(awayManager, "away-manager", managerPrompt(away)), away, awayRng);
+  const awayLineup = parseLineup(
+    yield* drive(awayManager, "away-manager", managerPrompt(away, awaySquad)),
+    awaySquad,
+    awayRng,
+  );
   state.awayTactic = awayLineup.tactic;
+  state.awayXI = awayLineup.lineup;
   yield { type: "lineup", thread: "away-manager", teamName: away.name, lineup: awayLineup };
 
   // --- step 2 & 3: minute-by-minute play, referee may stop ----------------
@@ -289,9 +329,9 @@ function refereeSystem(): string {
   return `You are the referee of a simulated football match. Keep play going unless player safety or repeated dismissals force a stop. Respond with ONLY a JSON object — no prose, no code fences.`;
 }
 
-function managerPrompt(team: Team): string {
-  const squad = team.squad.map((p) => `${p.name} (${p.position})`).join(", ");
-  return `Choose your approach. Squad: ${squad}. Reply as JSON {"formation","tactic","keyPlayer","lineup"} where tactic is "attacking" | "balanced" | "defensive" and lineup is an array of player names.`;
+function managerPrompt(team: Team, squad: Player[]): string {
+  const roster = squad.map((p) => `${p.name} (${p.position})`).join(", ");
+  return `Pick your starting XI for ${team.name} from this ${squad.length}-player squad: ${roster}. Choose a formation, name exactly 11 starters that fit it (1 GK, the rest outfield), a tactic, and your key player. Reply as JSON {"formation","tactic","keyPlayer","lineup"} where tactic is "attacking" | "balanced" | "defensive" and lineup is an array of exactly 11 player names from the squad.`;
 }
 
 function playPrompt(
@@ -336,21 +376,51 @@ function str(value: unknown): string | null {
   return typeof value === "string" ? value : null;
 }
 
-function parseLineup(text: string, team: Team, rng: () => number): Lineup {
+/** Extract a player name from a lineup entry (a bare name or `{ name }`). */
+function entryName(entry: unknown): string | null {
+  if (typeof entry === "string") return entry;
+  const rec = asRecord(entry);
+  return rec ? str(rec.name) : null;
+}
+
+function parseLineup(text: string, squad: Player[], rng: () => number): Lineup {
   const obj = asRecord(extractJSON(text));
   const tactic = str(obj?.tactic);
-  if (obj && tactic && TACTICS.has(tactic)) {
-    const lineup = Array.isArray(obj.lineup)
-      ? obj.lineup.filter((p): p is string => typeof p === "string")
-      : team.squad.map((p) => p.name);
-    return {
-      formation: str(obj.formation) ?? team.formation,
-      tactic: tactic as Tactic,
-      keyPlayer: str(obj.keyPlayer) ?? lineup[0] ?? team.squad[0]!.name,
-      lineup,
-    };
+
+  if (obj && tactic && TACTICS.has(tactic) && Array.isArray(obj.lineup)) {
+    // Resolve the picked names back to real squad players (for number/position).
+    const byName = new Map(squad.map((p) => [p.name.toLowerCase(), p]));
+    const xi: Player[] = [];
+    const seen = new Set<string>();
+    for (const entry of obj.lineup) {
+      const name = entryName(entry);
+      const player = name ? byName.get(name.toLowerCase()) : undefined;
+      if (player && !seen.has(player.name)) {
+        seen.add(player.name);
+        xi.push(player);
+      }
+    }
+    // Accept a roughly-complete XI; otherwise fall back to a generated one.
+    if (xi.length >= 7) {
+      return {
+        formation: str(obj.formation) ?? formationOf(xi),
+        tactic: tactic as Tactic,
+        keyPlayer: str(obj.keyPlayer) ?? xi[0]?.name ?? squad[0]!.name,
+        lineup: xi.map((p) => ({
+          number: p.number,
+          name: p.name,
+          position: p.position,
+        })),
+      };
+    }
   }
-  return decideLineup(team, rng); // live model returned junk — fall back
+  return decideLineup(squad, rng); // live model returned junk — fall back
+}
+
+/** "4-3-3"-style summary of an XI's outfield shape. */
+function formationOf(xi: Player[]): string {
+  const n = (pos: Player["position"]) => xi.filter((p) => p.position === pos).length;
+  return `${n("DF")}-${n("MF")}-${n("FW")}`;
 }
 
 const MINUTE_EVENTS: ReadonlySet<string> = new Set([

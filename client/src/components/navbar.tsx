@@ -17,10 +17,10 @@ export function Navbar() {
         </Link>
         <nav className="flex items-center gap-1">
           <Link
-            href="/"
+            href="/playground"
             className="rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
-            Fixtures
+            Playground
           </Link>
           <ModeToggle />
         </nav>

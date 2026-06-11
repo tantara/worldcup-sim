@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CalendarDays, ChevronRight, MapPin, Trophy } from "lucide-react";
 
+import { Bracket } from "~/app/_components/bracket";
 import { Badge } from "~/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
@@ -38,6 +39,7 @@ export default function Home() {
           <TabsList className="mx-auto">
             <TabsTrigger value="groups">Groups</TabsTrigger>
             <TabsTrigger value="schedule">Schedule</TabsTrigger>
+            <TabsTrigger value="tournament">Tournament</TabsTrigger>
           </TabsList>
 
           <TabsContent value="groups">
@@ -60,6 +62,10 @@ export default function Home() {
               <ScheduleSection key={round} title={round} matches={matches} />
             ))}
           </TabsContent>
+
+          <TabsContent value="tournament">
+            <Bracket />
+          </TabsContent>
         </Tabs>
       </div>
     </main>
@@ -79,16 +85,20 @@ function GroupCard({ letter, teams }: { letter: string; teams: Team[] }) {
       </CardHeader>
       <CardContent className="flex flex-col">
         {teams.map((t) => (
-          <div
+          <Link
             key={t.id}
-            className="flex items-center gap-2.5 border-t border-border/60 py-2 first:border-t-0 text-sm"
+            href={`/teams/${t.id}`}
+            className="group -mx-2 flex items-center gap-2.5 rounded-md border-t border-border/60 px-2 py-2 text-sm transition-colors first:border-t-0 hover:bg-accent/40"
           >
             <span className="text-xl">{t.flag}</span>
-            <span className="flex-1 truncate font-medium">{t.name}</span>
+            <span className="flex-1 truncate font-medium group-hover:text-primary">
+              {t.name}
+            </span>
             <span className="text-xs text-muted-foreground">
               {t.confederation}
             </span>
-          </div>
+            <ChevronRight className="size-4 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+          </Link>
         ))}
       </CardContent>
     </Card>

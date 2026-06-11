@@ -5,7 +5,7 @@ import type {
   MatchResult,
   StandingRow,
 } from "~/lib/playground-types";
-import { GROUPS } from "~/lib/tournament";
+import { GROUP_LETTERS, teamsInGroup } from "~/lib/teams";
 
 /**
  * In-memory store of completed matches, so results feed into the next ones.
@@ -28,12 +28,18 @@ export function getResult(matchId: string): MatchResult | undefined {
   return results.get(matchId);
 }
 
-/** Compute group standings from all stored (completed) results. */
+/**
+ * Compute group standings from stored results. Only groups that have at least
+ * one completed (same-group) fixture are returned, so the UI isn't flooded with
+ * 12 empty tables.
+ */
 export function computeStandings(): GroupStanding[] {
   const all = listResults();
-  return Object.entries(GROUPS).map(([group, teamIds]) => {
-    const rows = teamIds.map<StandingRow>((teamId) => ({
-      teamId,
+  const standings: GroupStanding[] = [];
+
+  for (const group of GROUP_LETTERS) {
+    const rows = teamsInGroup(group).map<StandingRow>((team) => ({
+      teamId: team.id,
       played: 0,
       won: 0,
       drawn: 0,
@@ -44,11 +50,13 @@ export function computeStandings(): GroupStanding[] {
     }));
     const byId = new Map(rows.map((r) => [r.teamId, r]));
 
+    let anyPlayed = false;
     for (const r of all) {
       if (r.abandoned) continue;
       const home = byId.get(r.homeId);
       const away = byId.get(r.awayId);
-      if (!home || !away) continue; // result from a different group/fixture
+      if (!home || !away) continue; // not a fixture within this group
+      anyPlayed = true;
       home.played++;
       away.played++;
       home.goalsFor += r.score.home;
@@ -71,12 +79,15 @@ export function computeStandings(): GroupStanding[] {
       }
     }
 
+    if (!anyPlayed) continue;
     rows.sort(
       (a, b) =>
         b.points - a.points ||
         b.goalsFor - b.goalsAgainst - (a.goalsFor - a.goalsAgainst) ||
         b.goalsFor - a.goalsFor,
     );
-    return { group, rows };
-  });
+    standings.push({ group, rows });
+  }
+
+  return standings;
 }

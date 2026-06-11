@@ -42,18 +42,18 @@ function pick<T>(arr: T[], rng: () => number): T {
   return arr[Math.floor(rng() * arr.length)]!;
 }
 
-function attackers(team: Team): Player[] {
-  const a = team.squad.filter((p) => p.position === "FW" || p.position === "MF");
-  return a.length ? a : team.squad;
+function attackers(xi: Player[]): Player[] {
+  const a = xi.filter((p) => p.position === "FW" || p.position === "MF");
+  return a.length ? a : xi;
 }
 
-function defenders(team: Team): Player[] {
-  const d = team.squad.filter((p) => p.position === "DF");
-  return d.length ? d : team.squad;
+function defenders(xi: Player[]): Player[] {
+  const d = xi.filter((p) => p.position === "DF");
+  return d.length ? d : xi;
 }
 
-function keeper(team: Team): Player {
-  return team.squad.find((p) => p.position === "GK") ?? team.squad[0]!;
+function keeper(xi: Player[]): Player {
+  return xi.find((p) => p.position === "GK") ?? xi[0]!;
 }
 
 const TACTIC_GOAL_BOOST: Record<Tactic, number> = {
@@ -62,18 +62,79 @@ const TACTIC_GOAL_BOOST: Record<Tactic, number> = {
   defensive: -0.04,
 };
 
-/** A manager's choice for one team. */
-export function decideLineup(team: Team, rng: () => number): Lineup {
-  // The squads are already 11 strong, so the XI is the squad; the interesting
-  // choices are tactic and the player to build around.
+const FORMATIONS = ["4-3-3", "4-2-3-1", "3-5-2", "4-4-2", "5-3-2", "3-4-3"];
+
+/** How many players in each line, derived from a formation string. */
+function lineCounts(formation: string): {
+  gk: number;
+  df: number;
+  mf: number;
+  fw: number;
+} {
+  const nums = formation.split("-").map(Number).filter((n) => !Number.isNaN(n));
+  const df = nums[0] ?? 4;
+  const fw = nums.length > 1 ? (nums[nums.length - 1] ?? 3) : 3;
+  const mf = nums.slice(1, -1).reduce((a, b) => a + b, 0) || 10 - df - fw;
+  return { gk: 1, df, mf, fw };
+}
+
+function shuffle<T>(arr: T[], rng: () => number): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    const tmp = a[i]!;
+    a[i] = a[j]!;
+    a[j] = tmp;
+  }
+  return a;
+}
+
+/** Pick a starting XI from the full squad that fits the given formation. */
+export function selectXI(
+  squad: Player[],
+  formation: string,
+  rng: () => number,
+): Player[] {
+  const counts = lineCounts(formation);
+  const fromPos = (pos: Player["position"], n: number) =>
+    shuffle(
+      squad.filter((p) => p.position === pos),
+      rng,
+    ).slice(0, n);
+
+  const xi = [
+    ...fromPos("GK", counts.gk),
+    ...fromPos("DF", counts.df),
+    ...fromPos("MF", counts.mf),
+    ...fromPos("FW", counts.fw),
+  ];
+  // Backfill from anyone left if a position was short, so we always get 11.
+  if (xi.length < 11) {
+    const chosen = new Set(xi.map((p) => p.name));
+    for (const p of squad) {
+      if (xi.length >= 11) break;
+      if (!chosen.has(p.name)) xi.push(p);
+    }
+  }
+  return xi.slice(0, 11);
+}
+
+/** A manager's choice for one team: pick a formation, tactic, and XI. */
+export function decideLineup(squad: Player[], rng: () => number): Lineup {
   const tactics: Tactic[] = ["attacking", "balanced", "defensive"];
   const tactic = pick(tactics, rng);
-  const keyPlayer = pick(attackers(team), rng).name;
+  const formation = pick(FORMATIONS, rng);
+  const xi = selectXI(squad, formation, rng);
+  const keyPlayer = pick(attackers(xi), rng).name;
   return {
-    formation: team.formation,
+    formation,
     tactic,
     keyPlayer,
-    lineup: team.squad.map((p) => p.name),
+    lineup: xi.map((p) => ({
+      number: p.number,
+      name: p.name,
+      position: p.position,
+    })),
   };
 }
 
@@ -82,13 +143,17 @@ export interface MinuteContext {
   minute: number;
   home: Team;
   away: Team;
+  /** The starting XIs the managers picked — scorers/keepers come from these. */
+  homeXI: Player[];
+  awayXI: Player[];
   homeTactic: Tactic;
   awayTactic: Tactic;
 }
 
 /** What happens in one minute. Pure: does not mutate score. */
 export function decideMinute(ctx: MinuteContext): MinuteOutcome {
-  const { rng, minute, home, away, homeTactic, awayTactic } = ctx;
+  const { rng, minute, home, away, homeXI, awayXI, homeTactic, awayTactic } =
+    ctx;
 
   // Most minutes are uneventful.
   if (rng() > 0.22) {
@@ -101,11 +166,13 @@ export function decideMinute(ctx: MinuteContext): MinuteOutcome {
     rng() < homeWeight / (homeWeight + awayWeight) ? "home" : "away";
   const team = side === "home" ? home : away;
   const opp = side === "home" ? away : home;
+  const teamXI = side === "home" ? homeXI : awayXI;
+  const oppXI = side === "home" ? awayXI : homeXI;
   const tactic = side === "home" ? homeTactic : awayTactic;
 
   // Foul / card branch.
   if (rng() < 0.18) {
-    const fouler = pick(team.squad, rng);
+    const fouler = pick(teamXI, rng);
     if (rng() < 0.05) {
       return {
         event: "red",
@@ -130,7 +197,7 @@ export function decideMinute(ctx: MinuteContext): MinuteOutcome {
     };
   }
 
-  const attacker = pick(attackers(team), rng);
+  const attacker = pick(attackers(teamXI), rng);
   const ratingEdge = (team.rating - opp.rating) / 100;
   const goalProb = 0.26 + ratingEdge + TACTIC_GOAL_BOOST[tactic];
   const roll = rng();
@@ -144,7 +211,7 @@ export function decideMinute(ctx: MinuteContext): MinuteOutcome {
     };
   }
   if (roll < goalProb + 0.22) {
-    const gk = keeper(opp);
+    const gk = keeper(oppXI);
     return {
       event: "save",
       side,
@@ -160,7 +227,7 @@ export function decideMinute(ctx: MinuteContext): MinuteOutcome {
       text: `${attacker.name} (${team.name}) drags it wide.`,
     };
   }
-  const blocker = pick(defenders(opp), rng);
+  const blocker = pick(defenders(oppXI), rng);
   return {
     event: "miss",
     side,

@@ -95,6 +95,18 @@ export const emptyUsage = (): Usage => ({
 });
 
 /**
+ * Sum two usage records field-by-field. Used to accumulate a running total
+ * across the model calls in a turn (and across turns) — see `Agent.usage`.
+ */
+export const addUsage = (a: Usage, b: Usage): Usage => ({
+  promptTokens: a.promptTokens + b.promptTokens,
+  completionTokens: a.completionTokens + b.completionTokens,
+  cacheHitTokens: a.cacheHitTokens + b.cacheHitTokens,
+  cacheMissTokens: a.cacheMissTokens + b.cacheMissTokens,
+  reasoningTokens: a.reasoningTokens + b.reasoningTokens,
+});
+
+/**
  * Streaming events emitted by `Agent.run`. A frontend renders these directly.
  * This is the only surface a transport (SSE route, websocket, TUI) needs.
  */
@@ -111,5 +123,11 @@ export type AgentEvent =
       isError: boolean;
     }
   | { type: "usage"; usage: Usage; cacheHitRate: number }
-  | { type: "done"; reason: "stop" | "max_steps"; text: string }
+  | {
+      type: "done";
+      reason: "stop" | "max_steps";
+      text: string;
+      /** Running token total across every model call this agent has made. */
+      usage: Usage;
+    }
   | { type: "error"; message: string };

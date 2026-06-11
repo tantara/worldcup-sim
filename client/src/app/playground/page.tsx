@@ -1,14 +1,18 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { GroupLetter } from "@worldcupsim/wc26-data";
 import {
+  CalendarDays,
   CircleDot,
   CircleStop,
+  Clock,
   Flag,
   FlaskConical,
   Gauge,
   Goal,
   Hand,
+  MapPin,
   Play,
   RotateCcw,
   ShieldCheck,
@@ -40,7 +44,16 @@ import type {
   StandingsResponse,
   Thread,
 } from "~/lib/playground-types";
-import { getTeam, type Player, type Team, TEAMS } from "~/lib/teams";
+import { getTeam, GROUP_LETTERS, type Player, type Team } from "~/lib/teams";
+import {
+  type Match,
+  matchesByGroup,
+  resolveMatch,
+} from "~/lib/tournament";
+
+// The playground is driven by the real WC26 group-stage schedule.
+const DEFAULT_GROUP: GroupLetter = GROUP_LETTERS[0] ?? "A";
+const DEFAULT_MATCH = matchesByGroup(DEFAULT_GROUP)[0]?.match ?? 1;
 
 // --- live match state -------------------------------------------------------
 
@@ -139,8 +152,8 @@ function reduce(state: MatchState, event: OrchestratorEvent): MatchState {
 // --- page -------------------------------------------------------------------
 
 export default function PlaygroundPage() {
-  const [homeId, setHomeId] = useState("bra");
-  const [awayId, setAwayId] = useState("fra");
+  const [group, setGroup] = useState<GroupLetter>(DEFAULT_GROUP);
+  const [matchNumber, setMatchNumber] = useState<number>(DEFAULT_MATCH);
   const [mode, setMode] = useState<Mode>("mock");
   const [maxMinutes, setMaxMinutes] = useState(90);
   const [running, setRunning] = useState(false);
@@ -148,6 +161,20 @@ export default function PlaygroundPage() {
   const [standings, setStandings] = useState<StandingsResponse | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // The selected real fixture and its resolved teams.
+  const fixtures = matchesByGroup(group);
+  const fixture = fixtures.find((m) => m.match === matchNumber) ?? fixtures[0];
+  const resolved = fixture ? resolveMatch(fixture) : null;
+  const home = resolved?.home;
+  const away = resolved?.away;
+  const playable = Boolean(resolved?.playable && home && away);
+
+  const onGroup = (g: GroupLetter) => {
+    setGroup(g);
+    const first = matchesByGroup(g)[0];
+    if (first) setMatchNumber(first.match);
+  };
 
   const loadStandings = useCallback(async () => {
     try {
@@ -166,7 +193,7 @@ export default function PlaygroundPage() {
   }, [loadStandings]);
 
   const kickoff = useCallback(async () => {
-    if (homeId === awayId || running) return;
+    if (!home || !away || !playable || running) return;
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -177,7 +204,13 @@ export default function PlaygroundPage() {
       const res = await fetch("/api/playground", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ homeId, awayId, mode, maxMinutes }),
+        body: JSON.stringify({
+          homeId: home.id,
+          awayId: away.id,
+          mode,
+          maxMinutes,
+          matchId: String(matchNumber),
+        }),
         signal: controller.signal,
       });
       if (!res.ok || !res.body) {
@@ -211,7 +244,7 @@ export default function PlaygroundPage() {
       setRunning(false);
       void loadStandings();
     }
-  }, [homeId, awayId, mode, maxMinutes, running, loadStandings]);
+  }, [home, away, playable, mode, maxMinutes, matchNumber, running, loadStandings]);
 
   useEffect(() => () => abortRef.current?.abort(), []);
 
@@ -223,12 +256,22 @@ export default function PlaygroundPage() {
     vp?.scrollTo({ top: vp.scrollHeight, behavior: "smooth" });
   }, [state.minutes.length, state.referee.length]);
 
-  const home = getTeam(homeId);
-  const away = getTeam(awayId);
   const finished = state.phase === "fulltime" || state.phase === "stopped";
   const abandoned = state.result?.abandoned ?? state.phase === "stopped";
   const clock = state.minutes.at(-1)?.minute ?? 0;
   const started = state.minutes.length > 0 || state.phase !== "idle";
+
+  // Group-stage fixtures always resolve to real teams; this guards the rare
+  // edge (and narrows the types for the panels below).
+  if (!fixture || !home || !away) {
+    return (
+      <main className="flex-1">
+        <div className="mx-auto max-w-2xl px-4 py-20 text-center text-sm text-muted-foreground">
+          No playable fixture selected.
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="flex-1">
@@ -278,20 +321,24 @@ export default function PlaygroundPage() {
 
             <CardContent className="flex flex-col gap-4">
               <Controls
-                homeId={homeId}
-                awayId={awayId}
-                onHome={setHomeId}
-                onAway={setAwayId}
+                group={group}
+                onGroup={onGroup}
+                matchNumber={matchNumber}
+                fixtures={fixtures}
+                onMatch={setMatchNumber}
                 mode={mode}
                 onMode={setMode}
                 maxMinutes={maxMinutes}
                 onMaxMinutes={setMaxMinutes}
                 running={running}
                 started={started}
+                canKick={playable}
                 onKickoff={() => void kickoff()}
                 matchStat={state.cache.match}
                 refStat={state.cache.referee}
               />
+
+              <FixtureMeta match={fixture} />
 
               {mode === "live" && (
                 <p className="text-xs text-muted-foreground">
@@ -418,30 +465,34 @@ function ClockPill({
 }
 
 function Controls({
-  homeId,
-  awayId,
-  onHome,
-  onAway,
+  group,
+  onGroup,
+  matchNumber,
+  fixtures,
+  onMatch,
   mode,
   onMode,
   maxMinutes,
   onMaxMinutes,
   running,
   started,
+  canKick,
   onKickoff,
   matchStat,
   refStat,
 }: {
-  homeId: string;
-  awayId: string;
-  onHome: (id: string) => void;
-  onAway: (id: string) => void;
+  group: GroupLetter;
+  onGroup: (g: GroupLetter) => void;
+  matchNumber: number;
+  fixtures: Match[];
+  onMatch: (n: number) => void;
   mode: Mode;
   onMode: (m: Mode) => void;
   maxMinutes: number;
   onMaxMinutes: (n: number) => void;
   running: boolean;
   started: boolean;
+  canKick: boolean;
   onKickoff: () => void;
   matchStat: ThreadStat;
   refStat: ThreadStat;
@@ -449,8 +500,47 @@ function Controls({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-end gap-3">
-        <TeamPicker label="Home" value={homeId} exclude={awayId} onChange={onHome} disabled={running} />
-        <TeamPicker label="Away" value={awayId} exclude={homeId} onChange={onAway} disabled={running} />
+        <Field label="Group">
+          <Select
+            value={group}
+            disabled={running}
+            onValueChange={(v) => {
+              if (v) onGroup(v);
+            }}
+          >
+            <SelectTrigger className="w-24">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {GROUP_LETTERS.map((g) => (
+                <SelectItem key={g} value={g}>
+                  Group {g}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
+
+        <Field label="Fixture">
+          <Select
+            value={String(matchNumber)}
+            disabled={running}
+            onValueChange={(v) => {
+              if (v) onMatch(Number(v));
+            }}
+          >
+            <SelectTrigger className="w-64">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {fixtures.map((m) => (
+                <SelectItem key={m.match} value={String(m.match)}>
+                  {fixtureLabel(m)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
 
         <Field label="Mode">
           <div className="flex h-9 overflow-hidden rounded-md border">
@@ -483,7 +573,7 @@ function Controls({
           />
         </Field>
 
-        <Button onClick={onKickoff} disabled={running || homeId === awayId} className="ml-auto font-semibold">
+        <Button onClick={onKickoff} disabled={running || !canKick} className="ml-auto font-semibold">
           {started ? <RotateCcw className="size-4" /> : <Play className="size-4" />}
           {running ? "Playing…" : started ? "Replay" : "Kick Off"}
         </Button>
@@ -494,6 +584,39 @@ function Controls({
         <CacheBadge label="match" stat={matchStat} />
         <CacheBadge label="referee" stat={refStat} />
       </div>
+    </div>
+  );
+}
+
+/** "🇲🇽 Mexico vs South Africa 🇿🇦" for a fixture dropdown row. */
+function fixtureLabel(m: Match): string {
+  const { home, away } = resolveMatch(m);
+  const h = home ? `${home.flag} ${home.name}` : m.home;
+  const a = away ? `${away.name} ${away.flag}` : m.away;
+  return `${h} vs ${a}`;
+}
+
+function FixtureMeta({ match }: { match: Match }) {
+  return (
+    <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+      <Badge variant="secondary">
+        {match.group ? `Group ${match.group}` : match.round}
+      </Badge>
+      <Badge variant="outline">Match {match.match}</Badge>
+      <span className="flex items-center gap-1">
+        <CalendarDays className="size-3.5" />
+        {match.date}
+      </span>
+      {match.kickoff_local && (
+        <span className="flex items-center gap-1">
+          <Clock className="size-3.5" />
+          {match.kickoff_local}
+        </span>
+      )}
+      <span className="flex items-center gap-1">
+        <MapPin className="size-3.5" />
+        {match.venue}, {match.city}
+      </span>
     </div>
   );
 }
@@ -696,29 +819,35 @@ function ManagerPanel({
               <span className="font-medium normal-case text-primary">★ {lineup.keyPlayer}</span>
             )}
           </h3>
-          <ul className="flex flex-col gap-0.5">
-            {positions.flatMap((pos) =>
-              team.squad
-                .filter((p) => p.position === pos)
-                .map((p) => {
-                  const isKey = lineup?.keyPlayer === p.name;
-                  return (
-                    <li
-                      key={`${team.id}-${p.number}`}
-                      className={`flex items-center gap-3 rounded-md px-1.5 py-1 text-sm ${
-                        isKey ? "bg-primary/10" : "hover:bg-muted/50"
-                      }`}
-                    >
-                      <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted text-xs font-semibold tabular-nums">
-                        {p.number}
-                      </span>
-                      <span className="flex-1 truncate">{p.name}</span>
-                      <span className="text-xs font-medium text-muted-foreground">{p.position}</span>
-                    </li>
-                  );
-                }),
-            )}
-          </ul>
+          {!lineup ? (
+            <p className="py-6 text-center text-sm text-muted-foreground">
+              The manager is picking the XI…
+            </p>
+          ) : (
+            <ul className="flex flex-col gap-0.5">
+              {positions.flatMap((pos) =>
+                lineup.lineup
+                  .filter((p) => p.position === pos)
+                  .map((p) => {
+                    const isKey = lineup.keyPlayer === p.name;
+                    return (
+                      <li
+                        key={`${team.id}-${pos}-${p.number}-${p.name}`}
+                        className={`flex items-center gap-3 rounded-md px-1.5 py-1 text-sm ${
+                          isKey ? "bg-primary/10" : "hover:bg-muted/50"
+                        }`}
+                      >
+                        <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted text-xs font-semibold tabular-nums">
+                          {p.number}
+                        </span>
+                        <span className="flex-1 truncate">{p.name}</span>
+                        <span className="text-xs font-medium text-muted-foreground">{p.position}</span>
+                      </li>
+                    );
+                  }),
+              )}
+            </ul>
+          )}
         </div>
       </CardContent>
     </Card>
@@ -733,43 +862,6 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <span className="text-xs font-medium text-muted-foreground">{label}</span>
       {children}
     </div>
-  );
-}
-
-function TeamPicker({
-  label,
-  value,
-  exclude,
-  onChange,
-  disabled,
-}: {
-  label: string;
-  value: string;
-  exclude: string;
-  onChange: (id: string) => void;
-  disabled: boolean;
-}) {
-  return (
-    <Field label={label}>
-      <Select
-        value={value}
-        disabled={disabled}
-        onValueChange={(v) => {
-          if (v) onChange(v);
-        }}
-      >
-        <SelectTrigger className="w-36">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {TEAMS.map((t) => (
-            <SelectItem key={t.id} value={t.id} disabled={t.id === exclude}>
-              {t.flag} {t.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </Field>
   );
 }
 

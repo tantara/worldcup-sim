@@ -32,7 +32,7 @@ export type { SystemPromptParts, TurnContext } from "./prompt";
 export { cacheHitRate, fingerprintPrefix } from "./cache";
 export { sanitizeToolPairing } from "./sanitize";
 
-export { emptyUsage } from "./types";
+export { addUsage, emptyUsage } from "./types";
 export type {
   AgentEvent,
   JSONSchema,

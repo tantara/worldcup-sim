@@ -56,6 +56,14 @@ Some fields are `null` where not yet reliably published:
 - **Haiti** — clubs/caps/DOB mostly null (names + positions only).
 - **Morocco, Scotland, Croatia, Ghana, Panama** — `number`/`caps`/`dob` largely null.
 - **England** — numbers + clubs present, `caps`/`dob` null.
-- **Argentina** — 25 of 26 players (shirt #2 missing in source extraction).
 
 All other teams have full 26-player squads with numbers, clubs, caps, and DOB.
+
+### Corrections applied after audit
+
+Cross-checked against Wikipedia/FIFA (June 2026). Fixes: Argentina now complete at 26
+(added Leonardo Balerdi, #2, Marseille); James Rodríguez → Minnesota United (was Club León);
+Marc Guéhi → Manchester City (transferred Jan 2026); Sherzod Nasrullaev → Nasaf.
+Austria's Dejan Ljubičić (#19) was confirmed *correct* — he is the late call-up replacing
+the injured Christoph Baumgartner. Brazil's two "Danilo" entries are two different players
+(RB at Flamengo #13, MF at Botafogo #18), not a duplicate.
