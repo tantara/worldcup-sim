@@ -9,6 +9,8 @@ export type Thread = "match" | "home-manager" | "away-manager" | "referee";
 
 export type Mode = "mock" | "live";
 
+export type GameSpeed = "slow" | "normal" | "fast";
+
 export type Tactic = "attacking" | "balanced" | "defensive";
 
 export interface LineupPlayer {

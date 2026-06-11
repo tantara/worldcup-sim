@@ -6,12 +6,53 @@ import { Geist, Noto_Sans_KR } from "next/font/google";
 import { Footer } from "~/components/footer";
 import { Navbar } from "~/components/navbar";
 import { ThemeProvider } from "~/components/theme-provider";
+import { env } from "~/env";
 import { TRPCReactProvider } from "~/trpc/react";
 
 export const metadata: Metadata = {
-  title: "World Cup Simulator",
-  description: "Simulate World Cup matches with live text commentary.",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
+  metadataBase: new URL(
+    env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  ),
+  title: {
+    default: "WorldCupSim",
+    template: "%s · WorldCupSim",
+  },
+  description:
+    "Explore groups, fixtures, venues, brackets, and unofficial match simulations for the 2026 World Cup.",
+  icons: [
+    { rel: "icon", url: "/favicon.svg", type: "image/svg+xml" },
+    { rel: "alternate icon", url: "/favicon.ico" },
+    { rel: "apple-touch-icon", url: "/apple-touch-icon.png" },
+  ],
+  openGraph: {
+    title: "WorldCupSim",
+    description:
+      "A 2026 tournament control room for groups, fixtures, brackets, and match simulation.",
+    url: "/",
+    siteName: "WorldCupSim",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "WorldCupSim tournament simulation dashboard preview",
+      },
+      {
+        url: "/og-image.svg",
+        width: 1200,
+        height: 630,
+        alt: "WorldCupSim tournament simulation dashboard preview",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "WorldCupSim",
+    description:
+      "A 2026 tournament control room for groups, fixtures, brackets, and match simulation.",
+    images: ["/og-image.png"],
+  },
 };
 
 const geist = Geist({
@@ -46,7 +87,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <TRPCReactProvider>
-            <div className="flex min-h-screen flex-col bg-gradient-to-b from-background to-muted/30">
+            <div className="app-shell flex min-h-screen flex-col bg-background">
               <Navbar />
               <div className="flex flex-1 flex-col">{children}</div>
               <Footer />

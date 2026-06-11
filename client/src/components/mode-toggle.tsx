@@ -11,7 +11,10 @@ export function ModeToggle() {
   const [mounted, setMounted] = React.useState(false);
 
   // Avoid hydration mismatch: theme is only known on the client.
-  React.useEffect(() => setMounted(true), []);
+  React.useEffect(() => {
+    const frame = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   const isDark = resolvedTheme === "dark";
 

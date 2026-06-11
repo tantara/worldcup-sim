@@ -1,6 +1,7 @@
 import {
   matches as wcMatches,
   schedule as wcSchedule,
+  getVenueGoogleMapsUrl as getWcVenueGoogleMapsUrl,
   type GroupLetter,
   type Match,
   type Round,
@@ -26,16 +27,31 @@ export const HOSTS = wcSchedule.hosts;
 export const VENUES = wcSchedule.venues;
 export const MATCHES = wcMatches;
 
-/** Stable URL id for a match (its FIFA match number). */
+function slugify(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+/** Canonical URL slug for a match, prefixed by its FIFA match number. */
 export function matchId(m: Match): string {
-  return String(m.match);
+  return `${m.match}-${slugify(m.home)}-vs-${slugify(m.away)}`;
 }
 
 export function getMatch(id: string): Match | undefined {
-  const num = Number(id);
+  const numericPrefix = /^(\d+)(?:-|$)/.exec(id)?.[1];
+  const num = numericPrefix ? Number(numericPrefix) : Number(id);
   return Number.isInteger(num)
     ? wcMatches.find((m) => m.match === num)
     : undefined;
+}
+
+export function venueGoogleMapsUrl(match: Match): string {
+  return getWcVenueGoogleMapsUrl(match);
 }
 
 /** Group-stage matches only have real nations as participants. */

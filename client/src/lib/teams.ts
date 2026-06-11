@@ -1,11 +1,15 @@
 import {
   getTeam as getWcTeam,
+  getTeamGroupTier,
+  getQualificationCampaign,
   getTeamsByGroup,
   teams as wcTeams,
   type Confederation,
   type GroupLetter,
+  type QualificationCampaign,
   type Player as WcPlayer,
   type Team as WcTeam,
+  type TeamGroupTier,
 } from "@worldcupsim/wc26-data";
 
 export type Player = {
@@ -23,10 +27,13 @@ export type Team = {
   manager: string;
   /** FIFA/Coca-Cola Men's World Ranking position (1 April 2026 edition). */
   fifaRanking: number;
+  /** Derived from FIFA ranking within this World Cup group. Tier 1 is strongest. */
+  groupTier: TeamGroupTier;
   /** Overall strength, ~70-92. Drives the simulation. */
   rating: number;
   /** Derived from the selected XI, e.g. "4-3-3". */
   formation: string;
+  qualification: QualificationCampaign | null;
   colors: { primary: string; secondary: string };
   squad: Player[];
 };
@@ -165,6 +172,11 @@ function formationFor(squad: Player[]): string {
 
 function buildTeam(team: WcTeam): Team {
   const squad = startingXI(team.players);
+  const groupTier = getTeamGroupTier(team.country);
+  if (!groupTier) {
+    throw new Error(`Missing group tier for ${team.country}`);
+  }
+
   return {
     id: slugify(team.country),
     name: team.country,
@@ -173,8 +185,10 @@ function buildTeam(team: WcTeam): Team {
     confederation: team.confederation,
     manager: team.manager,
     fifaRanking: team.fifaRanking,
+    groupTier,
     rating: ratingFor(team),
     formation: formationFor(squad),
+    qualification: getQualificationCampaign(team.country) ?? null,
     colors: colorsFor(team.country),
     squad,
   };

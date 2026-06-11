@@ -9,7 +9,8 @@
      Korean → Noto Sans KR / Apple SD Gothic Neo / Malgun Gothic
      Japanese → Hiragino Sans / Yu Gothic / Meiryo
      Chinese → PingFang SC / Microsoft YaHei */
-  --font-sans: var(--font-geist-sans), var(--font-noto-kr), "Apple SD Gothic Neo",
+  --font-sans:
+    var(--font-geist-sans), var(--font-noto-kr), "Apple SD Gothic Neo",
     "Pretendard", "Malgun Gothic", "Hiragino Sans", "Hiragino Kaku Gothic ProN",
     "Yu Gothic", Meiryo, "PingFang SC", "Microsoft YaHei", ui-sans-serif,
     system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
@@ -59,57 +60,57 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --background: oklch(0.98 0.012 150);
+  --foreground: oklch(0.19 0.03 235);
+  --card: oklch(1 0.006 150);
+  --card-foreground: oklch(0.19 0.03 235);
+  --popover: oklch(1 0.006 150);
+  --popover-foreground: oklch(0.19 0.03 235);
+  --primary: oklch(0.55 0.16 151);
+  --primary-foreground: oklch(0.99 0.006 150);
+  --secondary: oklch(0.93 0.045 151);
+  --secondary-foreground: oklch(0.24 0.05 151);
+  --muted: oklch(0.94 0.018 210);
+  --muted-foreground: oklch(0.45 0.025 235);
+  --accent: oklch(0.9 0.08 87);
+  --accent-foreground: oklch(0.26 0.05 80);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --border: oklch(0.86 0.025 210);
+  --input: oklch(0.86 0.025 210);
+  --ring: oklch(0.55 0.16 151);
+  --chart-1: oklch(0.55 0.16 151);
+  --chart-2: oklch(0.58 0.15 250);
+  --chart-3: oklch(0.7 0.14 85);
+  --chart-4: oklch(0.64 0.2 25);
+  --chart-5: oklch(0.62 0.15 320);
+  --radius: 0.5rem;
+  --sidebar: oklch(0.97 0.012 150);
+  --sidebar-foreground: oklch(0.19 0.03 235);
+  --sidebar-primary: oklch(0.55 0.16 151);
+  --sidebar-primary-foreground: oklch(0.99 0.006 150);
+  --sidebar-accent: oklch(0.93 0.045 151);
+  --sidebar-accent-foreground: oklch(0.24 0.05 151);
+  --sidebar-border: oklch(0.86 0.025 210);
+  --sidebar-ring: oklch(0.55 0.16 151);
 }
 
 .dark {
-  --background: oklch(0.17 0.025 256);
+  --background: oklch(0.14 0.035 160);
   --foreground: oklch(0.98 0.005 250);
-  --card: oklch(0.21 0.03 256);
+  --card: oklch(0.19 0.04 160);
   --card-foreground: oklch(0.98 0.005 250);
-  --popover: oklch(0.21 0.03 256);
+  --popover: oklch(0.19 0.04 160);
   --popover-foreground: oklch(0.98 0.005 250);
   --primary: oklch(0.74 0.17 152);
-  --primary-foreground: oklch(0.18 0.04 256);
-  --secondary: oklch(0.26 0.03 256);
+  --primary-foreground: oklch(0.16 0.04 160);
+  --secondary: oklch(0.28 0.045 160);
   --secondary-foreground: oklch(0.98 0.005 250);
-  --muted: oklch(0.26 0.03 256);
-  --muted-foreground: oklch(0.72 0.02 256);
-  --accent: oklch(0.28 0.035 256);
-  --accent-foreground: oklch(0.98 0.005 250);
+  --muted: oklch(0.25 0.035 190);
+  --muted-foreground: oklch(0.74 0.025 190);
+  --accent: oklch(0.57 0.11 84);
+  --accent-foreground: oklch(0.14 0.035 160);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 12%);
+  --border: oklch(1 0.02 160 / 13%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.74 0.17 152);
   --chart-1: oklch(0.74 0.17 152);
@@ -117,11 +118,11 @@
   --chart-3: oklch(0.78 0.16 80);
   --chart-4: oklch(0.7 0.18 25);
   --chart-5: oklch(0.75 0.15 320);
-  --sidebar: oklch(0.205 0 0);
+  --sidebar: oklch(0.19 0.04 160);
   --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary: oklch(0.74 0.17 152);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent: oklch(0.28 0.045 160);
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
@@ -140,6 +141,57 @@
 }
 
 @layer components {
+  .app-shell {
+    background-image:
+      radial-gradient(
+        circle 8rem at 50% 50vh,
+        transparent 0 7.85rem,
+        oklch(1 0 0 / 6%) 7.85rem 8rem,
+        transparent 8rem
+      ),
+      linear-gradient(
+        90deg,
+        transparent 0,
+        transparent calc(50% - 1px),
+        oklch(1 0 0 / 6%) calc(50% - 1px),
+        oklch(1 0 0 / 6%) calc(50% + 1px),
+        transparent calc(50% + 1px)
+      ),
+      repeating-linear-gradient(
+        105deg,
+        oklch(0.18 0.04 160) 0,
+        oklch(0.18 0.04 160) 72px,
+        oklch(0.155 0.035 160) 72px,
+        oklch(0.155 0.035 160) 144px
+      );
+    background-attachment: fixed;
+  }
+
+  :root:not(.dark) .app-shell {
+    background-image:
+      radial-gradient(
+        circle 8rem at 50% 50vh,
+        transparent 0 7.85rem,
+        oklch(0.2 0.04 160 / 7%) 7.85rem 8rem,
+        transparent 8rem
+      ),
+      linear-gradient(
+        90deg,
+        transparent 0,
+        transparent calc(50% - 1px),
+        oklch(0.2 0.04 160 / 7%) calc(50% - 1px),
+        oklch(0.2 0.04 160 / 7%) calc(50% + 1px),
+        transparent calc(50% + 1px)
+      ),
+      repeating-linear-gradient(
+        105deg,
+        oklch(0.98 0.012 150) 0,
+        oklch(0.98 0.012 150) 72px,
+        oklch(0.94 0.025 150) 72px,
+        oklch(0.94 0.025 150) 144px
+      );
+  }
+
   /* Subtle mown-grass stripes for the match column header. */
   .pitch-stripes {
     background-image: repeating-linear-gradient(
@@ -149,5 +201,23 @@
       oklch(0.28 0.05 152 / 0.5) 26px,
       oklch(0.28 0.05 152 / 0.5) 52px
     );
+  }
+
+  .pitch-center-line {
+    background-image:
+      radial-gradient(
+        circle 5rem at 50% 50%,
+        transparent 0 4.85rem,
+        oklch(1 0 0 / 18%) 4.85rem 5rem,
+        transparent 5rem
+      ),
+      linear-gradient(
+        90deg,
+        transparent 0,
+        transparent calc(50% - 1px),
+        oklch(1 0 0 / 18%) calc(50% - 1px),
+        oklch(1 0 0 / 18%) calc(50% + 1px),
+        transparent calc(50% + 1px)
+      );
   }
 }

@@ -18,7 +18,7 @@ function strArg(value: unknown): string {
 const listTeamsTool: Tool = {
   name: "list_teams",
   description:
-    "List every national team available in the simulation, with id, name, flag, and overall rating. Call this first to discover valid team ids.",
+    "List every national team available in the simulation, with id, name, flag, group tier, and overall rating. Call this first to discover valid team ids.",
   readOnly: true,
   parameters: { type: "object", properties: {}, required: [] },
   async execute() {
@@ -26,6 +26,8 @@ const listTeamsTool: Tool = {
       id: t.id,
       name: t.name,
       flag: t.flag,
+      group: t.group,
+      groupTier: t.groupTier.label,
       rating: t.rating,
     }));
     return JSON.stringify({ teams });

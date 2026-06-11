@@ -40,6 +40,7 @@ const matchBodySchema = z.object({
   homeId: z.string().min(1),
   awayId: z.string().min(1),
   mode: z.enum(["mock", "live"]).default("mock"),
+  gameSpeed: z.enum(["slow", "normal", "fast"]).default("normal"),
   homeLineup: lineupSchema.optional(),
   awayLineup: lineupSchema.optional(),
   managerContext: z.string().optional(),

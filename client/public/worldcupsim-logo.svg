@@ -1,0 +1,13 @@
+<svg width="228" height="56" viewBox="0 0 228 56" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">WorldCup Simulator logo</title>
+  <desc id="desc">A tournament crest with a football pitch, ball, and WorldCup Simulator wordmark.</desc>
+  <rect width="228" height="56" rx="8" fill="#07130F"/>
+  <path d="M14 10h34l7 7v22l-7 7H14l-7-7V17l7-7Z" fill="#0E2E22" stroke="#37D67A" stroke-width="2"/>
+  <path d="M14 18h34M14 38h34M31 11v34" stroke="#9AE6B4" stroke-opacity=".55" stroke-width="1"/>
+  <circle cx="31" cy="28" r="10" fill="#F8FAFC"/>
+  <path d="M31 18l5 4-2 6h-6l-2-6 5-4ZM24 28l4 5-2 5M38 28l-4 5 2 5M28 28l-5-2M34 28l5-2" stroke="#0B1320" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="66" y="26" fill="#F8FAFC" font-family="Geist, Inter, ui-sans-serif, system-ui, sans-serif" font-size="18" font-weight="800" letter-spacing="0">WorldCup</text>
+  <text x="66" y="43" fill="#37D67A" font-family="Geist, Inter, ui-sans-serif, system-ui, sans-serif" font-size="18" font-weight="800" letter-spacing="0">Simulator</text>
+  <path d="M166 38h42" stroke="#A67C2D" stroke-width="2" stroke-linecap="round"/>
+  <path d="M164 17h44" stroke="#37D67A" stroke-width="2" stroke-linecap="round"/>
+</svg>

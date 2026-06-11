@@ -1,0 +1,37 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">WorldCupSim social preview</title>
+  <desc id="desc">A dark football simulation dashboard preview with a tournament crest, fixture cards, and pitch lines.</desc>
+  <rect width="1200" height="630" fill="#07130F"/>
+  <path d="M0 96h1200M0 534h1200M168 0v630M1032 0v630" stroke="#9AE6B4" stroke-opacity=".1" stroke-width="2"/>
+  <path d="M168 96h864v438H168V96Z" stroke="#37D67A" stroke-opacity=".32" stroke-width="3"/>
+  <circle cx="600" cy="315" r="92" stroke="#37D67A" stroke-opacity=".22" stroke-width="3"/>
+  <path d="M168 238h92v154h-92M1032 238h-92v154h92" stroke="#37D67A" stroke-opacity=".22" stroke-width="3"/>
+  <path d="M86 88h120l26 26v120l-26 26H86l-26-26V114l26-26Z" fill="#0E2E22" stroke="#37D67A" stroke-width="5"/>
+  <path d="M91 124h110M91 224h110M146 91v166" stroke="#9AE6B4" stroke-opacity=".55" stroke-width="3"/>
+  <circle cx="146" cy="174" r="40" fill="#F8FAFC"/>
+  <path d="M146 134l18 14-7 23h-22l-7-23 18-14ZM120 174l15 19-8 20M172 174l-15 19 8 20M135 171l-19-8M157 171l19-8" stroke="#0B1320" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="286" y="152" fill="#F8FAFC" font-family="Geist, Inter, ui-sans-serif, system-ui, sans-serif" font-size="78" font-weight="850" letter-spacing="0">WorldCupSim</text>
+  <text x="290" y="210" fill="#9AE6B4" font-family="Geist, Inter, ui-sans-serif, system-ui, sans-serif" font-size="30" font-weight="650" letter-spacing="0">2026 tournament control room for simulated fixtures</text>
+  <g transform="translate(290 278)">
+    <rect width="260" height="134" rx="10" fill="#0B1D17" stroke="#244B3A" stroke-width="2"/>
+    <text x="24" y="42" fill="#A3B7AE" font-family="Geist, Inter, ui-sans-serif, system-ui, sans-serif" font-size="18" font-weight="700">GROUP A</text>
+    <text x="24" y="82" fill="#F8FAFC" font-family="Geist, Inter, ui-sans-serif, system-ui, sans-serif" font-size="32" font-weight="800">Mexico</text>
+    <text x="178" y="82" fill="#37D67A" font-family="Geist, Inter, ui-sans-serif, system-ui, sans-serif" font-size="24" font-weight="800">VS</text>
+    <text x="24" y="116" fill="#F8FAFC" font-family="Geist, Inter, ui-sans-serif, system-ui, sans-serif" font-size="32" font-weight="800">South Africa</text>
+  </g>
+  <g transform="translate(590 278)">
+    <rect width="260" height="134" rx="10" fill="#0B1D17" stroke="#244B3A" stroke-width="2"/>
+    <text x="24" y="42" fill="#A3B7AE" font-family="Geist, Inter, ui-sans-serif, system-ui, sans-serif" font-size="18" font-weight="700">SIM ENGINE</text>
+    <text x="24" y="86" fill="#F8FAFC" font-family="Geist, Inter, ui-sans-serif, system-ui, sans-serif" font-size="40" font-weight="850">90'</text>
+    <text x="104" y="86" fill="#A67C2D" font-family="Geist, Inter, ui-sans-serif, system-ui, sans-serif" font-size="28" font-weight="800">live model</text>
+    <path d="M24 108h190" stroke="#37D67A" stroke-width="6" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(890 278)">
+    <rect width="220" height="134" rx="10" fill="#0B1D17" stroke="#244B3A" stroke-width="2"/>
+    <text x="24" y="42" fill="#A3B7AE" font-family="Geist, Inter, ui-sans-serif, system-ui, sans-serif" font-size="18" font-weight="700">BRACKET</text>
+    <path d="M32 68h58v24H32V68Zm98 0h58v24h-58V68ZM90 80h40M90 80v36h40" stroke="#37D67A" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M32 108h58v24H32v-24Zm98 0h58v24h-58v-24Z" stroke="#A67C2D" stroke-width="4" stroke-linejoin="round"/>
+  </g>
+  <text x="92" y="552" fill="#F8FAFC" font-family="Geist, Inter, ui-sans-serif, system-ui, sans-serif" font-size="34" font-weight="800">Groups · Schedule · Knockout Bracket · Match Simulation</text>
+  <text x="92" y="590" fill="#9AE6B4" font-family="Geist, Inter, ui-sans-serif, system-ui, sans-serif" font-size="24" font-weight="650">Unofficial simulations for fans and builders.</text>
+</svg>

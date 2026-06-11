@@ -10,7 +10,8 @@
       "default": "./src/index.ts"
     },
     "./squads.json": "./src/data/squads.json",
-    "./schedule.json": "./src/data/schedule.json"
+    "./schedule.json": "./src/data/schedule.json",
+    "./qualification.json": "./src/data/qualification.json"
   },
   "scripts": {
     "check": "tsc --noEmit",

@@ -19,6 +19,20 @@ export type GroupLetter =
   | "A" | "B" | "C" | "D" | "E" | "F"
   | "G" | "H" | "I" | "J" | "K" | "L";
 
+export type GroupTier = 1 | 2 | 3 | 4;
+
+export interface TeamGroupTier {
+  country: string;
+  group: GroupLetter;
+  /** Tier within the team's World Cup group, derived from FIFA ranking. */
+  tier: GroupTier;
+  /** Ranking position inside the group; lower is stronger. */
+  groupRank: GroupTier;
+  /** FIFA/Coca-Cola Men's World Ranking position used for the tier sort. */
+  fifaRanking: number;
+  label: string;
+}
+
 export type KnockoutRound =
   | "Round of 32"
   | "Round of 16"
@@ -54,6 +68,46 @@ export interface Team {
   players: Player[];
 }
 
+export type QualificationResultCode = "W" | "D" | "L";
+
+export type QualificationVenue = "home" | "away";
+
+export interface QualificationRecord {
+  played: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  goalsFor: number;
+  goalsAgainst: number;
+}
+
+export interface QualificationMatchResult {
+  stage: string;
+  opponent: string;
+  venue: QualificationVenue;
+  goalsFor: number;
+  goalsAgainst: number;
+  result: QualificationResultCode;
+  /** Display score from the source, from the listed home team's perspective. */
+  score: string;
+}
+
+export interface QualificationCampaign {
+  country: string;
+  confederation: Confederation;
+  method: string;
+  record: QualificationRecord;
+  results: QualificationMatchResult[];
+}
+
+export interface QualificationFile {
+  tournament: string;
+  source: string;
+  sources: string[];
+  notes: string;
+  campaigns: QualificationCampaign[];
+}
+
 export interface SquadsFile {
   tournament: string;
   hosts: string[];
@@ -70,6 +124,7 @@ export interface Venue {
   stadium: string;
   city: string;
   country: string;
+  googleMapsUrl: string;
 }
 
 export interface Match {

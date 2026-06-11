@@ -1,0 +1,5340 @@
+{
+  "tournament": "2026 FIFA World Cup qualification",
+  "source": "Wikipedia 2026 FIFA World Cup qualification confederation pages; extracted from standings matrices and playoff result tables.",
+  "sources": [
+    "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_qualification_(UEFA)",
+    "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_qualification_(CONMEBOL)",
+    "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_qualification_(AFC)",
+    "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_qualification_(CAF)",
+    "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_qualification_(CONCACAF)",
+    "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_qualification_(OFC)"
+  ],
+  "notes": "Hosts Canada, Mexico, and United States qualified automatically and have no qualification results. Match dates are not included because the extracted standings/result matrices do not consistently expose dates. Penalty shoot-out details remain in score text; W-D-L is based on goals after normal/extra time from the displayed score.",
+  "campaigns": [
+    {
+      "country": "Czech Republic",
+      "confederation": "UEFA",
+      "method": "UEFA qualification",
+      "record": {
+        "played": 10,
+        "wins": 5,
+        "draws": 3,
+        "losses": 2,
+        "goalsFor": 22,
+        "goalsAgainst": 12
+      },
+      "results": [
+        {
+          "stage": "UEFA Group L",
+          "opponent": "Croatia",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 5,
+          "result": "L",
+          "score": "5–1"
+        },
+        {
+          "stage": "UEFA Group L",
+          "opponent": "Croatia",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "UEFA Group L",
+          "opponent": "Faroe Islands",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "2–1"
+        },
+        {
+          "stage": "UEFA Group L",
+          "opponent": "Montenegro",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "2–0"
+        },
+        {
+          "stage": "UEFA Group L",
+          "opponent": "Gibraltar",
+          "venue": "home",
+          "goalsFor": 6,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "6–0"
+        },
+        {
+          "stage": "UEFA Group L",
+          "opponent": "Faroe Islands",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 2,
+          "result": "L",
+          "score": "2–1"
+        },
+        {
+          "stage": "UEFA Group L",
+          "opponent": "Montenegro",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–2"
+        },
+        {
+          "stage": "UEFA Group L",
+          "opponent": "Gibraltar",
+          "venue": "away",
+          "goalsFor": 4,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–4"
+        },
+        {
+          "stage": "UEFA play-offs",
+          "opponent": "Republic of Ireland",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 2,
+          "result": "D",
+          "score": "2–2 (a.e.t.) (4–3 p)"
+        },
+        {
+          "stage": "UEFA play-offs",
+          "opponent": "Denmark",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 2,
+          "result": "D",
+          "score": "2–2 (a.e.t.) (3–1 p)"
+        }
+      ]
+    },
+    {
+      "country": "Mexico",
+      "confederation": "CONCACAF",
+      "method": "Host nation, automatically qualified",
+      "record": {
+        "played": 0,
+        "wins": 0,
+        "draws": 0,
+        "losses": 0,
+        "goalsFor": 0,
+        "goalsAgainst": 0
+      },
+      "results": []
+    },
+    {
+      "country": "South Africa",
+      "confederation": "CAF",
+      "method": "CAF Group C winners",
+      "record": {
+        "played": 10,
+        "wins": 5,
+        "draws": 3,
+        "losses": 2,
+        "goalsFor": 15,
+        "goalsAgainst": 9
+      },
+      "results": [
+        {
+          "stage": "CAF Group C",
+          "opponent": "Nigeria",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "CAF Group C",
+          "opponent": "Benin",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "2–1"
+        },
+        {
+          "stage": "CAF Group C",
+          "opponent": "Lesotho",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 3,
+          "result": "L",
+          "score": "0–3[a]"
+        },
+        {
+          "stage": "CAF Group C",
+          "opponent": "Rwanda",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "3–0"
+        },
+        {
+          "stage": "CAF Group C",
+          "opponent": "Zimbabwe",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "3–1"
+        },
+        {
+          "stage": "CAF Group C",
+          "opponent": "Nigeria",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "CAF Group C",
+          "opponent": "Benin",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–2"
+        },
+        {
+          "stage": "CAF Group C",
+          "opponent": "Lesotho",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–3"
+        },
+        {
+          "stage": "CAF Group C",
+          "opponent": "Rwanda",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 2,
+          "result": "L",
+          "score": "2–0"
+        },
+        {
+          "stage": "CAF Group C",
+          "opponent": "Zimbabwe",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        }
+      ]
+    },
+    {
+      "country": "South Korea",
+      "confederation": "AFC",
+      "method": "AFC third round Group B winners",
+      "record": {
+        "played": 16,
+        "wins": 11,
+        "draws": 5,
+        "losses": 0,
+        "goalsFor": 40,
+        "goalsAgainst": 8
+      },
+      "results": [
+        {
+          "stage": "AFC second round Group C",
+          "opponent": "China",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "AFC second round Group C",
+          "opponent": "Thailand",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "AFC second round Group C",
+          "opponent": "Singapore",
+          "venue": "home",
+          "goalsFor": 5,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "5–0"
+        },
+        {
+          "stage": "AFC second round Group C",
+          "opponent": "China",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–3"
+        },
+        {
+          "stage": "AFC second round Group C",
+          "opponent": "Thailand",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–3"
+        },
+        {
+          "stage": "AFC second round Group C",
+          "opponent": "Singapore",
+          "venue": "away",
+          "goalsFor": 7,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–7"
+        },
+        {
+          "stage": "AFC third round Group B",
+          "opponent": "Jordan",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "AFC third round Group B",
+          "opponent": "Iraq",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 2,
+          "result": "W",
+          "score": "3–2"
+        },
+        {
+          "stage": "AFC third round Group B",
+          "opponent": "Oman",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "AFC third round Group B",
+          "opponent": "Palestine",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "AFC third round Group B",
+          "opponent": "Kuwait",
+          "venue": "home",
+          "goalsFor": 4,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "4–0"
+        },
+        {
+          "stage": "AFC third round Group B",
+          "opponent": "Jordan",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–2"
+        },
+        {
+          "stage": "AFC third round Group B",
+          "opponent": "Iraq",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–2"
+        },
+        {
+          "stage": "AFC third round Group B",
+          "opponent": "Oman",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "1–3"
+        },
+        {
+          "stage": "AFC third round Group B",
+          "opponent": "Palestine",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "AFC third round Group B",
+          "opponent": "Kuwait",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "1–3"
+        }
+      ]
+    },
+    {
+      "country": "Bosnia and Herzegovina",
+      "confederation": "UEFA",
+      "method": "UEFA qualification",
+      "record": {
+        "played": 10,
+        "wins": 5,
+        "draws": 4,
+        "losses": 1,
+        "goalsFor": 19,
+        "goalsAgainst": 9
+      },
+      "results": [
+        {
+          "stage": "UEFA Group H",
+          "opponent": "Austria",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "UEFA Group H",
+          "opponent": "Austria",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 2,
+          "result": "L",
+          "score": "1–2"
+        },
+        {
+          "stage": "UEFA Group H",
+          "opponent": "Romania",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "3–1"
+        },
+        {
+          "stage": "UEFA Group H",
+          "opponent": "Cyprus",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "2–1"
+        },
+        {
+          "stage": "UEFA Group H",
+          "opponent": "San Marino",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "UEFA Group H",
+          "opponent": "Romania",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–1"
+        },
+        {
+          "stage": "UEFA Group H",
+          "opponent": "Cyprus",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 2,
+          "result": "D",
+          "score": "2–2"
+        },
+        {
+          "stage": "UEFA Group H",
+          "opponent": "San Marino",
+          "venue": "away",
+          "goalsFor": 6,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–6"
+        },
+        {
+          "stage": "UEFA play-offs",
+          "opponent": "Wales",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1 (a.e.t.) (2–4 p)"
+        },
+        {
+          "stage": "UEFA play-offs",
+          "opponent": "Italy",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1 (a.e.t.) (4–1 p)"
+        }
+      ]
+    },
+    {
+      "country": "Canada",
+      "confederation": "CONCACAF",
+      "method": "Host nation, automatically qualified",
+      "record": {
+        "played": 0,
+        "wins": 0,
+        "draws": 0,
+        "losses": 0,
+        "goalsFor": 0,
+        "goalsAgainst": 0
+      },
+      "results": []
+    },
+    {
+      "country": "Qatar",
+      "confederation": "AFC",
+      "method": "AFC fourth round Group A winners",
+      "record": {
+        "played": 18,
+        "wins": 10,
+        "draws": 3,
+        "losses": 5,
+        "goalsFor": 37,
+        "goalsAgainst": 28
+      },
+      "results": [
+        {
+          "stage": "AFC second round Group A",
+          "opponent": "Kuwait",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "3–0"
+        },
+        {
+          "stage": "AFC second round Group A",
+          "opponent": "India",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "2–1"
+        },
+        {
+          "stage": "AFC second round Group A",
+          "opponent": "Afghanistan",
+          "venue": "home",
+          "goalsFor": 8,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "8–1"
+        },
+        {
+          "stage": "AFC second round Group A",
+          "opponent": "Kuwait",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "1–2"
+        },
+        {
+          "stage": "AFC second round Group A",
+          "opponent": "India",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–3"
+        },
+        {
+          "stage": "AFC second round Group A",
+          "opponent": "Afghanistan",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "AFC third round Group A",
+          "opponent": "Iran",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 4,
+          "result": "L",
+          "score": "4–1"
+        },
+        {
+          "stage": "AFC third round Group A",
+          "opponent": "Uzbekistan",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 3,
+          "result": "L",
+          "score": "3–0"
+        },
+        {
+          "stage": "AFC third round Group A",
+          "opponent": "United Arab Emirates",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 5,
+          "result": "L",
+          "score": "5–0"
+        },
+        {
+          "stage": "AFC third round Group A",
+          "opponent": "Iran",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "AFC third round Group A",
+          "opponent": "Uzbekistan",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 2,
+          "result": "W",
+          "score": "3–2"
+        },
+        {
+          "stage": "AFC third round Group A",
+          "opponent": "United Arab Emirates",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 3,
+          "result": "L",
+          "score": "1–3"
+        },
+        {
+          "stage": "AFC third round Group A",
+          "opponent": "Kyrgyzstan",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "3–1"
+        },
+        {
+          "stage": "AFC third round Group A",
+          "opponent": "North Korea",
+          "venue": "home",
+          "goalsFor": 5,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "5–1"
+        },
+        {
+          "stage": "AFC third round Group A",
+          "opponent": "Kyrgyzstan",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 3,
+          "result": "L",
+          "score": "3–1"
+        },
+        {
+          "stage": "AFC third round Group A",
+          "opponent": "North Korea",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 2,
+          "result": "D",
+          "score": "2–2"
+        },
+        {
+          "stage": "AFC fourth round Group A",
+          "opponent": "United Arab Emirates",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "2–1"
+        },
+        {
+          "stage": "AFC fourth round Group A",
+          "opponent": "Oman",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        }
+      ]
+    },
+    {
+      "country": "Switzerland",
+      "confederation": "UEFA",
+      "method": "UEFA Group B winners",
+      "record": {
+        "played": 6,
+        "wins": 4,
+        "draws": 2,
+        "losses": 0,
+        "goalsFor": 14,
+        "goalsAgainst": 2
+      },
+      "results": [
+        {
+          "stage": "UEFA Group B",
+          "opponent": "Kosovo",
+          "venue": "home",
+          "goalsFor": 4,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "4–0"
+        },
+        {
+          "stage": "UEFA Group B",
+          "opponent": "Slovenia",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "3–0"
+        },
+        {
+          "stage": "UEFA Group B",
+          "opponent": "Sweden",
+          "venue": "home",
+          "goalsFor": 4,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "4–1"
+        },
+        {
+          "stage": "UEFA Group B",
+          "opponent": "Kosovo",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "UEFA Group B",
+          "opponent": "Slovenia",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "UEFA Group B",
+          "opponent": "Sweden",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–2"
+        }
+      ]
+    },
+    {
+      "country": "Brazil",
+      "confederation": "CONMEBOL",
+      "method": "CONMEBOL league winners",
+      "record": {
+        "played": 18,
+        "wins": 8,
+        "draws": 4,
+        "losses": 6,
+        "goalsFor": 24,
+        "goalsAgainst": 17
+      },
+      "results": [
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Argentina",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 4,
+          "result": "L",
+          "score": "4–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Ecuador",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Colombia",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 2,
+          "result": "L",
+          "score": "2–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Uruguay",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 2,
+          "result": "L",
+          "score": "2–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Argentina",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 1,
+          "result": "L",
+          "score": "0–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Ecuador",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Colombia",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "2–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Uruguay",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Paraguay",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Bolivia",
+          "venue": "home",
+          "goalsFor": 5,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "5–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Venezuela",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Peru",
+          "venue": "home",
+          "goalsFor": 4,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "4–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Chile",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "3–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Paraguay",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 1,
+          "result": "L",
+          "score": "1–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Bolivia",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 1,
+          "result": "L",
+          "score": "1–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Venezuela",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Peru",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Chile",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "1–2"
+        }
+      ]
+    },
+    {
+      "country": "Haiti",
+      "confederation": "CONCACAF",
+      "method": "CONCACAF third round Group C winners",
+      "record": {
+        "played": 10,
+        "wins": 6,
+        "draws": 2,
+        "losses": 2,
+        "goalsFor": 20,
+        "goalsAgainst": 13
+      },
+      "results": [
+        {
+          "stage": "CONCACAF second round Group C",
+          "opponent": "Curaçao",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 5,
+          "result": "L",
+          "score": "1–5"
+        },
+        {
+          "stage": "CONCACAF second round Group C",
+          "opponent": "Saint Lucia",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "2–1"
+        },
+        {
+          "stage": "CONCACAF second round Group C",
+          "opponent": "Aruba",
+          "venue": "away",
+          "goalsFor": 5,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–5"
+        },
+        {
+          "stage": "CONCACAF second round Group C",
+          "opponent": "Barbados",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "1–3"
+        },
+        {
+          "stage": "CONCACAF third round Group C",
+          "opponent": "Honduras",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "CONCACAF third round Group C",
+          "opponent": "Costa Rica",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "CONCACAF third round Group C",
+          "opponent": "Nicaragua",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "2–0"
+        },
+        {
+          "stage": "CONCACAF third round Group C",
+          "opponent": "Honduras",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 3,
+          "result": "L",
+          "score": "3–0"
+        },
+        {
+          "stage": "CONCACAF third round Group C",
+          "opponent": "Costa Rica",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 3,
+          "result": "D",
+          "score": "3–3"
+        },
+        {
+          "stage": "CONCACAF third round Group C",
+          "opponent": "Nicaragua",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–3"
+        }
+      ]
+    },
+    {
+      "country": "Morocco",
+      "confederation": "CAF",
+      "method": "CAF Group E winners",
+      "record": {
+        "played": 8,
+        "wins": 8,
+        "draws": 0,
+        "losses": 0,
+        "goalsFor": 22,
+        "goalsAgainst": 2
+      },
+      "results": [
+        {
+          "stage": "CAF Group E",
+          "opponent": "Niger",
+          "venue": "home",
+          "goalsFor": 5,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "5–0"
+        },
+        {
+          "stage": "CAF Group E",
+          "opponent": "Tanzania",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "2–0"
+        },
+        {
+          "stage": "CAF Group E",
+          "opponent": "Zambia",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "2–1"
+        },
+        {
+          "stage": "CAF Group E",
+          "opponent": "Congo",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "CAF Group E",
+          "opponent": "Niger",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "1–2"
+        },
+        {
+          "stage": "CAF Group E",
+          "opponent": "Tanzania",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–2"
+        },
+        {
+          "stage": "CAF Group E",
+          "opponent": "Zambia",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–2"
+        },
+        {
+          "stage": "CAF Group E",
+          "opponent": "Congo",
+          "venue": "away",
+          "goalsFor": 6,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–6"
+        }
+      ]
+    },
+    {
+      "country": "Scotland",
+      "confederation": "UEFA",
+      "method": "UEFA Group C winners",
+      "record": {
+        "played": 6,
+        "wins": 4,
+        "draws": 1,
+        "losses": 1,
+        "goalsFor": 13,
+        "goalsAgainst": 7
+      },
+      "results": [
+        {
+          "stage": "UEFA Group C",
+          "opponent": "Denmark",
+          "venue": "home",
+          "goalsFor": 4,
+          "goalsAgainst": 2,
+          "result": "W",
+          "score": "4–2"
+        },
+        {
+          "stage": "UEFA Group C",
+          "opponent": "Greece",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "3–1"
+        },
+        {
+          "stage": "UEFA Group C",
+          "opponent": "Belarus",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "2–1"
+        },
+        {
+          "stage": "UEFA Group C",
+          "opponent": "Denmark",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "UEFA Group C",
+          "opponent": "Greece",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 3,
+          "result": "L",
+          "score": "3–2"
+        },
+        {
+          "stage": "UEFA Group C",
+          "opponent": "Belarus",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–2"
+        }
+      ]
+    },
+    {
+      "country": "Australia",
+      "confederation": "AFC",
+      "method": "AFC third round Group C winners",
+      "record": {
+        "played": 16,
+        "wins": 11,
+        "draws": 4,
+        "losses": 1,
+        "goalsFor": 38,
+        "goalsAgainst": 7
+      },
+      "results": [
+        {
+          "stage": "AFC second round Group I",
+          "opponent": "Palestine",
+          "venue": "home",
+          "goalsFor": 5,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "5–0"
+        },
+        {
+          "stage": "AFC second round Group I",
+          "opponent": "Lebanon",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "2–0"
+        },
+        {
+          "stage": "AFC second round Group I",
+          "opponent": "Bangladesh",
+          "venue": "home",
+          "goalsFor": 7,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "7–0"
+        },
+        {
+          "stage": "AFC second round Group I",
+          "opponent": "Palestine",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–1"
+        },
+        {
+          "stage": "AFC second round Group I",
+          "opponent": "Lebanon",
+          "venue": "away",
+          "goalsFor": 5,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–5"
+        },
+        {
+          "stage": "AFC second round Group I",
+          "opponent": "Bangladesh",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–2"
+        },
+        {
+          "stage": "AFC third round Group C",
+          "opponent": "Japan",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "AFC third round Group C",
+          "opponent": "Japan",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "AFC third round Group C",
+          "opponent": "Saudi Arabia",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "AFC third round Group C",
+          "opponent": "Indonesia",
+          "venue": "home",
+          "goalsFor": 5,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "5–1"
+        },
+        {
+          "stage": "AFC third round Group C",
+          "opponent": "China",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "3–1"
+        },
+        {
+          "stage": "AFC third round Group C",
+          "opponent": "Bahrain",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 1,
+          "result": "L",
+          "score": "0–1"
+        },
+        {
+          "stage": "AFC third round Group C",
+          "opponent": "Saudi Arabia",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "1–2"
+        },
+        {
+          "stage": "AFC third round Group C",
+          "opponent": "Indonesia",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "AFC third round Group C",
+          "opponent": "China",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–2"
+        },
+        {
+          "stage": "AFC third round Group C",
+          "opponent": "Bahrain",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 2,
+          "result": "D",
+          "score": "2–2"
+        }
+      ]
+    },
+    {
+      "country": "Paraguay",
+      "confederation": "CONMEBOL",
+      "method": "CONMEBOL league winners",
+      "record": {
+        "played": 18,
+        "wins": 7,
+        "draws": 7,
+        "losses": 4,
+        "goalsFor": 14,
+        "goalsAgainst": 10
+      },
+      "results": [
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Argentina",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 1,
+          "result": "L",
+          "score": "1–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Ecuador",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Colombia",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 2,
+          "result": "D",
+          "score": "2–2"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Uruguay",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Brazil",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 1,
+          "result": "L",
+          "score": "1–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Argentina",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "2–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Ecuador",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Colombia",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 1,
+          "result": "L",
+          "score": "0–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Uruguay",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "2–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Brazil",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Bolivia",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Venezuela",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "2–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Peru",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Chile",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Bolivia",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 2,
+          "result": "D",
+          "score": "2–2"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Venezuela",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 1,
+          "result": "L",
+          "score": "1–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Peru",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Chile",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        }
+      ]
+    },
+    {
+      "country": "Turkey",
+      "confederation": "UEFA",
+      "method": "UEFA qualification",
+      "record": {
+        "played": 8,
+        "wins": 6,
+        "draws": 1,
+        "losses": 1,
+        "goalsFor": 19,
+        "goalsAgainst": 12
+      },
+      "results": [
+        {
+          "stage": "UEFA Group E",
+          "opponent": "Spain",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 2,
+          "result": "D",
+          "score": "2–2"
+        },
+        {
+          "stage": "UEFA Group E",
+          "opponent": "Spain",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 6,
+          "result": "L",
+          "score": "0–6"
+        },
+        {
+          "stage": "UEFA Group E",
+          "opponent": "Georgia",
+          "venue": "home",
+          "goalsFor": 4,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "4–1"
+        },
+        {
+          "stage": "UEFA Group E",
+          "opponent": "Bulgaria",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "2–0"
+        },
+        {
+          "stage": "UEFA Group E",
+          "opponent": "Georgia",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 2,
+          "result": "W",
+          "score": "2–3"
+        },
+        {
+          "stage": "UEFA Group E",
+          "opponent": "Bulgaria",
+          "venue": "away",
+          "goalsFor": 6,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "1–6"
+        },
+        {
+          "stage": "UEFA play-offs",
+          "opponent": "Romania",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "UEFA play-offs",
+          "opponent": "Kosovo",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–1"
+        }
+      ]
+    },
+    {
+      "country": "United States",
+      "confederation": "CONCACAF",
+      "method": "Host nation, automatically qualified",
+      "record": {
+        "played": 0,
+        "wins": 0,
+        "draws": 0,
+        "losses": 0,
+        "goalsFor": 0,
+        "goalsAgainst": 0
+      },
+      "results": []
+    },
+    {
+      "country": "Curaçao",
+      "confederation": "CONCACAF",
+      "method": "CONCACAF third round Group B winners",
+      "record": {
+        "played": 10,
+        "wins": 7,
+        "draws": 3,
+        "losses": 0,
+        "goalsFor": 28,
+        "goalsAgainst": 5
+      },
+      "results": [
+        {
+          "stage": "CONCACAF second round Group C",
+          "opponent": "Saint Lucia",
+          "venue": "home",
+          "goalsFor": 4,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "4–0"
+        },
+        {
+          "stage": "CONCACAF second round Group C",
+          "opponent": "Barbados",
+          "venue": "home",
+          "goalsFor": 4,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "4–1"
+        },
+        {
+          "stage": "CONCACAF second round Group C",
+          "opponent": "Haiti",
+          "venue": "away",
+          "goalsFor": 5,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "1–5"
+        },
+        {
+          "stage": "CONCACAF second round Group C",
+          "opponent": "Aruba",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–2"
+        },
+        {
+          "stage": "CONCACAF third round Group B",
+          "opponent": "Jamaica",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "2–0"
+        },
+        {
+          "stage": "CONCACAF third round Group B",
+          "opponent": "Trinidad and Tobago",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "CONCACAF third round Group B",
+          "opponent": "Bermuda",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 2,
+          "result": "W",
+          "score": "3–2"
+        },
+        {
+          "stage": "CONCACAF third round Group B",
+          "opponent": "Jamaica",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "CONCACAF third round Group B",
+          "opponent": "Trinidad and Tobago",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "CONCACAF third round Group B",
+          "opponent": "Bermuda",
+          "venue": "away",
+          "goalsFor": 7,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–7"
+        }
+      ]
+    },
+    {
+      "country": "Ecuador",
+      "confederation": "CONMEBOL",
+      "method": "CONMEBOL league winners",
+      "record": {
+        "played": 18,
+        "wins": 8,
+        "draws": 8,
+        "losses": 2,
+        "goalsFor": 14,
+        "goalsAgainst": 5
+      },
+      "results": [
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Argentina",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 1,
+          "result": "L",
+          "score": "1–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Argentina",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Colombia",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Uruguay",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "2–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Brazil",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Paraguay",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Bolivia",
+          "venue": "home",
+          "goalsFor": 4,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "4–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Venezuela",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "2–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Peru",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Chile",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Colombia",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Uruguay",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Brazil",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 1,
+          "result": "L",
+          "score": "1–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Paraguay",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Bolivia",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "1–2"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Venezuela",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Peru",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Chile",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        }
+      ]
+    },
+    {
+      "country": "Germany",
+      "confederation": "UEFA",
+      "method": "UEFA Group A winners",
+      "record": {
+        "played": 6,
+        "wins": 5,
+        "draws": 0,
+        "losses": 1,
+        "goalsFor": 16,
+        "goalsAgainst": 3
+      },
+      "results": [
+        {
+          "stage": "UEFA Group A",
+          "opponent": "Slovakia",
+          "venue": "home",
+          "goalsFor": 6,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "6–0"
+        },
+        {
+          "stage": "UEFA Group A",
+          "opponent": "Northern Ireland",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "3–1"
+        },
+        {
+          "stage": "UEFA Group A",
+          "opponent": "Luxembourg",
+          "venue": "home",
+          "goalsFor": 4,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "4–0"
+        },
+        {
+          "stage": "UEFA Group A",
+          "opponent": "Slovakia",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 2,
+          "result": "L",
+          "score": "2–0"
+        },
+        {
+          "stage": "UEFA Group A",
+          "opponent": "Northern Ireland",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–1"
+        },
+        {
+          "stage": "UEFA Group A",
+          "opponent": "Luxembourg",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–2"
+        }
+      ]
+    },
+    {
+      "country": "Ivory Coast",
+      "confederation": "CAF",
+      "method": "CAF Group F winners",
+      "record": {
+        "played": 10,
+        "wins": 8,
+        "draws": 2,
+        "losses": 0,
+        "goalsFor": 25,
+        "goalsAgainst": 0
+      },
+      "results": [
+        {
+          "stage": "CAF Group F",
+          "opponent": "Gabon",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "CAF Group F",
+          "opponent": "Gambia",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "CAF Group F",
+          "opponent": "Kenya",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "3–0"
+        },
+        {
+          "stage": "CAF Group F",
+          "opponent": "Burundi",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "CAF Group F",
+          "opponent": "Seychelles",
+          "venue": "home",
+          "goalsFor": 9,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "9–0"
+        },
+        {
+          "stage": "CAF Group F",
+          "opponent": "Gabon",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "CAF Group F",
+          "opponent": "Gambia",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–2"
+        },
+        {
+          "stage": "CAF Group F",
+          "opponent": "Kenya",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "CAF Group F",
+          "opponent": "Burundi",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–1"
+        },
+        {
+          "stage": "CAF Group F",
+          "opponent": "Seychelles",
+          "venue": "away",
+          "goalsFor": 7,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–7"
+        }
+      ]
+    },
+    {
+      "country": "Japan",
+      "confederation": "AFC",
+      "method": "AFC third round Group C winners",
+      "record": {
+        "played": 16,
+        "wins": 13,
+        "draws": 2,
+        "losses": 1,
+        "goalsFor": 54,
+        "goalsAgainst": 3
+      },
+      "results": [
+        {
+          "stage": "AFC second round Group B",
+          "opponent": "North Korea",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "AFC second round Group B",
+          "opponent": "Syria",
+          "venue": "home",
+          "goalsFor": 5,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "5–0"
+        },
+        {
+          "stage": "AFC second round Group B",
+          "opponent": "Myanmar",
+          "venue": "home",
+          "goalsFor": 5,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "5–0"
+        },
+        {
+          "stage": "AFC second round Group B",
+          "opponent": "North Korea",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–3[a]"
+        },
+        {
+          "stage": "AFC second round Group B",
+          "opponent": "Syria",
+          "venue": "away",
+          "goalsFor": 5,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–5"
+        },
+        {
+          "stage": "AFC second round Group B",
+          "opponent": "Myanmar",
+          "venue": "away",
+          "goalsFor": 5,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–5"
+        },
+        {
+          "stage": "AFC third round Group C",
+          "opponent": "Australia",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "AFC third round Group C",
+          "opponent": "Saudi Arabia",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "AFC third round Group C",
+          "opponent": "Indonesia",
+          "venue": "home",
+          "goalsFor": 6,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "6–0"
+        },
+        {
+          "stage": "AFC third round Group C",
+          "opponent": "China",
+          "venue": "home",
+          "goalsFor": 7,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "7–0"
+        },
+        {
+          "stage": "AFC third round Group C",
+          "opponent": "Bahrain",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "2–0"
+        },
+        {
+          "stage": "AFC third round Group C",
+          "opponent": "Australia",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 1,
+          "result": "L",
+          "score": "1–0"
+        },
+        {
+          "stage": "AFC third round Group C",
+          "opponent": "Saudi Arabia",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–2"
+        },
+        {
+          "stage": "AFC third round Group C",
+          "opponent": "Indonesia",
+          "venue": "away",
+          "goalsFor": 4,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–4"
+        },
+        {
+          "stage": "AFC third round Group C",
+          "opponent": "China",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "1–3"
+        },
+        {
+          "stage": "AFC third round Group C",
+          "opponent": "Bahrain",
+          "venue": "away",
+          "goalsFor": 5,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–5"
+        }
+      ]
+    },
+    {
+      "country": "Netherlands",
+      "confederation": "UEFA",
+      "method": "UEFA Group G winners",
+      "record": {
+        "played": 8,
+        "wins": 6,
+        "draws": 2,
+        "losses": 0,
+        "goalsFor": 27,
+        "goalsAgainst": 4
+      },
+      "results": [
+        {
+          "stage": "UEFA Group G",
+          "opponent": "Poland",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "UEFA Group G",
+          "opponent": "Finland",
+          "venue": "home",
+          "goalsFor": 4,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "4–0"
+        },
+        {
+          "stage": "UEFA Group G",
+          "opponent": "Malta",
+          "venue": "home",
+          "goalsFor": 8,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "8–0"
+        },
+        {
+          "stage": "UEFA Group G",
+          "opponent": "Lithuania",
+          "venue": "home",
+          "goalsFor": 4,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "4–0"
+        },
+        {
+          "stage": "UEFA Group G",
+          "opponent": "Poland",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "UEFA Group G",
+          "opponent": "Finland",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–2"
+        },
+        {
+          "stage": "UEFA Group G",
+          "opponent": "Malta",
+          "venue": "away",
+          "goalsFor": 4,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–4"
+        },
+        {
+          "stage": "UEFA Group G",
+          "opponent": "Lithuania",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 2,
+          "result": "W",
+          "score": "2–3"
+        }
+      ]
+    },
+    {
+      "country": "Sweden",
+      "confederation": "UEFA",
+      "method": "UEFA qualification",
+      "record": {
+        "played": 8,
+        "wins": 2,
+        "draws": 2,
+        "losses": 4,
+        "goalsFor": 10,
+        "goalsAgainst": 15
+      },
+      "results": [
+        {
+          "stage": "UEFA Group B",
+          "opponent": "Switzerland",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 4,
+          "result": "L",
+          "score": "4–1"
+        },
+        {
+          "stage": "UEFA Group B",
+          "opponent": "Kosovo",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 2,
+          "result": "L",
+          "score": "2–0"
+        },
+        {
+          "stage": "UEFA Group B",
+          "opponent": "Slovenia",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 2,
+          "result": "D",
+          "score": "2–2"
+        },
+        {
+          "stage": "UEFA Group B",
+          "opponent": "Switzerland",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 2,
+          "result": "L",
+          "score": "0–2"
+        },
+        {
+          "stage": "UEFA Group B",
+          "opponent": "Kosovo",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 1,
+          "result": "L",
+          "score": "0–1"
+        },
+        {
+          "stage": "UEFA Group B",
+          "opponent": "Slovenia",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "UEFA play-offs",
+          "opponent": "Ukraine",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "1–3"
+        },
+        {
+          "stage": "UEFA play-offs",
+          "opponent": "Poland",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 2,
+          "result": "W",
+          "score": "3–2"
+        }
+      ]
+    },
+    {
+      "country": "Tunisia",
+      "confederation": "CAF",
+      "method": "CAF Group H winners",
+      "record": {
+        "played": 9,
+        "wins": 8,
+        "draws": 1,
+        "losses": 0,
+        "goalsFor": 19,
+        "goalsAgainst": 0
+      },
+      "results": [
+        {
+          "stage": "CAF Group H",
+          "opponent": "Liberia",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "3–0"
+        },
+        {
+          "stage": "CAF Group H",
+          "opponent": "Malawi",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "2–0"
+        },
+        {
+          "stage": "CAF Group H",
+          "opponent": "Equatorial Guinea",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "CAF Group H",
+          "opponent": "São Tomé and Príncipe",
+          "venue": "home",
+          "goalsFor": 4,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "4–0"
+        },
+        {
+          "stage": "CAF Group H",
+          "opponent": "Namibia",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "CAF Group H",
+          "opponent": "Liberia",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–1"
+        },
+        {
+          "stage": "CAF Group H",
+          "opponent": "Malawi",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–1"
+        },
+        {
+          "stage": "CAF Group H",
+          "opponent": "Equatorial Guinea",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–1"
+        },
+        {
+          "stage": "CAF Group H",
+          "opponent": "São Tomé and Príncipe",
+          "venue": "away",
+          "goalsFor": 6,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–6"
+        }
+      ]
+    },
+    {
+      "country": "Belgium",
+      "confederation": "UEFA",
+      "method": "UEFA Group J winners",
+      "record": {
+        "played": 8,
+        "wins": 5,
+        "draws": 3,
+        "losses": 0,
+        "goalsFor": 29,
+        "goalsAgainst": 7
+      },
+      "results": [
+        {
+          "stage": "UEFA Group J",
+          "opponent": "Wales",
+          "venue": "home",
+          "goalsFor": 4,
+          "goalsAgainst": 3,
+          "result": "W",
+          "score": "4–3"
+        },
+        {
+          "stage": "UEFA Group J",
+          "opponent": "North Macedonia",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "UEFA Group J",
+          "opponent": "Kazakhstan",
+          "venue": "home",
+          "goalsFor": 6,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "6–0"
+        },
+        {
+          "stage": "UEFA Group J",
+          "opponent": "Liechtenstein",
+          "venue": "home",
+          "goalsFor": 7,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "7–0"
+        },
+        {
+          "stage": "UEFA Group J",
+          "opponent": "Wales",
+          "venue": "away",
+          "goalsFor": 4,
+          "goalsAgainst": 2,
+          "result": "W",
+          "score": "2–4"
+        },
+        {
+          "stage": "UEFA Group J",
+          "opponent": "North Macedonia",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "UEFA Group J",
+          "opponent": "Kazakhstan",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "UEFA Group J",
+          "opponent": "Liechtenstein",
+          "venue": "away",
+          "goalsFor": 6,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–6"
+        }
+      ]
+    },
+    {
+      "country": "Egypt",
+      "confederation": "CAF",
+      "method": "CAF Group A winners",
+      "record": {
+        "played": 10,
+        "wins": 8,
+        "draws": 2,
+        "losses": 0,
+        "goalsFor": 20,
+        "goalsAgainst": 2
+      },
+      "results": [
+        {
+          "stage": "CAF Group A",
+          "opponent": "Burkina Faso",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "2–1"
+        },
+        {
+          "stage": "CAF Group A",
+          "opponent": "Sierra Leone",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "CAF Group A",
+          "opponent": "Guinea-Bissau",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "CAF Group A",
+          "opponent": "Ethiopia",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "2–0"
+        },
+        {
+          "stage": "CAF Group A",
+          "opponent": "Djibouti",
+          "venue": "home",
+          "goalsFor": 6,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "6–0"
+        },
+        {
+          "stage": "CAF Group A",
+          "opponent": "Burkina Faso",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "CAF Group A",
+          "opponent": "Sierra Leone",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–2"
+        },
+        {
+          "stage": "CAF Group A",
+          "opponent": "Guinea-Bissau",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "CAF Group A",
+          "opponent": "Ethiopia",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–2"
+        },
+        {
+          "stage": "CAF Group A",
+          "opponent": "Djibouti",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–3"
+        }
+      ]
+    },
+    {
+      "country": "Iran",
+      "confederation": "AFC",
+      "method": "AFC third round Group A winners",
+      "record": {
+        "played": 16,
+        "wins": 11,
+        "draws": 4,
+        "losses": 1,
+        "goalsFor": 35,
+        "goalsAgainst": 12
+      },
+      "results": [
+        {
+          "stage": "AFC second round Group E",
+          "opponent": "Uzbekistan",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "AFC second round Group E",
+          "opponent": "Turkmenistan",
+          "venue": "home",
+          "goalsFor": 5,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "5–0"
+        },
+        {
+          "stage": "AFC second round Group E",
+          "opponent": "Hong Kong",
+          "venue": "home",
+          "goalsFor": 4,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "4–0"
+        },
+        {
+          "stage": "AFC second round Group E",
+          "opponent": "Uzbekistan",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 2,
+          "result": "D",
+          "score": "2–2"
+        },
+        {
+          "stage": "AFC second round Group E",
+          "opponent": "Turkmenistan",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–1"
+        },
+        {
+          "stage": "AFC second round Group E",
+          "opponent": "Hong Kong",
+          "venue": "away",
+          "goalsFor": 4,
+          "goalsAgainst": 2,
+          "result": "W",
+          "score": "2–4"
+        },
+        {
+          "stage": "AFC third round Group A",
+          "opponent": "Uzbekistan",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 2,
+          "result": "D",
+          "score": "2–2"
+        },
+        {
+          "stage": "AFC third round Group A",
+          "opponent": "United Arab Emirates",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "2–0"
+        },
+        {
+          "stage": "AFC third round Group A",
+          "opponent": "Qatar",
+          "venue": "home",
+          "goalsFor": 4,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "4–1"
+        },
+        {
+          "stage": "AFC third round Group A",
+          "opponent": "Kyrgyzstan",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "AFC third round Group A",
+          "opponent": "North Korea",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "3–0"
+        },
+        {
+          "stage": "AFC third round Group A",
+          "opponent": "Uzbekistan",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "AFC third round Group A",
+          "opponent": "United Arab Emirates",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–1"
+        },
+        {
+          "stage": "AFC third round Group A",
+          "opponent": "Qatar",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 1,
+          "result": "L",
+          "score": "1–0"
+        },
+        {
+          "stage": "AFC third round Group A",
+          "opponent": "Kyrgyzstan",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 2,
+          "result": "W",
+          "score": "2–3"
+        },
+        {
+          "stage": "AFC third round Group A",
+          "opponent": "North Korea",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 2,
+          "result": "W",
+          "score": "2–3"
+        }
+      ]
+    },
+    {
+      "country": "New Zealand",
+      "confederation": "OFC",
+      "method": "OFC qualification",
+      "record": {
+        "played": 5,
+        "wins": 5,
+        "draws": 0,
+        "losses": 0,
+        "goalsFor": 29,
+        "goalsAgainst": 1
+      },
+      "results": [
+        {
+          "stage": "OFC second round Group B",
+          "opponent": "Tahiti",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "3–0"
+        },
+        {
+          "stage": "OFC second round Group B",
+          "opponent": "Vanuatu",
+          "venue": "home",
+          "goalsFor": 8,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "8–1"
+        },
+        {
+          "stage": "OFC second round Group B",
+          "opponent": "Samoa",
+          "venue": "away",
+          "goalsFor": 8,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–8"
+        },
+        {
+          "stage": "OFC third round",
+          "opponent": "Fiji",
+          "venue": "home",
+          "goalsFor": 7,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "7–0"
+        },
+        {
+          "stage": "OFC third round",
+          "opponent": "New Caledonia",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–3"
+        }
+      ]
+    },
+    {
+      "country": "Cape Verde",
+      "confederation": "CAF",
+      "method": "CAF Group D winners",
+      "record": {
+        "played": 10,
+        "wins": 7,
+        "draws": 2,
+        "losses": 1,
+        "goalsFor": 16,
+        "goalsAgainst": 8
+      },
+      "results": [
+        {
+          "stage": "CAF Group D",
+          "opponent": "Cameroon",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "CAF Group D",
+          "opponent": "Libya",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "CAF Group D",
+          "opponent": "Angola",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "CAF Group D",
+          "opponent": "Mauritius",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "CAF Group D",
+          "opponent": "Eswatini",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "3–0"
+        },
+        {
+          "stage": "CAF Group D",
+          "opponent": "Cameroon",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 4,
+          "result": "L",
+          "score": "4–1"
+        },
+        {
+          "stage": "CAF Group D",
+          "opponent": "Libya",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 3,
+          "result": "D",
+          "score": "3–3"
+        },
+        {
+          "stage": "CAF Group D",
+          "opponent": "Angola",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "1–2"
+        },
+        {
+          "stage": "CAF Group D",
+          "opponent": "Mauritius",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–2"
+        },
+        {
+          "stage": "CAF Group D",
+          "opponent": "Eswatini",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–2"
+        }
+      ]
+    },
+    {
+      "country": "Saudi Arabia",
+      "confederation": "AFC",
+      "method": "AFC fourth round Group B winners",
+      "record": {
+        "played": 18,
+        "wins": 8,
+        "draws": 6,
+        "losses": 4,
+        "goalsFor": 22,
+        "goalsAgainst": 13
+      },
+      "results": [
+        {
+          "stage": "AFC second round Group G",
+          "opponent": "Jordan",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–2"
+        },
+        {
+          "stage": "AFC second round Group G",
+          "opponent": "Jordan",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 2,
+          "result": "L",
+          "score": "1–2"
+        },
+        {
+          "stage": "AFC second round Group G",
+          "opponent": "Tajikistan",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "AFC second round Group G",
+          "opponent": "Pakistan",
+          "venue": "home",
+          "goalsFor": 4,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "4–0"
+        },
+        {
+          "stage": "AFC second round Group G",
+          "opponent": "Tajikistan",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "AFC second round Group G",
+          "opponent": "Pakistan",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–3"
+        },
+        {
+          "stage": "AFC third round Group C",
+          "opponent": "Japan",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "AFC third round Group C",
+          "opponent": "Australia",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "AFC third round Group C",
+          "opponent": "Japan",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 2,
+          "result": "L",
+          "score": "0–2"
+        },
+        {
+          "stage": "AFC third round Group C",
+          "opponent": "Australia",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 2,
+          "result": "L",
+          "score": "1–2"
+        },
+        {
+          "stage": "AFC third round Group C",
+          "opponent": "Indonesia",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "AFC third round Group C",
+          "opponent": "China",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "AFC third round Group C",
+          "opponent": "Bahrain",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "AFC third round Group C",
+          "opponent": "Indonesia",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 2,
+          "result": "L",
+          "score": "2–0"
+        },
+        {
+          "stage": "AFC third round Group C",
+          "opponent": "China",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "1–2"
+        },
+        {
+          "stage": "AFC third round Group C",
+          "opponent": "Bahrain",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–2"
+        },
+        {
+          "stage": "AFC fourth round Group B",
+          "opponent": "Iraq",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "AFC fourth round Group B",
+          "opponent": "Indonesia",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 2,
+          "result": "W",
+          "score": "2–3"
+        }
+      ]
+    },
+    {
+      "country": "Spain",
+      "confederation": "UEFA",
+      "method": "UEFA Group E winners",
+      "record": {
+        "played": 6,
+        "wins": 5,
+        "draws": 1,
+        "losses": 0,
+        "goalsFor": 21,
+        "goalsAgainst": 2
+      },
+      "results": [
+        {
+          "stage": "UEFA Group E",
+          "opponent": "Turkey",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 2,
+          "result": "D",
+          "score": "2–2"
+        },
+        {
+          "stage": "UEFA Group E",
+          "opponent": "Georgia",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "2–0"
+        },
+        {
+          "stage": "UEFA Group E",
+          "opponent": "Bulgaria",
+          "venue": "home",
+          "goalsFor": 4,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "4–0"
+        },
+        {
+          "stage": "UEFA Group E",
+          "opponent": "Turkey",
+          "venue": "away",
+          "goalsFor": 6,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–6"
+        },
+        {
+          "stage": "UEFA Group E",
+          "opponent": "Georgia",
+          "venue": "away",
+          "goalsFor": 4,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–4"
+        },
+        {
+          "stage": "UEFA Group E",
+          "opponent": "Bulgaria",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–3"
+        }
+      ]
+    },
+    {
+      "country": "Uruguay",
+      "confederation": "CONMEBOL",
+      "method": "CONMEBOL league winners",
+      "record": {
+        "played": 18,
+        "wins": 7,
+        "draws": 7,
+        "losses": 4,
+        "goalsFor": 22,
+        "goalsAgainst": 12
+      },
+      "results": [
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Argentina",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–2"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Ecuador",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 2,
+          "result": "L",
+          "score": "2–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Colombia",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 2,
+          "result": "D",
+          "score": "2–2"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Argentina",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 1,
+          "result": "L",
+          "score": "0–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Ecuador",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Colombia",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 2,
+          "result": "W",
+          "score": "3–2"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Brazil",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "2–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Paraguay",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Bolivia",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "3–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Venezuela",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "2–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Peru",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "3–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Chile",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "3–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Brazil",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Paraguay",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 2,
+          "result": "L",
+          "score": "2–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Bolivia",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Venezuela",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Peru",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 1,
+          "result": "L",
+          "score": "1–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Chile",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        }
+      ]
+    },
+    {
+      "country": "France",
+      "confederation": "UEFA",
+      "method": "UEFA Group D winners",
+      "record": {
+        "played": 6,
+        "wins": 5,
+        "draws": 1,
+        "losses": 0,
+        "goalsFor": 16,
+        "goalsAgainst": 4
+      },
+      "results": [
+        {
+          "stage": "UEFA Group D",
+          "opponent": "Ukraine",
+          "venue": "home",
+          "goalsFor": 4,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "4–0"
+        },
+        {
+          "stage": "UEFA Group D",
+          "opponent": "Iceland",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "2–1"
+        },
+        {
+          "stage": "UEFA Group D",
+          "opponent": "Azerbaijan",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "3–0"
+        },
+        {
+          "stage": "UEFA Group D",
+          "opponent": "Ukraine",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–2"
+        },
+        {
+          "stage": "UEFA Group D",
+          "opponent": "Iceland",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 2,
+          "result": "D",
+          "score": "2–2"
+        },
+        {
+          "stage": "UEFA Group D",
+          "opponent": "Azerbaijan",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "1–3"
+        }
+      ]
+    },
+    {
+      "country": "Iraq",
+      "confederation": "AFC",
+      "method": "AFC qualification",
+      "record": {
+        "played": 18,
+        "wins": 11,
+        "draws": 4,
+        "losses": 3,
+        "goalsFor": 27,
+        "goalsAgainst": 11
+      },
+      "results": [
+        {
+          "stage": "AFC second round Group F",
+          "opponent": "Indonesia",
+          "venue": "home",
+          "goalsFor": 5,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "5–1"
+        },
+        {
+          "stage": "AFC second round Group F",
+          "opponent": "Vietnam",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "3–1"
+        },
+        {
+          "stage": "AFC second round Group F",
+          "opponent": "Philippines",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "AFC second round Group F",
+          "opponent": "Indonesia",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–2"
+        },
+        {
+          "stage": "AFC second round Group F",
+          "opponent": "Vietnam",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–1"
+        },
+        {
+          "stage": "AFC second round Group F",
+          "opponent": "Philippines",
+          "venue": "away",
+          "goalsFor": 5,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–5"
+        },
+        {
+          "stage": "AFC third round Group B",
+          "opponent": "South Korea",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 3,
+          "result": "L",
+          "score": "3–2"
+        },
+        {
+          "stage": "AFC third round Group B",
+          "opponent": "Jordan",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–1"
+        },
+        {
+          "stage": "AFC third round Group B",
+          "opponent": "South Korea",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 2,
+          "result": "L",
+          "score": "0–2"
+        },
+        {
+          "stage": "AFC third round Group B",
+          "opponent": "Jordan",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "AFC third round Group B",
+          "opponent": "Oman",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "AFC third round Group B",
+          "opponent": "Palestine",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "AFC third round Group B",
+          "opponent": "Kuwait",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 2,
+          "result": "D",
+          "score": "2–2"
+        },
+        {
+          "stage": "AFC third round Group B",
+          "opponent": "Oman",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–1"
+        },
+        {
+          "stage": "AFC third round Group B",
+          "opponent": "Palestine",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 2,
+          "result": "L",
+          "score": "2–1"
+        },
+        {
+          "stage": "AFC third round Group B",
+          "opponent": "Kuwait",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "AFC fourth round Group B",
+          "opponent": "Saudi Arabia",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "AFC fourth round Group B",
+          "opponent": "Indonesia",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        }
+      ]
+    },
+    {
+      "country": "Norway",
+      "confederation": "UEFA",
+      "method": "UEFA Group I winners",
+      "record": {
+        "played": 8,
+        "wins": 8,
+        "draws": 0,
+        "losses": 0,
+        "goalsFor": 37,
+        "goalsAgainst": 5
+      },
+      "results": [
+        {
+          "stage": "UEFA Group I",
+          "opponent": "Italy",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "3–0"
+        },
+        {
+          "stage": "UEFA Group I",
+          "opponent": "Israel",
+          "venue": "home",
+          "goalsFor": 5,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "5–0"
+        },
+        {
+          "stage": "UEFA Group I",
+          "opponent": "Estonia",
+          "venue": "home",
+          "goalsFor": 4,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "4–1"
+        },
+        {
+          "stage": "UEFA Group I",
+          "opponent": "Moldova",
+          "venue": "home",
+          "goalsFor": 11,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "11–1"
+        },
+        {
+          "stage": "UEFA Group I",
+          "opponent": "Italy",
+          "venue": "away",
+          "goalsFor": 4,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "1–4"
+        },
+        {
+          "stage": "UEFA Group I",
+          "opponent": "Israel",
+          "venue": "away",
+          "goalsFor": 4,
+          "goalsAgainst": 2,
+          "result": "W",
+          "score": "2–4"
+        },
+        {
+          "stage": "UEFA Group I",
+          "opponent": "Estonia",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–1"
+        },
+        {
+          "stage": "UEFA Group I",
+          "opponent": "Moldova",
+          "venue": "away",
+          "goalsFor": 5,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–5"
+        }
+      ]
+    },
+    {
+      "country": "Senegal",
+      "confederation": "CAF",
+      "method": "CAF Group B winners",
+      "record": {
+        "played": 10,
+        "wins": 7,
+        "draws": 3,
+        "losses": 0,
+        "goalsFor": 22,
+        "goalsAgainst": 3
+      },
+      "results": [
+        {
+          "stage": "CAF Group B",
+          "opponent": "DR Congo",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "CAF Group B",
+          "opponent": "Sudan",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "2–0"
+        },
+        {
+          "stage": "CAF Group B",
+          "opponent": "Togo",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "2–0"
+        },
+        {
+          "stage": "CAF Group B",
+          "opponent": "Mauritania",
+          "venue": "home",
+          "goalsFor": 4,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "4–0"
+        },
+        {
+          "stage": "CAF Group B",
+          "opponent": "South Sudan",
+          "venue": "home",
+          "goalsFor": 4,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "4–0"
+        },
+        {
+          "stage": "CAF Group B",
+          "opponent": "DR Congo",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 2,
+          "result": "W",
+          "score": "2–3"
+        },
+        {
+          "stage": "CAF Group B",
+          "opponent": "Sudan",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "CAF Group B",
+          "opponent": "Togo",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "CAF Group B",
+          "opponent": "Mauritania",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–1"
+        },
+        {
+          "stage": "CAF Group B",
+          "opponent": "South Sudan",
+          "venue": "away",
+          "goalsFor": 5,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–5"
+        }
+      ]
+    },
+    {
+      "country": "Algeria",
+      "confederation": "CAF",
+      "method": "CAF Group G winners",
+      "record": {
+        "played": 10,
+        "wins": 8,
+        "draws": 1,
+        "losses": 1,
+        "goalsFor": 24,
+        "goalsAgainst": 8
+      },
+      "results": [
+        {
+          "stage": "CAF Group G",
+          "opponent": "Uganda",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "2–1"
+        },
+        {
+          "stage": "CAF Group G",
+          "opponent": "Mozambique",
+          "venue": "home",
+          "goalsFor": 5,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "5–1"
+        },
+        {
+          "stage": "CAF Group G",
+          "opponent": "Guinea",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 2,
+          "result": "L",
+          "score": "1–2"
+        },
+        {
+          "stage": "CAF Group G",
+          "opponent": "Botswana",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "3–1"
+        },
+        {
+          "stage": "CAF Group G",
+          "opponent": "Somalia",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "3–1"
+        },
+        {
+          "stage": "CAF Group G",
+          "opponent": "Uganda",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "1–2"
+        },
+        {
+          "stage": "CAF Group G",
+          "opponent": "Mozambique",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–2"
+        },
+        {
+          "stage": "CAF Group G",
+          "opponent": "Guinea",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "CAF Group G",
+          "opponent": "Botswana",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "1–3"
+        },
+        {
+          "stage": "CAF Group G",
+          "opponent": "Somalia",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–3"
+        }
+      ]
+    },
+    {
+      "country": "Argentina",
+      "confederation": "CONMEBOL",
+      "method": "CONMEBOL league winners",
+      "record": {
+        "played": 18,
+        "wins": 12,
+        "draws": 2,
+        "losses": 4,
+        "goalsFor": 31,
+        "goalsAgainst": 10
+      },
+      "results": [
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Ecuador",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Colombia",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Uruguay",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 2,
+          "result": "L",
+          "score": "0–2"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Brazil",
+          "venue": "home",
+          "goalsFor": 4,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "4–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Paraguay",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Bolivia",
+          "venue": "home",
+          "goalsFor": 6,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "6–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Venezuela",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "3–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Peru",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Chile",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "3–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Ecuador",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 1,
+          "result": "L",
+          "score": "1–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Colombia",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 2,
+          "result": "L",
+          "score": "2–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Uruguay",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Brazil",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Paraguay",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 2,
+          "result": "L",
+          "score": "2–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Bolivia",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–3"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Venezuela",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Peru",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–2"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Chile",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–1"
+        }
+      ]
+    },
+    {
+      "country": "Austria",
+      "confederation": "UEFA",
+      "method": "UEFA Group H winners",
+      "record": {
+        "played": 8,
+        "wins": 6,
+        "draws": 1,
+        "losses": 1,
+        "goalsFor": 22,
+        "goalsAgainst": 4
+      },
+      "results": [
+        {
+          "stage": "UEFA Group H",
+          "opponent": "Bosnia and Herzegovina",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "UEFA Group H",
+          "opponent": "Romania",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "2–1"
+        },
+        {
+          "stage": "UEFA Group H",
+          "opponent": "Cyprus",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "UEFA Group H",
+          "opponent": "San Marino",
+          "venue": "home",
+          "goalsFor": 10,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "10–0"
+        },
+        {
+          "stage": "UEFA Group H",
+          "opponent": "Bosnia and Herzegovina",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "1–2"
+        },
+        {
+          "stage": "UEFA Group H",
+          "opponent": "Romania",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 1,
+          "result": "L",
+          "score": "1–0"
+        },
+        {
+          "stage": "UEFA Group H",
+          "opponent": "Cyprus",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–2"
+        },
+        {
+          "stage": "UEFA Group H",
+          "opponent": "San Marino",
+          "venue": "away",
+          "goalsFor": 4,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–4"
+        }
+      ]
+    },
+    {
+      "country": "Jordan",
+      "confederation": "AFC",
+      "method": "AFC third round Group B winners",
+      "record": {
+        "played": 16,
+        "wins": 8,
+        "draws": 5,
+        "losses": 3,
+        "goalsFor": 32,
+        "goalsAgainst": 12
+      },
+      "results": [
+        {
+          "stage": "AFC second round Group G",
+          "opponent": "Saudi Arabia",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 2,
+          "result": "L",
+          "score": "0–2"
+        },
+        {
+          "stage": "AFC second round Group G",
+          "opponent": "Tajikistan",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "3–0"
+        },
+        {
+          "stage": "AFC second round Group G",
+          "opponent": "Pakistan",
+          "venue": "home",
+          "goalsFor": 7,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "7–0"
+        },
+        {
+          "stage": "AFC second round Group G",
+          "opponent": "Saudi Arabia",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "1–2"
+        },
+        {
+          "stage": "AFC second round Group G",
+          "opponent": "Tajikistan",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "AFC second round Group G",
+          "opponent": "Pakistan",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–3"
+        },
+        {
+          "stage": "AFC third round Group B",
+          "opponent": "South Korea",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "AFC third round Group B",
+          "opponent": "South Korea",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 2,
+          "result": "L",
+          "score": "0–2"
+        },
+        {
+          "stage": "AFC third round Group B",
+          "opponent": "Iraq",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 1,
+          "result": "L",
+          "score": "0–1"
+        },
+        {
+          "stage": "AFC third round Group B",
+          "opponent": "Oman",
+          "venue": "home",
+          "goalsFor": 4,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "4–0"
+        },
+        {
+          "stage": "AFC third round Group B",
+          "opponent": "Palestine",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "3–1"
+        },
+        {
+          "stage": "AFC third round Group B",
+          "opponent": "Kuwait",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "AFC third round Group B",
+          "opponent": "Iraq",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "AFC third round Group B",
+          "opponent": "Oman",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–3"
+        },
+        {
+          "stage": "AFC third round Group B",
+          "opponent": "Palestine",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "1–3"
+        },
+        {
+          "stage": "AFC third round Group B",
+          "opponent": "Kuwait",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        }
+      ]
+    },
+    {
+      "country": "Colombia",
+      "confederation": "CONMEBOL",
+      "method": "CONMEBOL league winners",
+      "record": {
+        "played": 18,
+        "wins": 7,
+        "draws": 7,
+        "losses": 4,
+        "goalsFor": 28,
+        "goalsAgainst": 18
+      },
+      "results": [
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Argentina",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Ecuador",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Argentina",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "2–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Ecuador",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 1,
+          "result": "L",
+          "score": "0–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Uruguay",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 2,
+          "result": "D",
+          "score": "2–2"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Brazil",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "2–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Paraguay",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 2,
+          "result": "D",
+          "score": "2–2"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Bolivia",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "3–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Venezuela",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Peru",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Chile",
+          "venue": "home",
+          "goalsFor": 4,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "4–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Uruguay",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 3,
+          "result": "L",
+          "score": "3–2"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Brazil",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 2,
+          "result": "L",
+          "score": "2–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Paraguay",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Bolivia",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 1,
+          "result": "L",
+          "score": "1–0"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Venezuela",
+          "venue": "away",
+          "goalsFor": 6,
+          "goalsAgainst": 3,
+          "result": "W",
+          "score": "3–6"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Peru",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "CONMEBOL league",
+          "opponent": "Chile",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        }
+      ]
+    },
+    {
+      "country": "DR Congo",
+      "confederation": "CAF",
+      "method": "CAF qualification",
+      "record": {
+        "played": 12,
+        "wins": 8,
+        "draws": 2,
+        "losses": 2,
+        "goalsFor": 17,
+        "goalsAgainst": 7
+      },
+      "results": [
+        {
+          "stage": "CAF Group B",
+          "opponent": "Senegal",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "CAF Group B",
+          "opponent": "Senegal",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 3,
+          "result": "L",
+          "score": "2–3"
+        },
+        {
+          "stage": "CAF Group B",
+          "opponent": "Sudan",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "CAF Group B",
+          "opponent": "Togo",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "CAF Group B",
+          "opponent": "Mauritania",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "2–0"
+        },
+        {
+          "stage": "CAF Group B",
+          "opponent": "South Sudan",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "CAF Group B",
+          "opponent": "Sudan",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 1,
+          "result": "L",
+          "score": "1–0"
+        },
+        {
+          "stage": "CAF Group B",
+          "opponent": "Togo",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–1"
+        },
+        {
+          "stage": "CAF Group B",
+          "opponent": "Mauritania",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–2"
+        },
+        {
+          "stage": "CAF Group B",
+          "opponent": "South Sudan",
+          "venue": "away",
+          "goalsFor": 4,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "1–4"
+        },
+        {
+          "stage": "CAF play-offs",
+          "opponent": "Cameroon",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–1"
+        },
+        {
+          "stage": "CAF play-offs",
+          "opponent": "Nigeria",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1 (a.e.t.) (3–4 p)"
+        }
+      ]
+    },
+    {
+      "country": "Portugal",
+      "confederation": "UEFA",
+      "method": "UEFA Group F winners",
+      "record": {
+        "played": 6,
+        "wins": 4,
+        "draws": 1,
+        "losses": 1,
+        "goalsFor": 20,
+        "goalsAgainst": 7
+      },
+      "results": [
+        {
+          "stage": "UEFA Group F",
+          "opponent": "Republic of Ireland",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "UEFA Group F",
+          "opponent": "Hungary",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 2,
+          "result": "D",
+          "score": "2–2"
+        },
+        {
+          "stage": "UEFA Group F",
+          "opponent": "Armenia",
+          "venue": "home",
+          "goalsFor": 9,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "9–1"
+        },
+        {
+          "stage": "UEFA Group F",
+          "opponent": "Republic of Ireland",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 2,
+          "result": "L",
+          "score": "2–0"
+        },
+        {
+          "stage": "UEFA Group F",
+          "opponent": "Hungary",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 2,
+          "result": "W",
+          "score": "2–3"
+        },
+        {
+          "stage": "UEFA Group F",
+          "opponent": "Armenia",
+          "venue": "away",
+          "goalsFor": 5,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–5"
+        }
+      ]
+    },
+    {
+      "country": "Uzbekistan",
+      "confederation": "AFC",
+      "method": "AFC third round Group A winners",
+      "record": {
+        "played": 16,
+        "wins": 10,
+        "draws": 5,
+        "losses": 1,
+        "goalsFor": 27,
+        "goalsAgainst": 11
+      },
+      "results": [
+        {
+          "stage": "AFC second round Group E",
+          "opponent": "Iran",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "AFC second round Group E",
+          "opponent": "Iran",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 2,
+          "result": "D",
+          "score": "2–2"
+        },
+        {
+          "stage": "AFC second round Group E",
+          "opponent": "Turkmenistan",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "3–1"
+        },
+        {
+          "stage": "AFC second round Group E",
+          "opponent": "Hong Kong",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "3–0"
+        },
+        {
+          "stage": "AFC second round Group E",
+          "opponent": "Turkmenistan",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "1–3"
+        },
+        {
+          "stage": "AFC second round Group E",
+          "opponent": "Hong Kong",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–2"
+        },
+        {
+          "stage": "AFC third round Group A",
+          "opponent": "Iran",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 2,
+          "result": "D",
+          "score": "2–2"
+        },
+        {
+          "stage": "AFC third round Group A",
+          "opponent": "Iran",
+          "venue": "home",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "AFC third round Group A",
+          "opponent": "United Arab Emirates",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "AFC third round Group A",
+          "opponent": "Qatar",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "3–0"
+        },
+        {
+          "stage": "AFC third round Group A",
+          "opponent": "Kyrgyzstan",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "AFC third round Group A",
+          "opponent": "North Korea",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "AFC third round Group A",
+          "opponent": "United Arab Emirates",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "AFC third round Group A",
+          "opponent": "Qatar",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 3,
+          "result": "L",
+          "score": "3–2"
+        },
+        {
+          "stage": "AFC third round Group A",
+          "opponent": "Kyrgyzstan",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 2,
+          "result": "W",
+          "score": "2–3"
+        },
+        {
+          "stage": "AFC third round Group A",
+          "opponent": "North Korea",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–1"
+        }
+      ]
+    },
+    {
+      "country": "England",
+      "confederation": "UEFA",
+      "method": "UEFA Group K winners",
+      "record": {
+        "played": 8,
+        "wins": 8,
+        "draws": 0,
+        "losses": 0,
+        "goalsFor": 22,
+        "goalsAgainst": 0
+      },
+      "results": [
+        {
+          "stage": "UEFA Group K",
+          "opponent": "Albania",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "2–0"
+        },
+        {
+          "stage": "UEFA Group K",
+          "opponent": "Serbia",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "2–0"
+        },
+        {
+          "stage": "UEFA Group K",
+          "opponent": "Latvia",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "3–0"
+        },
+        {
+          "stage": "UEFA Group K",
+          "opponent": "Andorra",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "2–0"
+        },
+        {
+          "stage": "UEFA Group K",
+          "opponent": "Albania",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–2"
+        },
+        {
+          "stage": "UEFA Group K",
+          "opponent": "Serbia",
+          "venue": "away",
+          "goalsFor": 5,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–5"
+        },
+        {
+          "stage": "UEFA Group K",
+          "opponent": "Latvia",
+          "venue": "away",
+          "goalsFor": 5,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–5"
+        },
+        {
+          "stage": "UEFA Group K",
+          "opponent": "Andorra",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–1"
+        }
+      ]
+    },
+    {
+      "country": "Croatia",
+      "confederation": "UEFA",
+      "method": "UEFA Group L winners",
+      "record": {
+        "played": 8,
+        "wins": 7,
+        "draws": 1,
+        "losses": 0,
+        "goalsFor": 26,
+        "goalsAgainst": 4
+      },
+      "results": [
+        {
+          "stage": "UEFA Group L",
+          "opponent": "Czech Republic",
+          "venue": "home",
+          "goalsFor": 5,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "5–1"
+        },
+        {
+          "stage": "UEFA Group L",
+          "opponent": "Faroe Islands",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "3–1"
+        },
+        {
+          "stage": "UEFA Group L",
+          "opponent": "Montenegro",
+          "venue": "home",
+          "goalsFor": 4,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "4–0"
+        },
+        {
+          "stage": "UEFA Group L",
+          "opponent": "Gibraltar",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "3–0"
+        },
+        {
+          "stage": "UEFA Group L",
+          "opponent": "Czech Republic",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "UEFA Group L",
+          "opponent": "Faroe Islands",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–1"
+        },
+        {
+          "stage": "UEFA Group L",
+          "opponent": "Montenegro",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 2,
+          "result": "W",
+          "score": "2–3"
+        },
+        {
+          "stage": "UEFA Group L",
+          "opponent": "Gibraltar",
+          "venue": "away",
+          "goalsFor": 7,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–7"
+        }
+      ]
+    },
+    {
+      "country": "Ghana",
+      "confederation": "CAF",
+      "method": "CAF Group I winners",
+      "record": {
+        "played": 10,
+        "wins": 8,
+        "draws": 1,
+        "losses": 1,
+        "goalsFor": 23,
+        "goalsAgainst": 6
+      },
+      "results": [
+        {
+          "stage": "CAF Group I",
+          "opponent": "Madagascar",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "CAF Group I",
+          "opponent": "Mali",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "CAF Group I",
+          "opponent": "Comoros",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "1–0"
+        },
+        {
+          "stage": "CAF Group I",
+          "opponent": "Central African Republic",
+          "venue": "home",
+          "goalsFor": 4,
+          "goalsAgainst": 3,
+          "result": "W",
+          "score": "4–3"
+        },
+        {
+          "stage": "CAF Group I",
+          "opponent": "Chad",
+          "venue": "home",
+          "goalsFor": 5,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "5–0"
+        },
+        {
+          "stage": "CAF Group I",
+          "opponent": "Madagascar",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–3"
+        },
+        {
+          "stage": "CAF Group I",
+          "opponent": "Mali",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "1–2"
+        },
+        {
+          "stage": "CAF Group I",
+          "opponent": "Comoros",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 1,
+          "result": "L",
+          "score": "1–0"
+        },
+        {
+          "stage": "CAF Group I",
+          "opponent": "Central African Republic",
+          "venue": "away",
+          "goalsFor": 5,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–5"
+        },
+        {
+          "stage": "CAF Group I",
+          "opponent": "Chad",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        }
+      ]
+    },
+    {
+      "country": "Panama",
+      "confederation": "CONCACAF",
+      "method": "CONCACAF third round Group A winners",
+      "record": {
+        "played": 10,
+        "wins": 7,
+        "draws": 3,
+        "losses": 0,
+        "goalsFor": 19,
+        "goalsAgainst": 5
+      },
+      "results": [
+        {
+          "stage": "CONCACAF second round Group D",
+          "opponent": "Nicaragua",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "3–0"
+        },
+        {
+          "stage": "CONCACAF second round Group D",
+          "opponent": "Guyana",
+          "venue": "home",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "2–0"
+        },
+        {
+          "stage": "CONCACAF second round Group D",
+          "opponent": "Montserrat",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 1,
+          "result": "W",
+          "score": "1–3"
+        },
+        {
+          "stage": "CONCACAF second round Group D",
+          "opponent": "Belize",
+          "venue": "away",
+          "goalsFor": 2,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–2"
+        },
+        {
+          "stage": "CONCACAF third round Group A",
+          "opponent": "Suriname",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "CONCACAF third round Group A",
+          "opponent": "Guatemala",
+          "venue": "home",
+          "goalsFor": 1,
+          "goalsAgainst": 1,
+          "result": "D",
+          "score": "1–1"
+        },
+        {
+          "stage": "CONCACAF third round Group A",
+          "opponent": "El Salvador",
+          "venue": "home",
+          "goalsFor": 3,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "3–0"
+        },
+        {
+          "stage": "CONCACAF third round Group A",
+          "opponent": "Suriname",
+          "venue": "away",
+          "goalsFor": 0,
+          "goalsAgainst": 0,
+          "result": "D",
+          "score": "0–0"
+        },
+        {
+          "stage": "CONCACAF third round Group A",
+          "opponent": "Guatemala",
+          "venue": "away",
+          "goalsFor": 3,
+          "goalsAgainst": 2,
+          "result": "W",
+          "score": "2–3"
+        },
+        {
+          "stage": "CONCACAF third round Group A",
+          "opponent": "El Salvador",
+          "venue": "away",
+          "goalsFor": 1,
+          "goalsAgainst": 0,
+          "result": "W",
+          "score": "0–1"
+        }
+      ]
+    }
+  ]
+}

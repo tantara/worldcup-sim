@@ -27,7 +27,6 @@ import {
 } from "~/components/ui/select";
 import { Separator } from "~/components/ui/separator";
 import {
-  simulateMatch,
   type MatchEvent,
   type MatchEventType,
   type Side,
@@ -35,31 +34,25 @@ import {
 import type { Player, Team } from "~/lib/teams";
 
 const SPEEDS = {
-  slow: { label: "Slow", ms: 1100 },
-  normal: { label: "Normal", ms: 650 },
-  fast: { label: "Fast", ms: 300 },
+  slow: { label: "Slow", detail: "1 min, reasoning" },
+  normal: { label: "Normal", detail: "1 min, no reasoning" },
+  fast: { label: "Fast", detail: "3 min, no reasoning" },
 } as const;
 type SpeedKey = keyof typeof SPEEDS;
+
+type MatchStreamFrame =
+  | { type: "event"; event: MatchEvent }
+  | { type: "error"; message: string };
 
 export function MatchSimulator({ home, away }: { home: Team; away: Team }) {
   const [speed, setSpeed] = useState<SpeedKey>("normal");
 
   const [events, setEvents] = useState<MatchEvent[]>([]);
-  const [revealed, setRevealed] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
+  const abortRef = useRef<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  // Reveal one event at a time while playing.
-  useEffect(() => {
-    if (!playing) return;
-    if (revealed >= events.length) {
-      setPlaying(false);
-      return;
-    }
-    const t = setTimeout(() => setRevealed((n) => n + 1), SPEEDS[speed].ms);
-    return () => clearTimeout(t);
-  }, [playing, revealed, events.length, speed]);
 
   // Keep the commentary feed pinned to the latest line.
   useEffect(() => {
@@ -67,19 +60,51 @@ export function MatchSimulator({ home, away }: { home: Team; away: Team }) {
       '[data-slot="scroll-area-viewport"]',
     );
     vp?.scrollTo({ top: vp.scrollHeight, behavior: "smooth" });
-  }, [revealed]);
+  }, [events.length]);
 
-  const shown = events.slice(0, revealed);
+  useEffect(() => () => abortRef.current?.abort(), []);
+
+  const shown = events;
   const last = shown[shown.length - 1];
   const score = last?.score ?? { home: 0, away: 0 };
   const clock = last?.minute ?? 0;
-  const finished = revealed >= events.length && events.length > 0;
+  const finished = last?.type === "fulltime";
 
-  const kickOff = () => {
-    const result = simulateMatch(home, away);
-    setEvents(result.events);
-    setRevealed(0);
+  const kickOff = async () => {
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    setEvents([]);
+    setError(null);
     setPlaying(true);
+
+    try {
+      const res = await fetch("/api/match-simulator", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          homeId: home.id,
+          awayId: away.id,
+          speed,
+        }),
+        signal: controller.signal,
+      });
+      await readMatchStream(res, (frame) => {
+        if (frame.type === "event") {
+          setEvents((current) => [...current, frame.event]);
+        } else if (frame.type === "error") {
+          setError(frame.message);
+        }
+      });
+    } catch (err) {
+      if (!controller.signal.aborted) {
+        setError(err instanceof Error ? err.message : String(err));
+      }
+    } finally {
+      if (!controller.signal.aborted) {
+        setPlaying(false);
+      }
+    }
   };
 
   return (
@@ -104,6 +129,7 @@ export function MatchSimulator({ home, away }: { home: Team; away: Team }) {
               </span>
               <Select
                 value={speed}
+                disabled={playing}
                 onValueChange={(v) => {
                   if (v) setSpeed(v);
                 }}
@@ -119,9 +145,12 @@ export function MatchSimulator({ home, away }: { home: Team; away: Team }) {
                   ))}
                 </SelectContent>
               </Select>
+              <span className="text-muted-foreground text-[11px]">
+                {SPEEDS[speed].detail}
+              </span>
             </div>
             <Button
-              onClick={kickOff}
+              onClick={() => void kickOff()}
               disabled={playing}
               className="w-full font-semibold sm:ml-auto sm:w-auto"
             >
@@ -137,6 +166,12 @@ export function MatchSimulator({ home, away }: { home: Team; away: Team }) {
             </Button>
           </div>
 
+          {error && (
+            <div className="border-destructive/40 bg-destructive/10 text-destructive rounded-md border px-3 py-2 text-sm">
+              {error}
+            </div>
+          )}
+
           <Commentary scrollRef={scrollRef} events={shown} />
         </CardContent>
       </Card>
@@ -144,6 +179,36 @@ export function MatchSimulator({ home, away }: { home: Team; away: Team }) {
       <TeamPanel team={away} side="away" shown={shown} />
     </div>
   );
+}
+
+async function readMatchStream(
+  res: Response,
+  onFrame: (frame: MatchStreamFrame) => void,
+): Promise<void> {
+  if (!res.ok || !res.body) {
+    const detail = (await res.json().catch(() => null)) as {
+      error?: string;
+    } | null;
+    throw new Error(detail?.error ?? `Request failed (${res.status})`);
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    let nl: number;
+    while ((nl = buffer.indexOf("\n\n")) !== -1) {
+      const frame = buffer.slice(0, nl);
+      buffer = buffer.slice(nl + 2);
+      const line = frame.trim();
+      if (!line.startsWith("data:")) continue;
+      onFrame(JSON.parse(line.slice(5).trim()) as MatchStreamFrame);
+    }
+  }
 }
 
 function Scoreboard({

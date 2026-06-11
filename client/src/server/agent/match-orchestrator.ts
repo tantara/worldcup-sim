@@ -11,6 +11,7 @@ import {
 import { env } from "~/env";
 import type {
   AssistantSummary,
+  GameSpeed,
   Lineup,
   MatchResult,
   MinuteOutcome,
@@ -50,6 +51,7 @@ export interface OrchestratorOptions {
   homeId: string;
   awayId: string;
   mode: Mode;
+  gameSpeed?: GameSpeed;
   homeLineup?: Lineup;
   awayLineup?: Lineup;
   managerContext?: string;
@@ -78,6 +80,24 @@ const TACTICS: ReadonlySet<string> = new Set([
   "defensive",
 ]);
 const DEFAULT_MANAGER_INTERVAL_MINUTES = 5;
+const DEFAULT_GAME_SPEED: GameSpeed = "normal";
+const GAME_SPEED_CONFIG: Record<
+  GameSpeed,
+  { minuteStep: number; matchReasoning: boolean }
+> = {
+  slow: { minuteStep: 1, matchReasoning: true },
+  normal: { minuteStep: 1, matchReasoning: false },
+  fast: { minuteStep: 3, matchReasoning: false },
+};
+
+function playMinutes(maxMinutes: number, minuteStep: number): number[] {
+  const minutes: number[] = [];
+  for (let minute = minuteStep; minute <= maxMinutes; minute += minuteStep) {
+    minutes.push(minute);
+  }
+  if (minutes.at(-1) !== maxMinutes) minutes.push(maxMinutes);
+  return minutes;
+}
 
 /**
  * Run one match under one main match agent. The main agent owns game flow and
@@ -94,6 +114,8 @@ export async function* runMatch(
   const away = getTeam(opts.awayId);
   const matchId = opts.matchId ?? `${opts.homeId}-${opts.awayId}`;
   const maxMinutes = Math.min(90, Math.max(1, opts.maxMinutes ?? 90));
+  const gameSpeed = opts.gameSpeed ?? DEFAULT_GAME_SPEED;
+  const speedConfig = GAME_SPEED_CONFIG[gameSpeed];
   const managerInterval = Math.min(
     90,
     Math.max(
@@ -131,9 +153,11 @@ export async function* runMatch(
     homeXI: [...home.squad],
     awayXI: [...away.squad],
   };
+  let homeLineupKnown = false;
+  let awayLineupKnown = false;
 
   // Deterministic, independent RNG streams per role.
-  const seed = hashSeed(`${matchId}:${mode}`);
+  const seed = hashSeed(`${matchId}:${mode}:${gameSpeed}`);
   const playRng = makeRng(seed);
   const refRng = makeRng(seed ^ 0x9e3779b9);
   const homeRng = makeRng(seed ^ 0x0000abcd);
@@ -149,6 +173,14 @@ export async function* runMatch(
           baseURL: env.DEEPSEEK_BASE_URL,
           model: env.DEEPSEEK_MODEL,
           name: thread,
+          extraBody:
+            thread === "match"
+              ? {
+                  thinking: {
+                    type: speedConfig.matchReasoning ? "enabled" : "disabled",
+                  },
+                }
+              : undefined,
         });
 
   const newAgent = (
@@ -298,13 +330,18 @@ export async function* runMatch(
       state.homeFormation = lineup.formation;
       state.homeStrategy = lineup.strategy ?? state.homeStrategy;
       state.homeXI = xi;
+      homeLineupKnown = true;
     } else {
       state.awayTactic = lineup.tactic;
       state.awayFormation = lineup.formation;
       state.awayStrategy = lineup.strategy ?? state.awayStrategy;
       state.awayXI = xi;
+      awayLineupKnown = true;
     }
   };
+
+  if (opts.homeLineup) applyLineup("home", opts.homeLineup);
+  if (opts.awayLineup) applyLineup("away", opts.awayLineup);
 
   async function* askManager(
     side: "home" | "away",
@@ -315,8 +352,25 @@ export async function* runMatch(
     const thread: Thread = isHome ? "home-manager" : "away-manager";
     const manager = isHome ? homeManager : awayManager;
     const team = isHome ? home : away;
+    const opponent = isHome ? away : home;
     const squad = isHome ? homeSquad : awaySquad;
+    const opponentSquad = isHome ? awaySquad : homeSquad;
     const rng = isHome ? homeRng : awayRng;
+    const opponentState = isHome
+      ? {
+          formation: state.awayFormation,
+          tactic: state.awayTactic,
+          strategy: state.awayStrategy,
+          lineup: state.awayXI,
+          known: awayLineupKnown,
+        }
+      : {
+          formation: state.homeFormation,
+          tactic: state.homeTactic,
+          strategy: state.homeStrategy,
+          lineup: state.homeXI,
+          known: homeLineupKnown,
+        };
     const current = isHome
       ? {
           formation: state.homeFormation,
@@ -333,15 +387,23 @@ export async function* runMatch(
 
     const prompt =
       reason === "initial_lineup"
-        ? managerLineupPrompt(team, squad, opts.managerContext)
+        ? managerLineupPrompt({
+            team,
+            squad,
+            opponent,
+            opponentSquad,
+            opponentPlan: opponentState.known ? opponentState : undefined,
+            context: opts.managerContext,
+          })
         : managerAdjustmentPrompt({
             team,
             squad,
             minute,
             score: state.score,
             current,
-            matchContext: opts.managerContext,
-            opponent: isHome ? away : home,
+            opponent,
+            opponentSquad,
+            opponentPlan: opponentState.known ? opponentState : undefined,
           });
     const lineup = parseLineup(
       yield* drive(manager, thread, prompt),
@@ -377,7 +439,7 @@ export async function* runMatch(
   };
   const homeLineup =
     opts.homeLineup ?? (yield* askManager("home", "initial_lineup", 0));
-  applyLineup("home", homeLineup);
+  if (!opts.homeLineup) applyLineup("home", homeLineup);
   yield {
     type: "lineup",
     thread: "home-manager",
@@ -392,7 +454,7 @@ export async function* runMatch(
   };
   const awayLineup =
     opts.awayLineup ?? (yield* askManager("away", "initial_lineup", 0));
-  applyLineup("away", awayLineup);
+  if (!opts.awayLineup) applyLineup("away", awayLineup);
   yield {
     type: "lineup",
     thread: "away-manager",
@@ -411,17 +473,25 @@ export async function* runMatch(
   let abandoned = false;
   let minutesPlayed = maxMinutes;
 
-  for (let minute = 1; minute <= maxMinutes; minute++) {
+  for (const minute of playMinutes(maxMinutes, speedConfig.minuteStep)) {
     state.minute = minute;
     if (minute > 1 && (minute - 1) % managerInterval === 0) {
-      const homeUpdate = yield* askManager("home", "scheduled_update", minute);
+      const homeUpdate: Lineup = yield* askManager(
+        "home",
+        "scheduled_update",
+        minute,
+      );
       yield {
         type: "lineup",
         thread: "home-manager",
         teamName: home.name,
         lineup: homeUpdate,
       };
-      const awayUpdate = yield* askManager("away", "scheduled_update", minute);
+      const awayUpdate: Lineup = yield* askManager(
+        "away",
+        "scheduled_update",
+        minute,
+      );
       yield {
         type: "lineup",
         thread: "away-manager",
@@ -430,24 +500,24 @@ export async function* runMatch(
       };
     }
 
-    const outcome = parseMinute(
-      yield* drive(
-        matchAgent,
-        "match",
-        mainMinutePrompt({
-          minute,
-          score: state.score,
-          home,
-          away,
-          homeFormation: state.homeFormation,
-          awayFormation: state.awayFormation,
-          homeTactic: state.homeTactic,
-          awayTactic: state.awayTactic,
-          homeStrategy: state.homeStrategy,
-          awayStrategy: state.awayStrategy,
-        }),
-      ),
+    const minuteText: string = yield* drive(
+      matchAgent,
+      "match",
+      mainMinutePrompt({
+        minute,
+        minuteStep: speedConfig.minuteStep,
+        score: state.score,
+        home,
+        away,
+        homeFormation: state.homeFormation,
+        awayFormation: state.awayFormation,
+        homeTactic: state.homeTactic,
+        awayTactic: state.awayTactic,
+        homeStrategy: state.homeStrategy,
+        awayStrategy: state.awayStrategy,
+      }),
     );
+    const outcome: MinuteOutcome = parseMinute(minuteText);
 
     if (outcome.side) {
       if (outcome.event === "goal") {
@@ -485,13 +555,12 @@ export async function* runMatch(
       outcome.event === "yellow" ||
       outcome.event === "red";
     if (notable) {
-      const verdict = parseVerdict(
-        yield* drive(
-          referee,
-          "referee",
-          refereePrompt(minute, state.score, state.redCards, outcome),
-        ),
+      const verdictText: string = yield* drive(
+        referee,
+        "referee",
+        refereePrompt(minute, state.score, state.redCards, outcome),
       );
+      const verdict: RefereeVerdict = parseVerdict(verdictText);
       yield { type: "referee", minute, verdict };
       if (verdict.decision === "stop") {
         abandoned = true;
@@ -617,41 +686,64 @@ function refereeSystem(): string {
 }
 
 function managerPrompt(team: Team, squad: Player[], context?: string): string {
-  return managerLineupPrompt(team, squad, context);
+  return managerLineupPrompt({ team, squad, context });
 }
 
-function managerLineupPrompt(
+interface ManagerPlanContext {
+  formation: string;
+  tactic: Tactic;
+  strategy: string;
+  lineup: Player[];
+}
+
+function managerLineupPrompt(opts: {
   team: Team,
   squad: Player[],
+  opponent?: Team,
+  opponentSquad?: Player[],
+  opponentPlan?: ManagerPlanContext,
   context?: string,
-): string {
-  const roster = squad.map((p) => `${p.name} (${p.position})`).join(", ");
-  const matchContext = context
-    ? `\n\nMatch context to account for when choosing formation, risk level, rotations, and key player:\n${context}`
+}): string {
+  const roster = formatRoster(opts.squad);
+  const opponentContext =
+    opts.opponent && opts.opponentSquad
+      ? `\n\nOpponent squad information for ${opts.opponent.name}: ${formatRoster(
+          opts.opponentSquad,
+        )}.${opts.opponentPlan ? `\nKnown opponent lineup and plan: ${formatManagerPlan(opts.opponentPlan)}.` : ""}`
+      : "";
+  const matchContext = opts.context
+    ? `\n\nMatch context to account for when choosing formation, risk level, rotations, and key player:\n${opts.context}`
     : "";
-  return `The main match agent delegates the initial lineup decision to you.\n\nPick your starting XI for ${team.name} from this ${squad.length}-player squad: ${roster}.${matchContext}\n\nChoose a formation, name exactly 11 starters that fit it (1 GK, the rest outfield), a tactic, your key player, one decision reason, and one detailed strategy sentence. Reply as JSON {"reason","formation","tactic","keyPlayer","strategy","lineup"} where reason is the first property and explains why you made the decision, tactic is "attacking" | "balanced" | "defensive", and lineup is an array of exactly 11 player names from the squad.`;
+  return `The main match agent delegates the initial lineup decision to you.\n\nPick your starting XI for ${opts.team.name} from this ${opts.squad.length}-player squad: ${roster}.${opponentContext}${matchContext}\n\nChoose a formation, name exactly 11 starters that fit it (1 GK, the rest outfield), a tactic, your key player, one decision reason, and one detailed strategy sentence. Reply as JSON {"reason","formation","tactic","keyPlayer","strategy","lineup"} where reason is the first property and explains why you made the decision, tactic is "attacking" | "balanced" | "defensive", and lineup is an array of exactly 11 player names from the squad.`;
 }
 
 function managerAdjustmentPrompt(opts: {
   team: Team;
   opponent: Team;
   squad: Player[];
+  opponentSquad: Player[];
+  opponentPlan?: ManagerPlanContext;
   minute: number;
   score: { home: number; away: number };
-  current: {
-    formation: string;
-    tactic: Tactic;
-    strategy: string;
-    lineup: Player[];
-  };
-  matchContext?: string;
+  current: ManagerPlanContext;
 }): string {
-  const roster = opts.squad.map((p) => `${p.name} (${p.position})`).join(", ");
-  const currentXI = opts.current.lineup.map((p) => p.name).join(", ");
-  const matchContext = opts.matchContext
-    ? `\n\nMatch context:\n${opts.matchContext}`
+  const roster = formatRoster(opts.squad);
+  const opponentRoster = formatRoster(opts.opponentSquad);
+  const currentPlan = formatManagerPlan(opts.current);
+  const opponentPlan = opts.opponentPlan
+    ? `\nKnown opponent lineup and plan: ${formatManagerPlan(opts.opponentPlan)}.`
     : "";
-  return `The main match agent delegates your scheduled in-match manager update.\n\nMinute ${opts.minute}. Score: home ${opts.score.home}-${opts.score.away} away. Opponent: ${opts.opponent.name}.\nCurrent plan: ${opts.current.formation}, ${opts.current.tactic}, ${opts.current.strategy}.\nCurrent XI: ${currentXI}.\nAvailable squad: ${roster}.${matchContext}\n\nReassess formation, tactic, detailed strategy, key player, and player changes. You may keep the XI unchanged or change players. Reply as JSON {"reason","formation","tactic","keyPlayer","strategy","substitutions","lineup"} where reason is the first property and explains why you made the update, substitutions is an array of {"off","on","reason"}, and lineup is the current on-pitch XI after changes.`;
+  return `The main match agent delegates your scheduled in-match manager update.\n\nMinute ${opts.minute}. Score: home ${opts.score.home}-${opts.score.away} away. Opponent: ${opts.opponent.name}.\nCurrent plan and XI: ${currentPlan}.\nAvailable squad: ${roster}.\nOpponent squad information for ${opts.opponent.name}: ${opponentRoster}.${opponentPlan}\n\nReassess formation, tactic, detailed strategy, key player, and player changes. You may keep the XI unchanged or change players. Reply as JSON {"reason","formation","tactic","keyPlayer","strategy","substitutions","lineup"} where reason is the first property and explains why you made the update, substitutions is an array of {"off","on","reason"}, and lineup is the current on-pitch XI after changes.`;
+}
+
+function formatRoster(players: Player[]): string {
+  return players.map((p) => `${p.name} (${p.position})`).join(", ");
+}
+
+function formatManagerPlan(plan: ManagerPlanContext): string {
+  return `${plan.formation}, ${plan.tactic}, ${plan.strategy}; XI: ${plan.lineup
+    .map((p) => `${p.name} (${p.position})`)
+    .join(", ")}`;
 }
 
 function mainOpeningPrompt(
@@ -666,6 +758,7 @@ function mainOpeningPrompt(
 
 function mainMinutePrompt(opts: {
   minute: number;
+  minuteStep: number;
   score: { home: number; away: number };
   home: Team;
   away: Team;
@@ -676,7 +769,15 @@ function mainMinutePrompt(opts: {
   homeStrategy: string;
   awayStrategy: string;
 }): string {
-  return `Minute ${opts.minute}. Score: ${opts.home.name} ${opts.score.home}-${opts.score.away} ${opts.away.name}. Current manager plans — ${opts.home.name}: ${opts.homeFormation}, ${opts.homeTactic}, ${opts.homeStrategy}. ${opts.away.name}: ${opts.awayFormation}, ${opts.awayTactic}, ${opts.awayStrategy}. Decide exactly this minute of play. Reply as JSON {"event","side","player","assist","text"} where event is one of "none" | "goal" | "save" | "miss" | "foul" | "yellow" | "red", side is "home" | "away" | null, and assist is the assisting player name for goals or null.`;
+  const window =
+    opts.minuteStep === 1
+      ? `Minute ${opts.minute}`
+      : `Minutes ${Math.max(1, opts.minute - opts.minuteStep + 1)}-${opts.minute}`;
+  const instruction =
+    opts.minuteStep === 1
+      ? "Decide exactly this minute of play."
+      : "Decide the main visible event for this match window.";
+  return `${window}. Score: ${opts.home.name} ${opts.score.home}-${opts.score.away} ${opts.away.name}. Current manager plans — ${opts.home.name}: ${opts.homeFormation}, ${opts.homeTactic}, ${opts.homeStrategy}. ${opts.away.name}: ${opts.awayFormation}, ${opts.awayTactic}, ${opts.awayStrategy}. ${instruction} Reply as JSON {"event","side","player","assist","text"} where event is one of "none" | "goal" | "save" | "miss" | "foul" | "yellow" | "red", side is "home" | "away" | null, and assist is the assisting player name for goals or null.`;
 }
 
 function refereePrompt(

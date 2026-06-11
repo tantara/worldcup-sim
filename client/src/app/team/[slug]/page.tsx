@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import {
   ArrowLeft,
   CalendarDays,
+  Layers,
   MapPin,
   TrendingUp,
   Users,
@@ -98,8 +99,21 @@ export default async function TeamPage({
                 </span>
               </div>
 
+              <div className="bg-secondary/70 ring-border flex flex-1 flex-col items-center rounded-xl px-4 py-2 text-center ring-1 sm:flex-none">
+                <span className="text-muted-foreground flex items-center gap-1 text-[10px] font-semibold tracking-wide uppercase">
+                  <Layers className="size-3" />
+                  Group Tier
+                </span>
+                <span className="text-foreground text-2xl font-extrabold tabular-nums">
+                  T{team.groupTier.tier}
+                </span>
+              </div>
+
               <div className="flex w-full flex-wrap gap-2 sm:w-auto">
                 <Badge>Group {team.group}</Badge>
+                <Badge variant="secondary">
+                  {team.groupTier.label} in Group {team.group}
+                </Badge>
                 <Badge variant="secondary">{team.confederation}</Badge>
                 <Badge variant="outline">Rating {team.rating}</Badge>
                 <Badge variant="outline">{team.formation}</Badge>

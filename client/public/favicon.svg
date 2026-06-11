@@ -1,0 +1,8 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="WorldCupSim favicon">
+  <rect width="64" height="64" rx="14" fill="#07130F"/>
+  <path d="M18 10h28l8 8v28l-8 8H18l-8-8V18l8-8Z" fill="#0E2E22" stroke="#37D67A" stroke-width="3"/>
+  <path d="M18 20h28M18 44h28M32 11v42" stroke="#9AE6B4" stroke-opacity=".5" stroke-width="1.5"/>
+  <circle cx="32" cy="32" r="13" fill="#F8FAFC"/>
+  <path d="M32 19l6 5-2.3 7.4h-7.4L26 24l6-5ZM23.5 32l4.8 6-2.5 6M40.5 32l-4.8 6 2.5 6M28.3 31.4l-6-2.4M35.7 31.4l6-2.4" stroke="#0B1320" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M14 50h36" stroke="#A67C2D" stroke-width="2.5" stroke-linecap="round"/>
+</svg>
