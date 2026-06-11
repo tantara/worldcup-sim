@@ -1,0 +1,20 @@
+{
+  "name": "@worldcupsim/sim-agent",
+  "version": "0.1.0",
+  "description": "Reasonix-style LLM agent kernel tuned to maximize the provider prefix (KV) cache.",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "check": "tsc --noEmit",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.2"
+  }
+}

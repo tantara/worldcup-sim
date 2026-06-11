@@ -1,0 +1,16 @@
+# Local secrets/vars for `next dev`, `opennextjs-cloudflare preview`, and wrangler.
+# Copy to ".dev.vars" (gitignored) and fill in. In production these are set with
+# `wrangler secret put <NAME>` (secrets) or in wrangler.jsonc "vars" (non-secret).
+
+NEXTJS_ENV=development
+
+# NextAuth
+AUTH_SECRET=""
+AUTH_DISCORD_ID=""
+AUTH_DISCORD_SECRET=""
+# Required when not running on Vercel so NextAuth trusts the deployment host.
+AUTH_TRUST_HOST="true"
+
+# Drizzle / Postgres — must be reachable from the public internet in production
+# (localhost won't work on Cloudflare Workers). Hyperdrive is recommended for prod.
+DATABASE_URL=""

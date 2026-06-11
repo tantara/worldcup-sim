@@ -1,69 +1,84 @@
 import Link from "next/link";
+import { CalendarDays, ChevronRight, MapPin, Trophy } from "lucide-react";
 
-import { LatestPost } from "~/app/_components/post";
-import { auth } from "~/server/auth";
-import { api, HydrateClient } from "~/trpc/server";
+import { Badge } from "~/components/ui/badge";
+import { Card } from "~/components/ui/card";
+import { getTeam } from "~/lib/teams";
+import { getSchedule, type Match } from "~/lib/tournament";
 
-export default async function Home() {
-  const hello = await api.post.hello({ text: "from tRPC" });
-  const session = await auth();
-
-  if (session?.user) {
-    void api.post.getLatest.prefetch();
-  }
+export default function Home() {
+  const schedule = getSchedule();
 
   return (
-    <HydrateClient>
-      <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-        <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-          <h1 className="text-5xl font-extrabold tracking-tight sm:text-[5rem]">
-            Create <span className="text-[hsl(280,100%,70%)]">T3</span> App
+    <main className="flex-1">
+      <div className="mx-auto flex max-w-5xl flex-col gap-10 px-4 py-10">
+        <header className="flex flex-col items-center text-center">
+          <div className="mb-3 flex size-12 items-center justify-center rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/30">
+            <Trophy className="size-6" />
+          </div>
+          <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
+            World Cup <span className="text-primary">Simulator</span>
           </h1>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-8">
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
-              href="https://create.t3.gg/en/usage/first-steps"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">First Steps →</h3>
-              <div className="text-lg">
-                Just the basics - Everything you need to know to set up your
-                database and authentication.
-              </div>
-            </Link>
-            <Link
-              className="flex max-w-xs flex-col gap-4 rounded-xl bg-white/10 p-4 hover:bg-white/20"
-              href="https://create.t3.gg/en/introduction"
-              target="_blank"
-            >
-              <h3 className="text-2xl font-bold">Documentation →</h3>
-              <div className="text-lg">
-                Learn more about Create T3 App, the libraries it uses, and how
-                to deploy it.
-              </div>
-            </Link>
-          </div>
-          <div className="flex flex-col items-center gap-2">
-            <p className="text-2xl text-white">
-              {hello ? hello.greeting : "Loading tRPC query..."}
-            </p>
+          <p className="mt-2 max-w-md text-sm text-muted-foreground">
+            Choose a fixture to simulate the match, minute by minute, with live
+            text commentary.
+          </p>
+        </header>
 
-            <div className="flex flex-col items-center justify-center gap-4">
-              <p className="text-center text-2xl text-white">
-                {session && <span>Logged in as {session.user?.name}</span>}
-              </p>
-              <Link
-                href={session ? "/api/auth/signout" : "/api/auth/signin"}
-                className="rounded-full bg-white/10 px-10 py-3 font-semibold no-underline transition hover:bg-white/20"
-              >
-                {session ? "Sign out" : "Sign in"}
-              </Link>
+        {schedule.map(({ stage, matches }) => (
+          <section key={stage} className="flex flex-col gap-3">
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-bold">{stage}</h2>
+              <Badge variant="secondary">{matches.length} matches</Badge>
             </div>
-          </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {matches.map((match) => (
+                <MatchCard key={match.id} match={match} />
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
+    </main>
+  );
+}
 
-          {session?.user && <LatestPost />}
+function MatchCard({ match }: { match: Match }) {
+  const home = getTeam(match.homeId);
+  const away = getTeam(match.awayId);
+
+  return (
+    <Link href={`/match/${match.id}`} className="group block">
+      <Card className="gap-0 p-4 transition-colors hover:border-primary/50 hover:bg-accent/40">
+        <div className="mb-3 flex items-center justify-between text-xs text-muted-foreground">
+          <span className="flex items-center gap-1.5">
+            <CalendarDays className="size-3.5" />
+            Matchday {match.matchday} · {match.kickoff}
+          </span>
+          <ChevronRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
         </div>
-      </main>
-    </HydrateClient>
+
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-1 items-center gap-2">
+            <span className="text-2xl">{home.flag}</span>
+            <span className="truncate font-semibold">{home.name}</span>
+          </div>
+          <span className="shrink-0 text-xs font-bold text-muted-foreground">
+            VS
+          </span>
+          <div className="flex flex-1 items-center justify-end gap-2">
+            <span className="truncate text-right font-semibold">
+              {away.name}
+            </span>
+            <span className="text-2xl">{away.flag}</span>
+          </div>
+        </div>
+
+        <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
+          <MapPin className="size-3.5" />
+          {match.venue}
+        </div>
+      </Card>
+    </Link>
   );
 }

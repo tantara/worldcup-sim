@@ -1,8 +1,13 @@
+packages:
+  - client
+  - packages/*
 allowBuilds:
   esbuild: true
   sharp: true
   unrs-resolver: true
+  workerd: true
 onlyBuiltDependencies:
   - esbuild
   - sharp
   - unrs-resolver
+  - workerd

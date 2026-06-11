@@ -1,0 +1,15 @@
+{
+  "name": "worldcupsim-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --filter worldcupsim dev",
+    "build": "pnpm --filter worldcupsim build",
+    "check": "pnpm -r check",
+    "preview": "pnpm --filter worldcupsim preview",
+    "deploy": "pnpm --filter worldcupsim deploy",
+    "cf-typegen": "pnpm --filter worldcupsim cf-typegen"
+  },
+  "packageManager": "pnpm@11.2.2"
+}
